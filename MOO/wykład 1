@@ -1,0 +1,51 @@
+podstawowe pojęcia
+punkty stacjonarne
+funkcjonały
+ekstrema
+warunki optymalności
+optymalizacja jedno i wielowymiarowa
+linearyzacja - aproksymacja problemu nieliniowego problemem liniowym
+optymalizajca lokalna - poszukiwanie optimum w pewnym otoczeniu bieżącego rozwiązania
+optymalizacja globalna - poszukiwanie optimum w całej dziedzinie funkcji
+sekwencyjne programowanie liniowe - sekwencyjnie linearyzuje się
+optymalizacja wielokryterialna - poszukiwanie optimum względem wiecej niz jednego kryterium
+nieliniowa zadanie najmniejszych kwadratów -  szczególny przypadek optymalizacji nieliniowej w której funkcji celu ma postać odchylenia średniokwadratowego
+
+RUdnicki Inserve Problems and Optimal design in electricity..
+j. b arora introduction to optimal design
+p e gill w murray
+Wierzbicki Szymanowski Teoria i metody obliczeniowe optymalizacji
+Wit Metody programowania nieliniowego
+Goldberg Algorytmy genetyczne i ich zastosowanie
+Brdyś Ruszczyński Metody optymalizacji w zadaniach
+
+optimalization toolbox for matlab
+
+Press Flannery Teukolsky Vetterling NUmerical Recipes...
+
+mathworks.com users community można znaleść kody
+
+podstawowe pojęcia
+funkcja celu, minimalizacja funkcji celu, ograniczenia
+
+gradient używany do znajdywania kierunku optymalizacji
+jeśli więcej wierszy jak kolumn to nie da się obliczyć wyznacznika
+okreslonośc macierzy - uogólnienie znaku pochodnej
+
+macierz jacobiego
+jacobian
+
+macierze hessego
+hesjan
+
+informacje dostarczane
+gradient - nachylenie
+m hessego - krzywizna
+
+Funkcja f jest różniczkowalna w punkcie x => istnieje gradient f(x)
+Funkcja f jest różniczkowalna w punkcie x <= w otoczeniu punktu x istnieje gradient f(.), ciągly w x.
+
+pochodna kierunkowa funkcji f:Rn→R w punkcie x w kierunku d \in R^{n} nazywamy granice ...
+funkcja f jest różniczkowalna w punkcie x i określona w otoczeniu tego punktu, to dla każdego d D+ f(x;d) = gradient f(x)d
+dla każdego d pochodna kierunkowa D+ f(..) w punkcie x w kiernku d = gradient * wektor d
+

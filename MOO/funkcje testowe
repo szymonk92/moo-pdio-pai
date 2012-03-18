@@ -1,0 +1,5 @@
+x^2 - 4
+-x + x^2 - 3*x^3 + x^4
+sin(x)+x-x^3
+3*x-x^3+x^8
+x^3*arctan(x)-exp(x)
