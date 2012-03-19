@@ -17,6 +17,7 @@ BrightnessFilter filter;
         initComponents();
         this.filter =filter;
         this.jSlider.setValue(filter.getValue());
+        this.valueTextField.setText(String.valueOf(filter.getValue()));
     }
 
     /**
@@ -30,6 +31,8 @@ BrightnessFilter filter;
 
         jSlider = new javax.swing.JSlider();
         jLabel1 = new javax.swing.JLabel();
+        valueTextField = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
 
         jSlider.setMaximum(255);
         jSlider.setMinimum(-255);
@@ -42,6 +45,16 @@ BrightnessFilter filter;
 
         jLabel1.setText("Brightness value:");
 
+        valueTextField.setMinimumSize(new java.awt.Dimension(30, 20));
+        valueTextField.setPreferredSize(new java.awt.Dimension(30, 20));
+
+        jButton1.setText("Apply");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -51,13 +64,20 @@ BrightnessFilter filter;
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(103, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(valueTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(valueTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton1))
                     .addComponent(jSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addContainerGap(266, Short.MAX_VALUE))
@@ -65,11 +85,23 @@ BrightnessFilter filter;
     }// </editor-fold>//GEN-END:initComponents
 
     private void jSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSliderStateChanged
+        this.valueTextField.setText(String.valueOf(this.jSlider.getValue()));
         filter.setValue(this.jSlider.getValue());
     }//GEN-LAST:event_jSliderStateChanged
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+       int value = Integer.parseInt(this.valueTextField.getText());
+       if(value>255) value = 255;
+       if(value<0) value =0;
+       this.valueTextField.setText(String.valueOf(value));
+       this.jSlider.setValue(value);
+       filter.setValue(value);
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JSlider jSlider;
+    private javax.swing.JTextField valueTextField;
     // End of variables declaration//GEN-END:variables
 }

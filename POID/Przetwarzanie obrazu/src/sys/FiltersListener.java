@@ -4,6 +4,7 @@
  */
 package sys;
 
+import gui.EditWindow;
 import gui.MainPanel;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -16,19 +17,26 @@ import org.jdesktop.observablecollections.ObservableListListener;
  * @author Lukasz
  */
 public class FiltersListener implements ObservableListListener, PropertyChangeListener {
+
     ImageProcessor task;
     MainPanel mainPanel;
+
     public FiltersListener(MainPanel mainPanel) {
         this.mainPanel = mainPanel;
     }
 
-
-
     @Override
     public void listElementsAdded(ObservableList list, int index, int length) {
-       task = new ImageProcessor(mainPanel.data, true);
-        task.addPropertyChangeListener(this);
-        task.execute();
+        IFilter filter = mainPanel.data.getFilters().get(index);
+        if (filter.isEditable() && filter.isFirstTime()) {
+            filter.setFirstTime(false);
+            EditWindow editWindow = new EditWindow(mainPanel.data, filter);
+            editWindow.setVisible(true);
+        } else {
+            task = new ImageProcessor(mainPanel.data, true);
+            task.addPropertyChangeListener(this);
+            task.execute();
+        }
     }
 
     @Override
@@ -62,5 +70,4 @@ public class FiltersListener implements ObservableListListener, PropertyChangeLi
             }
         }
     }
-    
 }

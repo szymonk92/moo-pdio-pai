@@ -29,9 +29,10 @@ public class InverseColor extends AbstractFilter {
         }
     }
     
-    public InverseColor(boolean enabled){
-        this();
-        this.enabled = enabled;
+    public InverseColor(InverseColor filter){
+        super(filter);
+        this.enabled = filter.isEnabled();
+        this.invertTable = filter.invertTable.clone();
     }
 
     @Override
@@ -57,7 +58,7 @@ public class InverseColor extends AbstractFilter {
 
     @Override
     public IFilter getCopy() {
-        return new InverseColor(this.enabled);
+        return new InverseColor(this);
     }
 
     public void setEnabled(boolean enabled) {

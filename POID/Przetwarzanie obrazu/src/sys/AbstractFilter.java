@@ -17,9 +17,18 @@ public abstract class AbstractFilter implements IFilter {
     protected String description;
     protected boolean editable;
     protected PropertyChangeSupport changeSupport;
-    
-    public AbstractFilter(){
+    protected boolean firstTime = true;
+
+    public AbstractFilter() {
         changeSupport = new PropertyChangeSupport(this);
+    }
+
+    public AbstractFilter(AbstractFilter filter) {
+        this();
+        this.name = filter.getName();
+        this.description = filter.getDescription();
+        this.editable = filter.isEditable();
+        this.firstTime = filter.isFirstTime();
     }
 
     @Override
@@ -50,19 +59,29 @@ public abstract class AbstractFilter implements IFilter {
     protected void setEditable(boolean editable) {
         this.editable = editable;
     }
-    
+
     @Override
-    public JPanel getEditPanel(){
+    public JPanel getEditPanel() {
         return null;
     }
-    
+
     @Override
-    public String getIcon(){
+    public String getIcon() {
         return null;
     }
-    
+
     @Override
-    public PropertyChangeSupport getChangeSupport(){
+    public PropertyChangeSupport getChangeSupport() {
         return changeSupport;
+    }
+
+    @Override
+    public void setFirstTime(boolean firstTime) {
+        this.firstTime = firstTime;
+    }
+
+    @Override
+    public boolean isFirstTime() {
+        return this.firstTime;
     }
 }

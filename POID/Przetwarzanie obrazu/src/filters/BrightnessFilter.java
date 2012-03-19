@@ -29,10 +29,10 @@ public class BrightnessFilter extends AbstractFilter {
         generateTable();
     }
 
-    public BrightnessFilter(int value) {
-        this();
-        this.value = value;
-        generateTable();
+    public BrightnessFilter(BrightnessFilter filter) {
+        super(filter);
+        this.value = filter.getValue();
+        this.changeTable = filter.changeTable.clone();
     }
 
     public void setValue(int value) {
@@ -56,7 +56,7 @@ public class BrightnessFilter extends AbstractFilter {
 
     @Override
     public IFilter getCopy() {
-        return new BrightnessFilter(this.value);
+        return new BrightnessFilter(this);
     }
 
     @Override

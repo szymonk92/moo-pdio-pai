@@ -29,7 +29,7 @@ public class FilterMenuItemListener implements ActionListener {
         if(selectedTabIndex!=-1){
             MainPanel panel = (MainPanel) tabPanel.getComponentAt(selectedTabIndex);
             if(panel!=null){
-                panel.data.getFilters().add(filter);
+                panel.data.getFilters().add(filter.getCopy());
             }
         }
     }

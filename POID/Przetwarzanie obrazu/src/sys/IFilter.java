@@ -33,4 +33,8 @@ public interface IFilter{
     void setName(String name);
     
     public PropertyChangeSupport getChangeSupport();
+    
+    public void setFirstTime(boolean firstTime);
+    
+    public boolean isFirstTime();
 }

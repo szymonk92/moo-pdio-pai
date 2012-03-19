@@ -5,6 +5,7 @@
 package views;
 
 import gui.EditWindow;
+import java.util.Collections;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.swingbinding.JTableBinding;
@@ -137,9 +138,10 @@ public class HistoryPanel extends javax.swing.JPanel {
     private void upButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_upButtonActionPerformed
         int selected = this.historyTable.getSelectedRow();
         if (selected > 0 && selected < this.data.getFilters().size()) {
-            IFilter tmp = this.data.getFilters().get(selected);
-            this.data.getFilters().remove(selected);
-            this.data.getFilters().add(selected - 1, tmp);
+            Collections.swap(this.data.getFilters(),selected,selected-1);
+            //IFilter tmp = this.data.getFilters().get(selected);
+            //this.data.getFilters().remove(selected);
+            //this.data.getFilters().add(selected - 1, tmp);
             this.historyTable.setRowSelectionInterval(selected - 1, selected - 1);
         }
     }//GEN-LAST:event_upButtonActionPerformed
@@ -147,9 +149,10 @@ public class HistoryPanel extends javax.swing.JPanel {
     private void downButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downButtonActionPerformed
         int selected = this.historyTable.getSelectedRow();
         if (selected >= 0 && selected < this.data.getFilters().size() - 1) {
-            IFilter tmp = this.data.getFilters().get(selected);
-            this.data.getFilters().remove(selected);
-            this.data.getFilters().add(selected + 1, tmp);
+            Collections.swap(this.data.getFilters(),selected,selected+1);
+            //IFilter tmp = this.data.getFilters().get(selected);
+            //this.data.getFilters().remove(selected);
+            //this.data.getFilters().add(selected + 1, tmp);
             this.historyTable.setRowSelectionInterval(selected + 1, selected + 1);
         }
     }//GEN-LAST:event_downButtonActionPerformed
