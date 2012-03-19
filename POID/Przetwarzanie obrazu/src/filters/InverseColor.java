@@ -28,6 +28,11 @@ public class InverseColor extends AbstractFilter {
             invertTable[i] = (short) (255 - i);
         }
     }
+    
+    public InverseColor(boolean enabled){
+        this();
+        this.enabled = enabled;
+    }
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
@@ -52,7 +57,7 @@ public class InverseColor extends AbstractFilter {
 
     @Override
     public IFilter getCopy() {
-        return new InverseColor();
+        return new InverseColor(this.enabled);
     }
 
     public void setEnabled(boolean enabled) {

@@ -111,7 +111,7 @@ public final class MainPanel extends javax.swing.JPanel {
         );
         navigableImagePanelLayout.setVerticalGroup(
             navigableImagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 455, Short.MAX_VALUE)
+            .addGap(0, 459, Short.MAX_VALUE)
         );
 
         jSplitPane.setLeftComponent(navigableImagePanel);
@@ -131,44 +131,50 @@ public final class MainPanel extends javax.swing.JPanel {
         optionPanel.setPreferredSize(new java.awt.Dimension(715, 25));
 
         zoomLabel.setBackground(new java.awt.Color(204, 204, 204));
+        zoomLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         zoomLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/zoom.png"))); // NOI18N
         zoomLabel.setText("100%");
-        zoomLabel.setPreferredSize(new java.awt.Dimension(38, 21));
+        zoomLabel.setMaximumSize(new java.awt.Dimension(100, 25));
+        zoomLabel.setMinimumSize(new java.awt.Dimension(100, 25));
+        zoomLabel.setPreferredSize(new java.awt.Dimension(100, 25));
         zoomLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 zoomLabelMouseClicked(evt);
             }
         });
 
+        hqLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         hqLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/pixelize.png"))); // NOI18N
         hqLabel.setText("LQ");
+        hqLabel.setMaximumSize(new java.awt.Dimension(100, 25));
+        hqLabel.setMinimumSize(new java.awt.Dimension(100, 25));
+        hqLabel.setPreferredSize(new java.awt.Dimension(100, 25));
         hqLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 hqLabelMouseClicked(evt);
             }
         });
 
+        progressBar.setMaximumSize(new java.awt.Dimension(400, 20));
+        progressBar.setMinimumSize(new java.awt.Dimension(100, 20));
+        progressBar.setPreferredSize(new java.awt.Dimension(300, 20));
+
         javax.swing.GroupLayout optionPanelLayout = new javax.swing.GroupLayout(optionPanel);
         optionPanel.setLayout(optionPanelLayout);
         optionPanelLayout.setHorizontalGroup(
             optionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(optionPanelLayout.createSequentialGroup()
-                .addComponent(zoomLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(hqLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 376, Short.MAX_VALUE)
-                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(zoomLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(hqLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 215, Short.MAX_VALUE)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         optionPanelLayout.setVerticalGroup(
             optionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(optionPanelLayout.createSequentialGroup()
-                .addGroup(optionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(optionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(zoomLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(hqLabel)))
-                .addContainerGap(4, Short.MAX_VALUE))
+            .addComponent(zoomLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(hqLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         zoomLabel.getAccessibleContext().setAccessibleName("zoomLabel");
