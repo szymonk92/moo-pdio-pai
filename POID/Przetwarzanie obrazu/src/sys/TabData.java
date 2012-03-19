@@ -18,10 +18,14 @@ public class TabData {
      public ObservableList<IView> views;
      public BufferedImage baseImage;
      public BufferedImage baseMiniatureImage;
+     public BufferedImage filteredImage;
+     public BufferedImage filteredMiniatureImage;
      
      public TabData(BufferedImage image){
          baseImage = image;
          baseMiniatureImage = BufferedImageHelper.resize(image, 100);
+         filteredImage = BufferedImageHelper.copy(image);
+         filteredMiniatureImage = BufferedImageHelper.copy(baseMiniatureImage);
          filters =ObservableCollections.observableList(new ArrayList<IFilter>());
          views =ObservableCollections.observableList(new ArrayList<IView>());
      }

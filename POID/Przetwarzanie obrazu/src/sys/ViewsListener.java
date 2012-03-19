@@ -4,10 +4,8 @@
  */
 package sys;
 
-import gui.ViewPanel;
 import gui.MainPanel;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import gui.ViewPanel;
 import java.util.List;
 import org.jdesktop.observablecollections.ObservableList;
 import org.jdesktop.observablecollections.ObservableListListener;
@@ -16,7 +14,7 @@ import org.jdesktop.observablecollections.ObservableListListener;
  *
  * @author Lukasz
  */
-public class ViewsListener implements ObservableListListener, PropertyChangeListener {
+public class ViewsListener implements ObservableListListener {
 
     MainPanel mainPanel;
 
@@ -30,11 +28,10 @@ public class ViewsListener implements ObservableListListener, PropertyChangeList
         if (list.size() == 1) {
             mainPanel.setSplit();
         }
-        if(view.addAtTop()){
-            this.mainPanel.columnpanel.add(new ViewPanel(view, this.mainPanel.data),0);
-        }
-        else{
-            this.mainPanel.columnpanel.add(new ViewPanel(view, this.mainPanel.data)); 
+        if (view.addAtTop()) {
+            this.mainPanel.columnpanel.add(new ViewPanel(view, this.mainPanel.data), 0);
+        } else {
+            this.mainPanel.columnpanel.add(new ViewPanel(view, this.mainPanel.data));
         }
 
         this.mainPanel.columnpanel.revalidate();
@@ -44,7 +41,7 @@ public class ViewsListener implements ObservableListListener, PropertyChangeList
     public void listElementsRemoved(ObservableList list, int index, List oldElements) {
 
         if (list.size() == 0) {
-            mainPanel.setNotSplit();
+            mainPanel.setSplit();
         }
         this.mainPanel.columnpanel.revalidate();
     }
@@ -55,9 +52,5 @@ public class ViewsListener implements ObservableListListener, PropertyChangeList
 
     @Override
     public void listElementPropertyChanged(ObservableList list, int index) {
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
     }
 }

@@ -16,7 +16,7 @@ import sys.ViewsListener;
  *
  * @author Lukasz
  */
-public class MainPanel extends javax.swing.JPanel {
+public final class MainPanel extends javax.swing.JPanel {
 
     public TabData data;
     public JPanel columnpanel;
@@ -27,9 +27,10 @@ public class MainPanel extends javax.swing.JPanel {
     public MainPanel(TabData data) {
         this.data = data;
         initComponents();
-        
+
         this.data.filters.addObservableListListener(new FiltersListener(this));
         this.data.views.addObservableListListener(new ViewsListener(this));
+
         JPanel borderlaoutpanel = new JPanel();
         this.jScrollPane.setViewportView(borderlaoutpanel);
         borderlaoutpanel.setLayout(new BorderLayout(0, 0));
@@ -38,25 +39,21 @@ public class MainPanel extends javax.swing.JPanel {
         borderlaoutpanel.add(columnpanel, BorderLayout.NORTH);
         columnpanel.setLayout(new GridLayout(0, 1, 0, 1));
         columnpanel.setBackground(Color.gray);
-        if(data.filters.size()>0){
-            setSplit();
-        }
-        else{
-            setNotSplit();
-        }
 
+        setSplit();
     }
 
-    public void setSplit(){
-        this.remove(this.navigableImagePanel);
-        jSplitPane.setLeftComponent(navigableImagePanel);
-        this.add(this.jSplitPane, java.awt.BorderLayout.CENTER);
+    public void setSplit() {
+        if (data.filters.size() > 0) {
+            this.remove(this.navigableImagePanel);
+            jSplitPane.setLeftComponent(navigableImagePanel);
+            this.add(this.jSplitPane, java.awt.BorderLayout.CENTER);
+        } else {
+            this.remove(this.jSplitPane);
+            this.add(this.navigableImagePanel, java.awt.BorderLayout.CENTER);
+        }
     }
-    
-    public void setNotSplit(){
-        this.remove(this.jSplitPane);
-        this.add(this.navigableImagePanel, java.awt.BorderLayout.CENTER);
-    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
