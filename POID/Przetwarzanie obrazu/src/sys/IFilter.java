@@ -5,6 +5,7 @@
 package sys;
 
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeSupport;
 import javax.swing.JPanel;
 
 /**
@@ -31,4 +32,5 @@ public interface IFilter{
 
     void setName(String name);
     
+    public PropertyChangeSupport getChangeSupport();
 }

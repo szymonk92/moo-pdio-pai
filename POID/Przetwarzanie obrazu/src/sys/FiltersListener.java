@@ -43,6 +43,7 @@ public class FiltersListener implements ObservableListListener, PropertyChangeLi
     @Override
     public void listElementReplaced(ObservableList list, int index, Object oldElement) {
         task = new ImageProcessor();
+        task.data = mainPanel.data;
         task.addPropertyChangeListener(this);
         task.execute();
     }
@@ -50,6 +51,7 @@ public class FiltersListener implements ObservableListListener, PropertyChangeLi
     @Override
     public void listElementPropertyChanged(ObservableList list, int index) {
         task = new ImageProcessor();
+        task.data = mainPanel.data;
         task.addPropertyChangeListener(this);
         task.execute();
     }

@@ -4,6 +4,7 @@
  */
 package sys;
 
+import java.beans.PropertyChangeSupport;
 import javax.swing.JPanel;
 
 /**
@@ -15,6 +16,11 @@ public abstract class AbstractFilter implements IFilter {
     protected String name;
     protected String description;
     protected boolean editable;
+    protected PropertyChangeSupport changeSupport;
+    
+    public AbstractFilter(){
+        changeSupport = new PropertyChangeSupport(this);
+    }
 
     @Override
     public String getDescription() {
@@ -55,5 +61,8 @@ public abstract class AbstractFilter implements IFilter {
         return null;
     }
     
-    
+    @Override
+    public PropertyChangeSupport getChangeSupport(){
+        return changeSupport;
+    }
 }

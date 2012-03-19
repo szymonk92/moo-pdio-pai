@@ -5,6 +5,8 @@
 package gui;
 
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
 import sys.BufferedImageHelper;
 import sys.IFilter;
@@ -14,7 +16,7 @@ import sys.TabData;
  *
  * @author Lukasz
  */
-public class EditWindow extends javax.swing.JFrame {
+public class EditWindow extends javax.swing.JFrame implements PropertyChangeListener {
 
     TabData data;
     IFilter filtr;
@@ -31,6 +33,7 @@ public class EditWindow extends javax.swing.JFrame {
         this.copyFiltr = filtr.getCopy();
         initComponents();
         JPanel panel = copyFiltr.getEditPanel();
+        copyFiltr.getChangeSupport().addPropertyChangeListener(this);
         this.settingsPanel.add(panel);
     }
     
@@ -150,13 +153,22 @@ public class EditWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+        int index = this.data.getFilters().indexOf(filtr);
+        this.data.getFilters().set(index, copyFiltr);
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton okButton;
-    public javax.swing.JPanel previewPanel;
+    public ImagePreviewPanel previewPanel;
     public javax.swing.JPanel settingsPanel;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        this.previewPanel.setImage(doInBackground());
+        this.previewPanel.revalidate();
+        this.repaint();
+    }
 }

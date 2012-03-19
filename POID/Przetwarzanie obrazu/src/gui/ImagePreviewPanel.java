@@ -25,7 +25,6 @@ public class ImagePreviewPanel extends JPanel {
 
     public void setImage(BufferedImage image) {
         this.image = image;
-        this.repaint();
     }
 
     @Override
