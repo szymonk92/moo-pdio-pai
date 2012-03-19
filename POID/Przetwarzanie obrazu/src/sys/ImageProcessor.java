@@ -4,13 +4,11 @@
  */
 package sys;
 
-import gui.NavigableImagePanel;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingWorker;
-import org.jdesktop.observablecollections.ObservableList;
 
 /**
  *
@@ -18,27 +16,41 @@ import org.jdesktop.observablecollections.ObservableList;
  */
 public class ImageProcessor extends SwingWorker<BufferedImage, Object> {
 
-    public TabData data;
-    public ObservableList<IFilter> filters;
-    public BufferedImage baseImage;
-    public NavigableImagePanel imagePanel;
+    private TabData data;
+    private boolean Added;
+
+    public ImageProcessor(TabData data, boolean Added) {
+        this.data = data;
+        this.Added = Added;
+    }
 
     @Override
     protected BufferedImage doInBackground() {
         if (data.getFilters() == null || data.getFilters().isEmpty()) {
             return BufferedImageHelper.copy(data.getBaseImage());
         }
+        BufferedImage tmp;
         setProgress(0);
-        int progressStep =  100 / data.getFilters().size();
-        BufferedImage tmp = BufferedImageHelper.copy(data.getBaseImage());
-        for (int i = 0; i < data.getFilters().size(); i++) {
-            tmp = data.getFilters().get(i).processImage(tmp);
-            int progressValue = this.getProgress() +  progressStep;
-            if(progressValue>100) progressValue = 100;
-            if(progressValue<0) progressValue = 0;
-            setProgress(progressValue);
+        if (Added) {
+            tmp = BufferedImageHelper.copy(data.getFilteredImage());
+            tmp = data.getFilters().get(data.getFilters().size() - 1).processImage(tmp);
+            setProgress(100);
+        } else {
+            tmp = BufferedImageHelper.copy(data.getBaseImage());
+            int progressStep = 100 / data.getFilters().size();
+
+            for (int i = 0; i < data.getFilters().size(); i++) {
+                tmp = data.getFilters().get(i).processImage(tmp);
+                int progressValue = this.getProgress() + progressStep;
+                if (progressValue > 100) {
+                    progressValue = 100;
+                }
+                if (progressValue < 0) {
+                    progressValue = 0;
+                }
+                setProgress(progressValue);
+            }
         }
-        
         return tmp;
     }
 
@@ -53,5 +65,4 @@ public class ImageProcessor extends SwingWorker<BufferedImage, Object> {
         }
         setProgress(100);
     }
-    
 }

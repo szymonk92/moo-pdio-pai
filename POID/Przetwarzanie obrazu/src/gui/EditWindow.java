@@ -21,15 +21,13 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
     TabData data;
     IFilter filtr;
     IFilter copyFiltr;
-    int pos;
 
     /**
      * Creates new form EditWindow
      */
-    public EditWindow(TabData data, IFilter filtr, int pos) {
+    public EditWindow(TabData data, IFilter filtr) {
         this.data = data;
         this.filtr = filtr;
-        this.pos = pos;
         this.copyFiltr = filtr.getCopy();
         initComponents();
         JPanel panel = copyFiltr.getEditPanel();
@@ -41,9 +39,10 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         if (data.getFilters() == null || data.getFilters().isEmpty()) {
             return data.getBaseMiniatureImage();
         }
+        int index = this.data.getFilters().indexOf(filtr);
         BufferedImage tmp = BufferedImageHelper.copy(data.getBaseMiniatureImage());
         for (int i = 0; i < data.getFilters().size(); i++) {
-            if(i!=pos){
+            if(i!=index){
                tmp = data.getFilters().get(i).processImage(tmp); 
             }
             else{
@@ -154,7 +153,9 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         int index = this.data.getFilters().indexOf(filtr);
-        this.data.getFilters().set(index, copyFiltr);
+        if(index!=-1){
+             this.data.getFilters().set(index, copyFiltr);
+        }
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables

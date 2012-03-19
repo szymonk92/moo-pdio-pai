@@ -169,7 +169,7 @@ public class HistoryPanel extends javax.swing.JPanel {
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
         int selected = this.historyTable.getSelectedRow();
         if (selected >= 0 && selected < this.data.getFilters().size()) {
-            EditWindow editWindow = new EditWindow(data, data.getFilters().get(selected), selected);
+            EditWindow editWindow = new EditWindow(data, data.getFilters().get(selected));
             editWindow.setVisible(true);
         }
     }//GEN-LAST:event_editButtonActionPerformed

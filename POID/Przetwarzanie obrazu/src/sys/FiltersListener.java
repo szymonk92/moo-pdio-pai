@@ -26,32 +26,28 @@ public class FiltersListener implements ObservableListListener, PropertyChangeLi
 
     @Override
     public void listElementsAdded(ObservableList list, int index, int length) {
-        task = new ImageProcessor();
-        task.data = mainPanel.data;
+       task = new ImageProcessor(mainPanel.data, true);
         task.addPropertyChangeListener(this);
         task.execute();
     }
 
     @Override
     public void listElementsRemoved(ObservableList list, int index, List oldElements) {
-        task = new ImageProcessor();
-        task.data = mainPanel.data;
+        task = new ImageProcessor(mainPanel.data, false);
         task.addPropertyChangeListener(this);
         task.execute();
     }
 
     @Override
     public void listElementReplaced(ObservableList list, int index, Object oldElement) {
-        task = new ImageProcessor();
-        task.data = mainPanel.data;
+        task = new ImageProcessor(mainPanel.data, false);
         task.addPropertyChangeListener(this);
         task.execute();
     }
 
     @Override
     public void listElementPropertyChanged(ObservableList list, int index) {
-        task = new ImageProcessor();
-        task.data = mainPanel.data;
+        task = new ImageProcessor(mainPanel.data, false);
         task.addPropertyChangeListener(this);
         task.execute();
     }
