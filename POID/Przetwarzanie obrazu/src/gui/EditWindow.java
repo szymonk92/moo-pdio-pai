@@ -35,13 +35,13 @@ public class EditWindow extends javax.swing.JFrame {
     }
     
  protected BufferedImage doInBackground() {
-        if (data.filters == null || data.filters.isEmpty()) {
-            return data.baseMiniatureImage;
+        if (data.getFilters() == null || data.getFilters().isEmpty()) {
+            return data.getBaseMiniatureImage();
         }
-        BufferedImage tmp = BufferedImageHelper.copy(data.baseMiniatureImage);
-        for (int i = 0; i < data.filters.size(); i++) {
+        BufferedImage tmp = BufferedImageHelper.copy(data.getBaseMiniatureImage());
+        for (int i = 0; i < data.getFilters().size(); i++) {
             if(i!=pos){
-               tmp = data.filters.get(i).processImage(tmp); 
+               tmp = data.getFilters().get(i).processImage(tmp); 
             }
             else{
                 tmp = copyFiltr.processImage(tmp); 
@@ -59,7 +59,7 @@ public class EditWindow extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        previewPanel = new ImagePreviewPanel(data.baseMiniatureImage);
+        previewPanel = new ImagePreviewPanel(data.getFilteredMiniatureImage());
         settingsPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         okButton = new javax.swing.JButton();

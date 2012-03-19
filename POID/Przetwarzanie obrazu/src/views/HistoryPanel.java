@@ -27,7 +27,7 @@ public class HistoryPanel extends javax.swing.JPanel {
     public HistoryPanel(TabData data) {
         this.data = data;
         initComponents();
-        JTableBinding tb = SwingBindings.createJTableBinding(AutoBinding.UpdateStrategy.READ_WRITE, data.filters, this.historyTable);
+        JTableBinding tb = SwingBindings.createJTableBinding(AutoBinding.UpdateStrategy.READ_WRITE, data.getFilters(), this.historyTable);
         BeanProperty name = BeanProperty.create("name");
         ColumnBinding nameColumn = tb.addColumnBinding(name);
         nameColumn.setColumnName("Name");
@@ -136,29 +136,29 @@ public class HistoryPanel extends javax.swing.JPanel {
 
     private void upButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_upButtonActionPerformed
         int selected = this.historyTable.getSelectedRow();
-        if (selected > 0 && selected < this.data.filters.size()) {
-            IFilter tmp = this.data.filters.get(selected);
-            this.data.filters.remove(selected);
-            this.data.filters.add(selected - 1, tmp);
+        if (selected > 0 && selected < this.data.getFilters().size()) {
+            IFilter tmp = this.data.getFilters().get(selected);
+            this.data.getFilters().remove(selected);
+            this.data.getFilters().add(selected - 1, tmp);
             this.historyTable.setRowSelectionInterval(selected - 1, selected - 1);
         }
     }//GEN-LAST:event_upButtonActionPerformed
 
     private void downButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downButtonActionPerformed
         int selected = this.historyTable.getSelectedRow();
-        if (selected >= 0 && selected < this.data.filters.size() - 1) {
-            IFilter tmp = this.data.filters.get(selected);
-            this.data.filters.remove(selected);
-            this.data.filters.add(selected + 1, tmp);
+        if (selected >= 0 && selected < this.data.getFilters().size() - 1) {
+            IFilter tmp = this.data.getFilters().get(selected);
+            this.data.getFilters().remove(selected);
+            this.data.getFilters().add(selected + 1, tmp);
             this.historyTable.setRowSelectionInterval(selected + 1, selected + 1);
         }
     }//GEN-LAST:event_downButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
         int selected = this.historyTable.getSelectedRow();
-        if (selected >= 0 && selected < this.data.filters.size()) {
-            this.data.filters.remove(selected);
-            if (selected < this.data.filters.size()) {
+        if (selected >= 0 && selected < this.data.getFilters().size()) {
+            this.data.getFilters().remove(selected);
+            if (selected < this.data.getFilters().size()) {
                 this.historyTable.setRowSelectionInterval(selected, selected);
             } else if (selected - 1 >= 0) {
                 this.historyTable.setRowSelectionInterval(selected - 1, selected - 1);
@@ -168,8 +168,8 @@ public class HistoryPanel extends javax.swing.JPanel {
 
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
         int selected = this.historyTable.getSelectedRow();
-        if (selected >= 0 && selected < this.data.filters.size()) {
-            EditWindow editWindow = new EditWindow(data, data.filters.get(selected), selected);
+        if (selected >= 0 && selected < this.data.getFilters().size()) {
+            EditWindow editWindow = new EditWindow(data, data.getFilters().get(selected), selected);
             editWindow.setVisible(true);
         }
     }//GEN-LAST:event_editButtonActionPerformed

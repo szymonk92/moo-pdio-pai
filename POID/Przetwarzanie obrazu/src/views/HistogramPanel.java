@@ -25,7 +25,7 @@ public class HistogramPanel extends javax.swing.JPanel {
     public HistogramPanel(TabData data) {
         this.data = data;
         initComponents();
-        double[] value = BufferedImageHelper.getHistogram(this.data.baseImage, 1);
+        double[] value = BufferedImageHelper.getHistogram(this.data.getFilteredImage(), 1);
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         for (int i = 0; i < 256; i++) {
             dataset.addValue(value[i], "", Integer.toString(i));

@@ -3,6 +3,8 @@ package gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
@@ -81,7 +83,7 @@ import javax.swing.SwingUtilities;
  * of
  * <code>HIGH_QUALITY_RENDERING_SCALE_THRESHOLD</code>.</p>
  */
-public final class NavigableImagePanel extends JPanel {
+public final class NavigableImagePanel extends JPanel implements PropertyChangeListener {
 
     /**
      * <p>Identifies a change to the zoom level.</p>
@@ -123,6 +125,14 @@ public final class NavigableImagePanel extends JPanel {
     private boolean zoomNavigableImageEnable = true;
     private NavigableImagePanel.WheelZoomDevice wheelZoomDevice = null;
     private NavigableImagePanel.ButtonZoomDevice buttonZoomDevice = null;
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ("filteredImage".equals(evt.getPropertyName())) {
+            this.setImage((BufferedImage)evt.getNewValue());
+            this.invalidate();
+        }
+    }
 
     /**
      * <p>Defines zoom devices.</p>

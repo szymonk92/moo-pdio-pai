@@ -28,8 +28,8 @@ public final class MainPanel extends javax.swing.JPanel {
         this.data = data;
         initComponents();
 
-        this.data.filters.addObservableListListener(new FiltersListener(this));
-        this.data.views.addObservableListListener(new ViewsListener(this));
+        this.data.getFilters().addObservableListListener(new FiltersListener(this));
+        this.data.getViews().addObservableListListener(new ViewsListener(this));
 
         JPanel borderlaoutpanel = new JPanel();
         this.jScrollPane.setViewportView(borderlaoutpanel);
@@ -39,12 +39,12 @@ public final class MainPanel extends javax.swing.JPanel {
         borderlaoutpanel.add(columnpanel, BorderLayout.NORTH);
         columnpanel.setLayout(new GridLayout(0, 1, 0, 1));
         columnpanel.setBackground(Color.gray);
-
+        this.data.getChangeSupport().addPropertyChangeListener(navigableImagePanel);
         setSplit();
     }
 
     public void setSplit() {
-        if (data.filters.size() > 0) {
+        if (data.getViews().size() > 0) {
             this.remove(this.navigableImagePanel);
             jSplitPane.setLeftComponent(navigableImagePanel);
             this.add(this.jSplitPane, java.awt.BorderLayout.CENTER);
@@ -206,7 +206,7 @@ public final class MainPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_navigableImagePanelPropertyChange
 
     private void formComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_formComponentAdded
-        this.navigableImagePanel.setImage(data.baseImage);
+        this.navigableImagePanel.setImage(data.getFilteredImage());
     }//GEN-LAST:event_formComponentAdded
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel hqLabel;

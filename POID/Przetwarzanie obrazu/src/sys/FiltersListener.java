@@ -27,20 +27,16 @@ public class FiltersListener implements ObservableListListener, PropertyChangeLi
     @Override
     public void listElementsAdded(ObservableList list, int index, int length) {
         task = new ImageProcessor();
+        task.data = mainPanel.data;
         task.addPropertyChangeListener(this);
-        task.filters = mainPanel.data.filters;
-        task.imagePanel = mainPanel.navigableImagePanel;
-        task.baseImage = mainPanel.data.baseImage;
         task.execute();
     }
 
     @Override
     public void listElementsRemoved(ObservableList list, int index, List oldElements) {
         task = new ImageProcessor();
+        task.data = mainPanel.data;
         task.addPropertyChangeListener(this);
-        task.filters = mainPanel.data.filters;
-        task.imagePanel = mainPanel.navigableImagePanel;
-        task.baseImage = mainPanel.data.baseImage;
         task.execute();
     }
 
@@ -48,9 +44,6 @@ public class FiltersListener implements ObservableListListener, PropertyChangeLi
     public void listElementReplaced(ObservableList list, int index, Object oldElement) {
         task = new ImageProcessor();
         task.addPropertyChangeListener(this);
-        task.filters = mainPanel.data.filters;
-        task.imagePanel = mainPanel.navigableImagePanel;
-        task.baseImage = mainPanel.data.baseImage;
         task.execute();
     }
 
@@ -58,9 +51,6 @@ public class FiltersListener implements ObservableListListener, PropertyChangeLi
     public void listElementPropertyChanged(ObservableList list, int index) {
         task = new ImageProcessor();
         task.addPropertyChangeListener(this);
-        task.filters = mainPanel.data.filters;
-        task.imagePanel = mainPanel.navigableImagePanel;
-        task.baseImage = mainPanel.data.baseImage;
         task.execute();
     }
 

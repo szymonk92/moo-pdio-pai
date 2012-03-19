@@ -130,7 +130,7 @@ public class ViewPanel extends javax.swing.JPanel {
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
         this.getParent().remove(this);
-        this.data.views.remove(view);
+        this.data.getViews().remove(view);
     }//GEN-LAST:event_closeButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;

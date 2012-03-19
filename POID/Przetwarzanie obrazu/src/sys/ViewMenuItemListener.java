@@ -30,13 +30,13 @@ public class ViewMenuItemListener implements ActionListener {
             MainPanel panel = (MainPanel) tabPanel.getComponentAt(selectedTabIndex);
             if(panel!=null){
                 if(!view.canByMultiple()){
-                   for(IView viewOnList : panel.data.views){
+                   for(IView viewOnList : panel.data.getViews()){
                        if(viewOnList.getClass().getName().equals(view.getClass().getName())){
                            return;
                        }
                    }
                 }
-                panel.data.views.add(view);
+                panel.data.getViews().add(view);
             }
         }
     }
