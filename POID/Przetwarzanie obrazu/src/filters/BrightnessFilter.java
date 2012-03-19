@@ -79,4 +79,9 @@ public class BrightnessFilter extends AbstractFilter {
         }
         return image;
     }
+    
+    @Override
+    public String getIcon() {
+        return "/images/brightness.png";
+    }
 }

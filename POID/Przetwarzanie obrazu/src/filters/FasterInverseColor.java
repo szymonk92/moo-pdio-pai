@@ -8,14 +8,13 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.LookupOp;
 import java.awt.image.ShortLookupTable;
-import sys.AbstractFilter;
 import sys.IFilter;
 
 /**
  *
  * @author Lukasz
  */
-public class FasterInverseColor extends AbstractFilter {
+public class FasterInverseColor extends InverseColor {
 
     private short[] invertTable;
 

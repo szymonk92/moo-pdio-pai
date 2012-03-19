@@ -69,4 +69,9 @@ public class InverseColor extends AbstractFilter {
     public boolean isEnabled() {
        return this.enabled;
     }
+    
+    @Override
+    public String getIcon() {
+        return "/images/invert.png";
+    }
 }

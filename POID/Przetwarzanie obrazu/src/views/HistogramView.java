@@ -27,4 +27,8 @@ public class HistogramView extends AbstractView{
     public boolean canByMultiple(){
         return true;
     }
+    @Override
+    public String getIcon() {
+        return "/images/histogram.png";
+    }
 }

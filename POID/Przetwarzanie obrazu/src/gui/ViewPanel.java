@@ -32,7 +32,7 @@ public class ViewPanel extends javax.swing.JPanel {
         if (view.getIcon() == null) {
             titleLabel.setIcon(IconHelper.getDefaultIcon());
         } else {
-            titleLabel.setIcon(new ImageIcon(view.getIcon()));
+            titleLabel.setIcon(new ImageIcon(getClass().getResource(view.getIcon())));
         }
         this.titleLabel.setText(view.getName());
         this.contentPanel.add(view.getView());

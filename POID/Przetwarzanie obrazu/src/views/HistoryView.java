@@ -28,4 +28,9 @@ public class HistoryView extends AbstractView{
         return true;
     }
     
+    @Override
+    public String getIcon() {
+        return "/images/history.png";
+    }
+    
 }
