@@ -2,13 +2,20 @@
 
 \documentclass{classrep}
 \usepackage[utf8]{inputenc}
+
 \usepackage[pdftex]{color,graphicx}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
 \usepackage{float}
+
 \usepackage{color}
+
 \usepackage{listings}
+
 \usepackage{color}
- \usepackage{hyperref}
+
+\usepackage{url}
+
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
@@ -59,6 +66,10 @@
 
 \begin{document}
 \maketitle
+
+
+%%% FOONOTE COUNTER SET = 1
+\addtocounter{footnote}{1}
 
 \section{Cel}
 Zaimplementować 3 metody optymalizacji jednowymiarowej spośród następujących:
@@ -321,12 +332,12 @@ var=feval(inline(diff(sym(f))),p);
 		\begin{tabular}{|c|c|c|}
 		\hline funkcja & x & y \\ 
 \hline $x^2 - 4$ & -4 & 0 \\ 
-\hline $-x + x^2 - 3*x^3 + x^4$ \footnote{lokalne minimum} & 2.06659 & -6.03405 \\ 
-\hline $sin(x)+x-x^3$ \footnote{lokalne minimum} & -0.758481 & -1.00995 \\ 
-\hline $x^3*arctan(x)-exp(x)$ \footnote{lokalne minimum} & 0.968539 & -1.93503 \\ 
+\hline $-x + x^2 - 3*x^3 + x^4$  & 2.06659 & -6.03405 \\ 
+\hline $sin(x)+x-x^3$  & -0.758481 & -1.00995 \\ 
+\hline $x^3*arctan(x)-exp(x)$  & 0.968539 & -1.93503 \\ 
 \hline 
 \end{tabular} 
-				\caption{Zestawienie wyników uzyskanych przy pomocy WolframAlpha\footnote{\url{www,wolframalpha.com}}}.
+				\caption{Zestawienie wyników uzyskanych przy pomocy WolframAlpha }.
 		\end{center}
 		\label{wolfram}
 	\end{table}
@@ -334,16 +345,14 @@ var=feval(inline(diff(sym(f))),p);
 
 \section{Wnioski}
 
-Na podstawie wykonanych badań, można stwierdzić, że metoda Quasi-newtona, osiąga najlepsze wyniki odnosząc się do wyników zestawionych w tabeli \ref{wolfram}. Równocześnie nie tylko najdokładniejsza ale również najszybsza w działaniu. W każdym przypadku zadaną dokładność osiągała po około połowie iteracji których potrzebowały metody Fibonacciego i bisekcji. 
+Na podstawie wykonanych badań, można stwierdzić, że metoda Quasi\-newtona, osiąga najlepsze wyniki odnosząc się do wyników zestawionych w tabeli 2. Równocześnie nie tylko najdokładniejsza ale również najszybsza w działaniu. W każdym przypadku zadaną dokładność osiągała po około połowie iteracji których potrzebowały metody Fibonacciego i bisekcji. \\
+\indent Cechą wspólną metod są restrykcje jakim odpowiadać powinna badana funkcja. Na badanym odcinku aby metody dawały poprawny wynik funkcja musi być unimodalna. Dwie pierwsze metody, opierają się na podobnej zasadzie - podziału przestrzeni poszukiwań na coraz to mniejsze pod przedziały w których następnie poszukuje się minimum badanej funkcji. Rozwiązanie uzyskane tymi metodami są kolejnymi przybliżeniami przedziału w którym znajduje się minimum. Natomiast ostatnia z badanych metod Quasi-Newtona ma zgoła odmienne podejście do rozwiązania problemu. Rozwiązanie jest ustalane na podstawie wartości pochodnej w punktach będących kolejnymi wynikami poprzednich iteracji działania algorytmu, Przedział poszukiwań jest ustalany na podstawie wyniku z poprzedniej iteracji i obecnej.
 
-
-\begin{thebibliography}{0}
-\item
-  Michał Lewandowski,
-  \emph{Metody optymalizacji - teoria i wybrane algorytmy}.
-  2012.
-  
-\item \url{http://pl.wikipedia.org/wiki/Metoda_quasi-Newtona}
+\begin{thebibliography}{9}
+\bibitem{1}
+	Michał Lewandowski,  \emph{Metody optymalizacji - teoria i wybrane algorytmy}.  2012.
+\bibitem{2}
+	\url{http://pl.wikipedia.org/wiki/Metoda\_quasi-Newtona}
 \end{thebibliography}
 
 \end{document}
