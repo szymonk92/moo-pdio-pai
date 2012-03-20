@@ -4,6 +4,7 @@
  */
 package sys;
 
+import gui.EditWindow;
 import gui.MainPanel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,8 +29,15 @@ public class FilterMenuItemListener implements ActionListener {
         int selectedTabIndex = tabPanel.getSelectedIndex();
         if(selectedTabIndex!=-1){
             MainPanel panel = (MainPanel) tabPanel.getComponentAt(selectedTabIndex);
+           
             if(panel!=null){
-                panel.data.getFilters().add(filter.getCopy());
+                if(filter.isEditable()){
+                    EditWindow editWindow = new EditWindow(panel.data, filter, true);
+                    editWindow.setVisible(true);
+                }
+                else{
+                     panel.data.getFilters().add(filter.getCopy());
+                }
             }
         }
     }

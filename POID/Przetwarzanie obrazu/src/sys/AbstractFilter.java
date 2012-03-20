@@ -17,7 +17,6 @@ public abstract class AbstractFilter implements IFilter {
     protected String description;
     protected boolean editable;
     protected PropertyChangeSupport changeSupport;
-    protected boolean firstTime = true;
 
     public AbstractFilter() {
         changeSupport = new PropertyChangeSupport(this);
@@ -28,7 +27,6 @@ public abstract class AbstractFilter implements IFilter {
         this.name = filter.getName();
         this.description = filter.getDescription();
         this.editable = filter.isEditable();
-        this.firstTime = filter.isFirstTime();
     }
 
     @Override
@@ -75,13 +73,4 @@ public abstract class AbstractFilter implements IFilter {
         return changeSupport;
     }
 
-    @Override
-    public void setFirstTime(boolean firstTime) {
-        this.firstTime = firstTime;
-    }
-
-    @Override
-    public boolean isFirstTime() {
-        return this.firstTime;
-    }
 }

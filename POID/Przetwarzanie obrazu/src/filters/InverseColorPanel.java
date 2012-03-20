@@ -9,14 +9,16 @@ package filters;
  * @author Lukasz
  */
 public class InverseColorPanel extends javax.swing.JPanel {
-InverseColor filter;
+
+    InverseColor filter;
+
     /**
      * Creates new form InverseColorPanel
      */
     public InverseColorPanel(InverseColor filter) {
         initComponents();
         this.filter = filter;
-            this.jCheckBox1.setSelected(this.filter.isEnabled());
+        this.jCheckBox1.setSelected(this.filter.isEnabled());
 
     }
 
@@ -68,7 +70,6 @@ InverseColor filter;
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         filter.setEnabled(this.jCheckBox1.isSelected());
     }//GEN-LAST:event_jCheckBox1ActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;

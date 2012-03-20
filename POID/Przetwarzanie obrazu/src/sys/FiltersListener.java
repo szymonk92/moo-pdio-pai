@@ -27,16 +27,9 @@ public class FiltersListener implements ObservableListListener, PropertyChangeLi
 
     @Override
     public void listElementsAdded(ObservableList list, int index, int length) {
-        IFilter filter = mainPanel.data.getFilters().get(index);
-        if (filter.isEditable() && filter.isFirstTime()) {
-            filter.setFirstTime(false);
-            EditWindow editWindow = new EditWindow(mainPanel.data, filter);
-            editWindow.setVisible(true);
-        } else {
-            task = new ImageProcessor(mainPanel.data, true);
-            task.addPropertyChangeListener(this);
-            task.execute();
-        }
+        task = new ImageProcessor(mainPanel.data, true);
+        task.addPropertyChangeListener(this);
+        task.execute();
     }
 
     @Override

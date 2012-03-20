@@ -7,9 +7,11 @@ package gui;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import sys.BufferedImageHelper;
 import sys.IFilter;
+import sys.IconHelper;
 import sys.TabData;
 
 /**
@@ -21,6 +23,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
     TabData data;
     IFilter filtr;
     IFilter copyFiltr;
+    boolean firstTime = false;
 
     /**
      * Creates new form EditWindow
@@ -31,24 +34,47 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         this.copyFiltr = filtr.getCopy();
         initComponents();
         JPanel panel = copyFiltr.getEditPanel();
-        copyFiltr.getChangeSupport().addPropertyChangeListener(this);
+        copyFiltr.getChangeSupport().addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+                previewPanel.setImage(doInBackground());
+                previewPanel.revalidate();
+                repaint();
+            }
+        });
         this.settingsPanel.add(panel);
+        this.setTitle(filtr.getName());
+        if (filtr.getIcon() == null) {
+            this.setIconImage(IconHelper.getDefaultIcon().getImage());
+        } else {
+            this.setIconImage(new ImageIcon(getClass().getResource(filtr.getIcon())).getImage());
+        }
     }
-    
- protected BufferedImage doInBackground() {
-        if (data.getFilters() == null || data.getFilters().isEmpty()) {
-            return data.getBaseMiniatureImage();
-        }
-        int index = this.data.getFilters().indexOf(filtr);
+
+    public EditWindow(TabData data, IFilter filter, boolean b) {
+        this(data, filter);
+        this.firstTime = b;
+    }
+
+    protected BufferedImage doInBackground() {
         BufferedImage tmp = BufferedImageHelper.copy(data.getBaseMiniatureImage());
-        for (int i = 0; i < data.getFilters().size(); i++) {
-            if(i!=index){
-               tmp = data.getFilters().get(i).processImage(tmp); 
+        if (!firstTime) {
+            int index = this.data.getFilters().indexOf(filtr);
+            for (int i = 0; i < data.getFilters().size(); i++) {
+                if (i != index) {
+                    tmp = data.getFilters().get(i).processImage(tmp);
+                } else {
+                    tmp = copyFiltr.processImage(tmp);
+                }
             }
-            else{
-                tmp = copyFiltr.processImage(tmp); 
+        } else {
+            for (int i = 0; i < data.getFilters().size(); i++) {
+                tmp = data.getFilters().get(i).processImage(tmp);
             }
+            tmp = copyFiltr.processImage(tmp);
         }
+
         return tmp;
     }
 
@@ -69,6 +95,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setAlwaysOnTop(true);
+        setLocationByPlatform(true);
         setMaximumSize(new java.awt.Dimension(500, 500));
         setMinimumSize(new java.awt.Dimension(400, 400));
         setPreferredSize(new java.awt.Dimension(500, 400));
@@ -82,7 +109,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         previewPanel.setLayout(previewPanelLayout);
         previewPanelLayout.setHorizontalGroup(
             previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 498, Short.MAX_VALUE)
+            .addGap(0, 388, Short.MAX_VALUE)
         );
         previewPanelLayout.setVerticalGroup(
             previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -126,7 +153,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 324, Short.MAX_VALUE)
+                .addGap(0, 214, Short.MAX_VALUE)
                 .addComponent(cancelButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -152,9 +179,14 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        int index = this.data.getFilters().indexOf(filtr);
-        if(index!=-1){
-             this.data.getFilters().set(index, copyFiltr);
+
+        if (!firstTime) {
+            int index = this.data.getFilters().indexOf(filtr);
+            if (index != -1) {
+                this.data.getFilters().set(index, copyFiltr);
+            }
+        } else {
+            this.data.getFilters().add(copyFiltr);
         }
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
