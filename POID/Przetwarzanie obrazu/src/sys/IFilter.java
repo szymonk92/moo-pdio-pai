@@ -34,7 +34,4 @@ public interface IFilter{
     
     public PropertyChangeSupport getChangeSupport();
     
-    public void setFirstTime(boolean firstTime);
-    
-    public boolean isFirstTime();
 }
