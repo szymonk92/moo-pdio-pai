@@ -7,9 +7,11 @@ package gui;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import sys.BufferedImageHelper;
 import sys.IFilter;
+import sys.IconHelper;
 import sys.TabData;
 
 /**
@@ -33,6 +35,12 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         JPanel panel = copyFiltr.getEditPanel();
         copyFiltr.getChangeSupport().addPropertyChangeListener(this);
         this.settingsPanel.add(panel);
+        this.setTitle(filtr.getName());
+         if (filtr.getIcon() == null) {
+                    this.setIconImage(IconHelper.getDefaultIcon().getImage());
+                } else {
+                    this.setIconImage(new ImageIcon(getClass().getResource(filtr.getIcon())).getImage());
+                }
     }
     
  protected BufferedImage doInBackground() {
@@ -69,6 +77,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setAlwaysOnTop(true);
+        setLocationByPlatform(true);
         setMaximumSize(new java.awt.Dimension(500, 500));
         setMinimumSize(new java.awt.Dimension(400, 400));
         setPreferredSize(new java.awt.Dimension(500, 400));
@@ -82,7 +91,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         previewPanel.setLayout(previewPanelLayout);
         previewPanelLayout.setHorizontalGroup(
             previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 498, Short.MAX_VALUE)
+            .addGap(0, 388, Short.MAX_VALUE)
         );
         previewPanelLayout.setVerticalGroup(
             previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -126,7 +135,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 324, Short.MAX_VALUE)
+                .addGap(0, 214, Short.MAX_VALUE)
                 .addComponent(cancelButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
