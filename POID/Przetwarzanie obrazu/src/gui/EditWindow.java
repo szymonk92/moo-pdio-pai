@@ -28,10 +28,15 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
     /**
      * Creates new form EditWindow
      */
-    public EditWindow(TabData data, IFilter filtr) {
+    public EditWindow(TabData data, IFilter filter) {
+        this(data, filter, false);
+    }
+
+    public EditWindow(TabData data, IFilter filter, boolean b ) {
+        this.firstTime = b;
         this.data = data;
-        this.filtr = filtr;
-        this.copyFiltr = filtr.getCopy();
+        this.filtr = filter;
+        this.copyFiltr = filter.getCopy();
         initComponents();
         JPanel panel = copyFiltr.getEditPanel();
         copyFiltr.getChangeSupport().addPropertyChangeListener(new PropertyChangeListener() {
@@ -50,11 +55,8 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         } else {
             this.setIconImage(new ImageIcon(getClass().getResource(filtr.getIcon())).getImage());
         }
-    }
-
-    public EditWindow(TabData data, IFilter filter, boolean b) {
-        this(data, filter);
-        this.firstTime = b;
+        previewPanel.setImage(doInBackground());
+        previewPanel.revalidate();
     }
 
     protected BufferedImage doInBackground() {
