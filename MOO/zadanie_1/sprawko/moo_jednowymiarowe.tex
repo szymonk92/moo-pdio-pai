@@ -81,7 +81,7 @@
 \addtocounter{footnote}{1}
 
 \section{Cel}
-Zaimplementować 3 metody optymalizacji jednowymiarowej spośród następujących:
+Celem zadania było zaimplementowanie trzech metod optymalizacji jednowymiarowej spośród następujących:
 \begin{itemize}
 	\item	metoda dychotomii
 	\item	\textbf{metoda bisekcji}
@@ -90,18 +90,16 @@ Zaimplementować 3 metody optymalizacji jednowymiarowej spośród następującyc
 	\item	metoda Newtona
 	\item	\textbf{metoda Quasi-Newtona}
 \end{itemize}
-
-Przedstawiany jako rozwiązanie program powinien pozwolić wprowadzić funkcję oraz przedział, w~którym poszukiwane będzie rozwiązanie. Jeśli przedział nie jest unimodalny należy wyznaczyć przedział unimodalności. Skonfrontować wyniki z~wyznaczonymi za pomocą pakietu Matlab. Porównać efektywność zaimplementowanych metod.
+Metody, które zostały nam przydzielone oznaczyliśmy pogrubioną czcionką. Przedstawiany jako rozwiązanie program powinien pozwolić wprowadzić funkcję oraz przedział, w~którym poszukiwane będzie rozwiązanie. Jeśli przedział nie jest unimodalny należy wyznaczyć przedział unimodalności. Skonfrontować wyniki z~wyznaczonymi za pomocą pakietu Matlab. Porównać efektywność zaimplementowanych metod.
 
 \section{Rozwiązanie zadania}
 \subsection{Wyznaczanie podprzedziału unimodalności}
-
 Wyznaczanie podprzedziału unimodalności jest wykonywane poprzez sprawdzanie kolejnych podprzedziałów o~określonej szerokości. W~każdym takim podprzedziale sprawdzana jest lokalna unimodalność funkcji. Gdy znajdziemy podprzedział który spełnia te kryteria zwracamy go jako nowy podprzedział do poszukiwania rozwiązania. Każdorazowe wyszukiwanie, podprzedziału unimodalności nie tylko sprawdza czy funkcja jest lokalnie unimodalna, lecz również zmniejsza zakres poszukiwań rozwiązania.
 
 \subsection{Metoda bisekcji \cite{1}}
-Metoda ta polega na wybraniu trzech punktów jednakowo odległych od siebie oraz od krańców przedziału oraz wyliczeniu wartości funkcji w~tych punktach, w~wyniku czego można wyeliminować połowę przedziału.\\
+Metoda ta polega na wybraniu trzech punktów jednakowo odległych od siebie oraz od krańców przedziału oraz wyliczeniu wartości funkcji w~tych punktach, w~wyniku czego można wyeliminować połowę przedziału.
 
-Algorytm:
+\noindent Algorytm:
 \begin{enumerate}
 \item Wybierz dolne i~górne ograniczenie przedziału a~i~b oraz małą liczbę $\epsilon$. Niech $x_m = (a + b)/2$, $L_0 =L=b-a$. Wylicz $f(x_m )$.
 \item Ustal $x_1 = a~+ L/4$, $x_2 = b - L/4$. Wylicz $f(x_1 )$ oraz $f(x_2 )$.
@@ -119,22 +117,21 @@ W każdej nowej iteracji algorytmu, potrzebne jest wyliczenie dwóch wartości f
 \end{equation}
 
 \subsection{Metoda Fibonacci \cite{1}}
-
-W metodzie liczb Fibonacciego, w~każdej iteracji algorytmu proporcja zmniejszania się przedziału z~iteracji na iterację zmienia się tak, aby przedział zmniejszał się w~sposób optymalny (tzn. jak najbardziej). Jeśli $p_k$ oznacza proporcje, o~jaką zmniejsza się przedział w~k-tej iteracji, to w~metodzie Fibonacciego zachodzi następujący związek:
+W metodzie liczb Fibonacciego, w~każdej iteracji algorytmu proporcja zmniejszania się przedziału z~iteracji na iterację zmienia się tak, aby przedział zmniejszał się w~sposób optymalny (tzn. jak najbardziej). Jeśli $p_k$ oznacza proporcje, o~jaką zmniejsza się przedział w~$k$-tej iteracji, to w~metodzie Fibonacciego zachodzi następujący związek:
 \begin{equation}
 \frac{1-p_{k-1}}{1} = \frac{p_k}{1-p_k}
 \end{equation}
-Okazuje się, że wartościami $p_k \in (0, 1/2]$, gdzie k = 1,..., N, które minimalizują wyrażenie $(1-p_1)(1-p_2)...(1-p_N)$ i~które spełniają powyższy związek, są następujące liczby:
+Okazuje się, że wartościami $p_k \in (0, 1/2]$, gdzie $k = 1,...,N$, które minimalizują wyrażenie $(1-p_1)(1-p_2)...(1-p_N)$ i~które spełniają powyższy związek, są następujące liczby:
 \begin{equation}
 p_k=1-\frac{F_{N-k-1}}{F_{N-k+2}}
 \end{equation}
-gdzie $F_k$ oznaczają liczby Fibonacciego. Liczby Fibonacciego mają następującą charakterystykę: $F_1 = 1, F_2 = 1$ i~$F_k = F_{k-1} + F_{k-2}$ gdzie k = 3, 4, ....
+gdzie $F_k$ oznaczają liczby Fibonacciego. Liczby Fibonacciego mają następującą charakterystykę: $F_1=1, F_2=1$ i~ $F_k=F_{k-1}+F_{k-2}$ gdzie $k=3,4,...$~.
 
-Algorytm:
+\noindent Wykorzystany algorytm:
 \begin{enumerate}
 \item Znajdź n takie, że $\frac{(b-a)}{F_n}\geq 2\epsilon$
 \item Oblicz $x_1 = \frac{F_{n-1}}{F_n}(b-a)$ i~$x_2 = \frac{F_{n-1}}{F_n}(b-a)$
-\item  Jeżeli $f(x_1)<f(x_2)$ to podstaw :
+\item Jeżeli $f(x_1)<f(x_2)$ to podstaw :
 	\begin{itemize}
 	\item $b=x_2$
 	\item $x_2=x_1$
@@ -151,34 +148,29 @@ Algorytm:
 	\item Jeśli $|x_2-x_1|>\epsilon$ i~$n \geq 2$ przejdź do 3.
 \end{enumerate}
 
-W tym algorytmie przedział redukuje się do $\frac{2}{F_{N+1}} L$ do czego potrzebnych jest n wyliczeń wartości funkcji. Zatem ilość potrzebnych wyliczeń wartości funkcji przy danej dokładności $\epsilon$ można wyliczyć z~następującego wzoru:
+W tym algorytmie przedział redukuje się do $\frac{2}{F_{N+1}} L$ do czego potrzebnych jest $n$ wyliczeń wartości funkcji. Zatem ilość potrzebnych wyliczeń wartości funkcji przy danej dokładności $\epsilon$ można wyliczyć z~następującego wzoru:
 \begin{equation}
 \frac{2}{F_{n+1}} = \epsilon
 \end{equation}
+
 Jednym z~minusów metody liczb Fibonacciego jest fakt, iż trzeba wyliczać kolejne liczby Fibonacciego w~każdej iteracji.
 
 \subsection{Metoda Quasi-Newtona}
-
 Metody quasi-Newtonowskie bazują na metodzie Newtona znajdowania punktów stacjonarnych funkcji. Metoda Newtona zakłada, że funkcja może być lokalnie aproksymowana funkcją kwadratową w~otoczeniu optimum, oraz używają pierwszych i~drugich pochodnych (gradient i~hesjan) w~celu znalezienia punktów stacjonarnych.
 
-W metodzie Quasi-Newtona hesjan(macierz drugich pochodnych) minimalizowanej funkcji nie musi być obliczany. Hesjan jest przybliżany przez analizowanie kolejnych wektorów gradientu. Metody Quasi-Newtona są uogólnieniem metody siecznych znajdowania pierwiastków pierwszej pochodnej na problem wielowymiarowy.
-
-Kolejne przybliżenia są wyznaczane na podstawie :
+W metodzie Quasi-Newtona hesjan(macierz drugich pochodnych) minimalizowanej funkcji nie musi być obliczany. Hesjan jest przybliżany przez analizowanie kolejnych wektorów gradientu. Metody Quasi-Newtona są uogólnieniem metody siecznych znajdowania pierwiastków pierwszej pochodnej na problem wielowymiarowy. Kolejne przybliżenia są wyznaczane na podstawie:
 \begin{equation}
 x_{k+1} = x_k - \frac{x^k-x^{k-1}}{f'(x^k)-f'(x_{k-1})} f'(x_k)
 \end{equation}
 
 \section{Opis programu}
-
-Program składa się z~implementacji 3 wyznaczonych metod, oraz funkcji pomocniczych do określania podprzedziału unimodalności i~rysowania wykresu funkcji z~nałożonymi punktami kolejnych przybliżeń rozwiązania.
+Program składa się z~implementacji trzech wyznaczonych metod, oraz funkcji pomocniczych do określania podprzedziału unimodalności i~rysowania wykresu funkcji z~nałożonymi punktami kolejnych przybliżeń rozwiązania.
 
 \subsection{Wyznaczanie podprzedziału unimodalności}
 \begin{lstlisting}
 function [a, b] = unimodality_check(f,a,b, step)
-
 unimodal=0;
 a=a+step;
-
 while unimodal==0 && a<b
     %found max || min
     if (feval(f,a-step) < feval(f,a) &&
@@ -190,7 +182,6 @@ while unimodal==0 && a<b
         a=a+step;
     end
 end
-
 if unimodal == 0
     disp('przy danym kroku probkowania,
      nie znaleziono podprzedzialu unimodalnosci');
@@ -199,14 +190,12 @@ elseif unimodal == 1
     b=a+step;
 end
 \end{lstlisting}
-
 \subsection{Metoda bisekcji}
 \begin{lstlisting}
 function [c,yc,iter] = bisection (f,a,b,eps)
 f=inline(f);
 xL=a;xR=b;
 maxIterations=5+round((log(a-b)-log(eps))/log(2));
-
 while ( abs(xR - xL) > eps && i< maxIterations)
     c=(xL+xR)/2.0;
     yc=feval(f,c);
@@ -226,8 +215,6 @@ while ( abs(xR - xL) > eps && i< maxIterations)
     i=i+1
 end
 \end{lstlisting}
-
-
 \section{Metoda Fibonacciego}
 \begin{lstlisting}
 function x = fib(n)
@@ -237,18 +224,14 @@ elseif n==1
     x=1;
 else x=fib(n-1)+fib(n-2);
 end
-
-
 function [c,yc,iter] = fibonaccio (f,a,b,eps)
 f=inline(f);
 n=0;
 while 1.0/fib(n) > eps
     n=n+1;
 end
-
 x1=b-(fib(n-1)/fib(n))*(b-a);
 x2=a+(fib(n-1)/fib(n))*(b-a);
-
 while ( abs(x2 - x1) > eps && n >= 2)
     c=(a+b)/2;
     yc=feval(f,c);
@@ -264,19 +247,14 @@ while ( abs(x2 - x1) > eps && n >= 2)
         x2=a+(fib(n-1)/fib(n))*(b-a);
     end
 end
-
 c=(a+b)/2;
 yc=feval(f,c);
 \end{lstlisting}
-
-
 \subsection{Metoda Quasi-Newtona}
 \begin{lstlisting}
 function [b,by,k]=quasi_newton(f,a,b,eps)
 f=inline(f);
-
 maxIterations=5+round((log(a-b)-log(eps))/log(2));
-
 k=1;
 while  k < maxIterations    
     p2=b-diffp(f,b)*(b-a)/(diffp(f,b)-diffp(f,a));    
@@ -289,23 +267,21 @@ while  k < maxIterations
     end
    k=k+1; 
 end
-
 function var = diffp (f,p)
 var=feval(inline(diff(sym(f))),p);
 \end{lstlisting}
-
 \section{Wyniki}
 	\begin{table}[H]
 		\begin{center}
 \begin{tabular}{|c|c|c|c|c|c|c|c|}
 
-\hline funkcja & metoda & xs & xk & eps & xmin & ymin & iter \\
+\hline Funkcja & Metoda & $x_s$ & $x_k$ & $\epsilon$ & $x_{min}$ & $y_{min}$ & Iteracje \\
 \hline $x^2 - 4$ & bisekcja & -1 & 3 & 0.1 & 0.0313 & -3.9961 & 4\\
 \hline $x^2 - 4$ & bisekcja & -1 & 3 & 0.01 & 0.0039 & -3.9999 & 7\\
-\hline $x^2 - 4$ & bisekcja & -1 & 3 & 0.001 & 4.8828e-004 & -4.0000 & 10 \\
+\hline $x^2 - 4$ & bisekcja & -1 & 3 & 0.001 & 0.0005 & -4.0000 & 10 \\
 \hline $x^2 - 4$ & fibonacci & -1 & 3 & 0.01 & 0.0174 & -3.9997 & 7\\
 \hline $x^2 - 4$ & fibonacci & -1 & 3 & 0.001 & 0.0016 & -4.0000 & 12 \\
-\hline $x^2 - 4$ & quasi-newton & -1 & 3 & 0.001 & 0 & -4 & 2\\
+\hline $x^2 - 4$ & quasi-newton & -1 & 3 & 0.001 & 0.0000 & -4.0000 & 2\\
 \hline $-x + x^2 - 3*x^3 + x^4$ & bisekcja & -1 & 3 & 0.1 & 2.0625 & -6.0339 & 4 \\
 \hline $-x + x^2 - 3*x^3 + x^4$ & bisekcja & -1 & 3 & 0.01 & 2.0664 & -6.0339 & 7 \\
 \hline $-x + x^2 - 3*x^3 + x^4$ & bisekcja & -1 & 3 & 0.001 & 2.0664 & -6.0341 &10 \\
@@ -346,24 +322,21 @@ var=feval(inline(diff(sym(f))),p);
  	\begin{table}[H]
 		\begin{center}
 		\begin{tabular}{|c|c|c|}
-		\hline funkcja & x & y \\ 
-\hline $x^2 - 4$ & -4 & 0 \\ 
-\hline $-x + x^2 - 3*x^3 + x^4$  & 2.06659 & -6.03405 \\ 
-\hline $sin(x)+x-x^3$  & -0.758481 & -1.00995 \\ 
-\hline $x^3*arctan(x)-exp(x)$  & 0.968539 & -1.93503 \\ 
+		\hline Funkcja & $x$ & $y$ \\ 
+\hline $x^2 - 4$ & -4.0000 & 0.0000 \\ 
+\hline $-x + x^2 - 3*x^3 + x^4$  & 2.0666 & -6.0341 \\ 
+\hline $sin(x)+x-x^3$  & -0.7585 & -1.0010 \\ 
+\hline $x^3*arctan(x)-exp(x)$  & 0.9685 & -1.9350 \\ 
 \hline 
 \end{tabular} 
 				\caption{Zestawienie wyników uzyskanych przy pomocy WolframAlpha }.
 		\end{center}
 		\label{wolfram}
-	\end{table}
-	
-
+\end{table}
 \section{Wnioski}
+Na podstawie wykonanych badań, można stwierdzić, że metoda Quasi\-Newtona, osiąga najlepsze rezultaty odnosząc się do wyników zestawionych w~tabeli 2. Równocześnie jest ona nie tylko najdokładniejsza ale również najszybsza w~działaniu. W~każdym przypadku zadaną dokładność osiągała po około połowie iteracji, których potrzebowały metody Fibonacciego i~bisekcji.
 
-Na podstawie wykonanych badań, można stwierdzić, że metoda Quasi\-newtona, osiąga najlepsze wyniki odnosząc się do wyników zestawionych w~tabeli 2. Równocześnie nie tylko najdokładniejsza ale również najszybsza w~działaniu. W~każdym przypadku zadaną dokładność osiągała po około połowie iteracji których potrzebowały metody Fibonacciego i~bisekcji.
-
-Cechą wspólną metod są restrykcje jakim odpowiadać powinna badana funkcja. Na badanym odcinku aby metody dawały poprawny wynik funkcja musi być unimodalna. Dwie pierwsze metody, opierają się na podobnej zasadzie - podziału przestrzeni poszukiwań na coraz to mniejsze pod przedziały w~których następnie poszukuje się minimum badanej funkcji. Rozwiązanie uzyskane tymi metodami są kolejnymi przybliżeniami przedziału w~którym znajduje się minimum. Natomiast ostatnia z~badanych metod Quasi-Newtona ma zgoła odmienne podejście do rozwiązania problemu. Rozwiązanie jest ustalane na podstawie wartości pochodnej w~punktach będących kolejnymi wynikami poprzednich iteracji działania algorytmu, Przedział poszukiwań jest ustalany na podstawie wyniku z~poprzedniej iteracji i~obecnej.
+Cechą wspólną wszystkich metod są dodatkowe wymagania jakie musi spełniać badana nimi funkcja. Powinna ona ona być unimodlana na analizowanym odcinku, co wymusza konieczność stosowania dodatkowych algorytmów wyznaczających przedziały unimodlaności. Gdyby pominąć ten krok wynik zwrócony przy pomocy omówionych w tym sprawozdaniu metod mógłby być nie poprawny. Metody bisekcji i Fibonacci, opierają się na podobnej zasadzie - podziału przestrzeni poszukiwań na coraz to mniejsze podprzedziały w~których następnie poszukuje się minimum badanej funkcji. Rozwiązanie uzyskane tymi metodami są kolejnymi przybliżeniami przedziału w~którym znajduje się minimum. Natomiast ostatnia z~badanych metod Quasi-Newtona ma zgoła odmienne podejście do rozwiązania problemu. Rozwiązanie jest ustalane na podstawie wartości pochodnej w~punktach będących kolejnymi wynikami poprzednich iteracji działania algorytmu, Przedział poszukiwań jest ustalany na podstawie wyniku z~poprzedniej iteracji i~obecnej.
 
 \begin{thebibliography}{9}
 \bibitem{1}
