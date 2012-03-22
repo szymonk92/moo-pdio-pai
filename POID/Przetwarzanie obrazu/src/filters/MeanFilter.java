@@ -60,31 +60,31 @@ public class MeanFilter extends AbstractFilter {
     @Override
     public BufferedImage processImage(BufferedImage image) {
                 Color col;
-        int RGBA;
+        int RGBA,RGBAA;
         RGBA = image.getRGB(0, 0);
         int r, g, b;
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 RGBA = image.getRGB(x, y);
-                col = new Color(RGBA, true);
+                
+                col = new Color(RGBA,true);
                 r=col.getRed();b=col.getBlue();g=col.getGreen();
-                int sum=0;
-                for( int i=x-value; i<x+value; ++i) {
-                    for ( int j=y-value;j<y+value; ++j) {
-                        RGBA = ((i>-1 && j>-1 ) &&
-                                (i <image.getWidth() && j < image.getHeight()))?
-                                0 :image.getRGB(x, y);
-                        col = new Color(RGBA, true);
+                int len=value/2;
+                int sum = (len*2)*(len*2);
+                for( int i=x-len; i<x+len; ++i) {
+                    for ( int j=y-len;j<y+len; ++j) {
+                        RGBAA = (i<0 || j<0  ||
+                                i > image.getWidth()-1 || j > image.getHeight()-1)?
+                                RGBA :image.getRGB(i, j);
+                        col = new Color(RGBAA, true);
                         r+=col.getRed();
                         b+=col.getBlue();
                         g+=col.getGreen();
-                        sum++;
                     }
                 }
                 r/=sum;
                 g/=sum;
                 b/=sum;
-                
                 
                 
                 image.setRGB(x, y, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
