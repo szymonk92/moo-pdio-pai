@@ -27,8 +27,9 @@ public class ContrastFilterPanel extends javax.swing.JPanel {
         initComponents();
     }
     public ContrastFilterPanel(ContrastFilter filter) {
+        this();
         this.filter = filter;
-        initComponents();
+        
     }
 
     /**
