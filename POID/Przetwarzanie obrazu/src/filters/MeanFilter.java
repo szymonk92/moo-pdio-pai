@@ -67,15 +67,33 @@ public class MeanFilter extends AbstractFilter {
             for (int y = 0; y < image.getHeight(); y++) {
                 RGBA = image.getRGB(x, y);
                 col = new Color(RGBA, true);
-                //tmp fake
-                
                 r=col.getRed();b=col.getBlue();g=col.getGreen();
+                int sum=0;
+                for( int i=x-value; i<x+value; ++i) {
+                    for ( int j=y-value;j<y+value; ++j) {
+                        RGBA = ((i>-1 && j>-1 ) &&
+                                (i <image.getWidth() && j < image.getHeight()))?
+                                0 :image.getRGB(x, y);
+                        col = new Color(RGBA, true);
+                        r+=col.getRed();
+                        b+=col.getBlue();
+                        g+=col.getGreen();
+                        sum++;
+                    }
+                }
+                r/=sum;
+                g/=sum;
+                b/=sum;
+                
+                
+                
                 image.setRGB(x, y, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
             }
         }
         return image;    
 
         
+    
     }
     
     
