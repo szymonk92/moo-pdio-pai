@@ -53,21 +53,22 @@ public class BrightnessFilter extends AbstractFilter {
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-        Color col;
-        int RGBA;
-        RGBA = image.getRGB(0, 0);
-        col = new Color(RGBA, true);
+        //Color col;
+        int[] RGBA;
+       
+        //RGBA = image.getRGB(0, 0);
+        //col = new Color(RGBA, true);
 
         int r, g, b;
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
-                RGBA = image.getRGB(x, y);
-                col = new Color(RGBA, true);
+                RGBA = RGBHelper.toRGBA(image.getRGB(x, y));
+                //col = new Color(RGBA, true);
                 float brightnessAdjust = ((float) brightnessValue / 255.0f) * 8.0f;
-                r = (int) (col.getRed()*brightnessAdjust );
-                g = (int) (col.getGreen()*brightnessAdjust );
-                b = (int) (col.getBlue()*brightnessAdjust );
-                image.setRGB(x, y, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
+                RGBA[0] = (int) (RGBA[0]*brightnessAdjust );
+                RGBA[1] = (int) (RGBA[1]*brightnessAdjust );
+                RGBA[2] = (int) (RGBA[2]*brightnessAdjust );
+                image.setRGB(x, y, RGBHelper.toPixel(RGBA[0], RGBA[1], RGBA[2], 255));
             }
         }
 

@@ -4,7 +4,6 @@
  */
 package sys;
 
-import gui.EditWindow;
 import gui.MainPanel;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

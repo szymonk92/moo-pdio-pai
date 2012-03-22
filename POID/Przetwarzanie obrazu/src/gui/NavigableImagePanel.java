@@ -125,7 +125,7 @@ public final class NavigableImagePanel extends JPanel implements PropertyChangeL
     private boolean zoomNavigableImageEnable = true;
     private NavigableImagePanel.WheelZoomDevice wheelZoomDevice = null;
     private NavigableImagePanel.ButtonZoomDevice buttonZoomDevice = null;
-
+    private boolean processing =false;
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if ("filteredImage".equals(evt.getPropertyName())) {
@@ -134,6 +134,9 @@ public final class NavigableImagePanel extends JPanel implements PropertyChangeL
         }
     }
 
+    public void setProcessing(boolean value){
+        this.processing = value;
+    }
     /**
      * <p>Defines zoom devices.</p>
      */
@@ -755,7 +758,9 @@ public final class NavigableImagePanel extends JPanel implements PropertyChangeL
         if (scale == 0.0) {
             initializeParams();
         }
-
+if(this.processing){
+    g.drawString("Processing...", 100, 100);
+}
         if (isHighQualityRendering()) {
             Rectangle rect = getImageClipBounds();
             if (rect == null || rect.width == 0 || rect.height == 0) { // no part of image is displayed in the panel
