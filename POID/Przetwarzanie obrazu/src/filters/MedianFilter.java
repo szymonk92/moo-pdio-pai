@@ -6,6 +6,7 @@ package filters;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import javax.swing.JPanel;
 import sys.AbstractFilter;
 import sys.IFilter;
@@ -20,9 +21,13 @@ public class MedianFilter extends AbstractFilter{
     int value;
 
     public MedianFilter() {
+        this.name="Median Filter";
+        this.setEditable(true);
+        this.value=3;
     }
 
     public MedianFilter(int value) {
+        this();
         this.value = value;
     }
 
@@ -47,10 +52,8 @@ public class MedianFilter extends AbstractFilter{
 
     @Override
     public JPanel getEditPanel() {
-        return new MedianFIlterPanel(this);
+        return new MedianFilterPanel(this);
     }
-    
-    
     
 
     @Override
@@ -60,32 +63,47 @@ public class MedianFilter extends AbstractFilter{
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-                        Color col;
+        
         int RGBA,RGBAA;
-        RGBA = image.getRGB(0, 0);
-        int r, g, b;
+        int r, g, b,ai,mid,mid2;
+        int len=value/2;
+        int sum = ((len*2) + 1)*((len*2) + 1);
+        int[] red=new int[sum];
+        int[] green=new int[sum];
+        int[] blue=new int[sum];
+        
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 RGBA = image.getRGB(x, y);
+                ai=0;
                 
-                col = new Color(RGBA,true);
-                r=col.getRed();b=col.getBlue();g=col.getGreen();
-                int len=value/2;
-                int sum = (len*2)*(len*2);
-                for( int i=x-len; i<x+len; ++i) {
-                    for ( int j=y-len;j<y+len; ++j) {
+                for( int i=x-len; i<=x+len; ++i) {
+                    for ( int j=y-len;j<=y+len; ++j) {
                         RGBAA = (i<0 || j<0  ||
                                 i > image.getWidth()-1 || j > image.getHeight()-1)?
-                                RGBA :image.getRGB(i, j);
-                        col = new Color(RGBAA, true);
-                        r+=col.getRed();
-                        b+=col.getBlue();
-                        g+=col.getGreen();
+                                0 :image.getRGB(i, j);
+                        red[ai]=RGBHelper.getRed(RGBAA);
+                        green[ai]=RGBHelper.getGreen(RGBAA);
+                        blue[ai]=RGBHelper.getBlue(RGBAA);
+                        ai++;
                     }
                 }
-                r/=sum;
-                g/=sum;
-                b/=sum;
+                Arrays.sort(red);Arrays.sort(blue);Arrays.sort(green);
+                
+                
+                if (sum%2 == 0) { //parzyste, nie zachodzi
+                    mid = sum / 2;
+                    mid2 = (sum / 2) + 1;
+                    r = (red[mid] + red[mid2]) / 2;
+                    g = (green[mid] + green[mid2]) / 2;
+                    b = (blue[mid] + blue[mid2]) / 2; 
+                } else { //nieparzyste
+                    mid=sum/2;
+                    r=red[mid];
+                    g=green[mid];
+                    b=blue[mid];
+                }
+
                 
                 
                 image.setRGB(x, y, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());

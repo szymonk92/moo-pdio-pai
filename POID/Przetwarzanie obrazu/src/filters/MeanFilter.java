@@ -64,7 +64,7 @@ public class MeanFilter extends AbstractFilter {
         int r, g, b;
         int [][] tmp = new int[image.getWidth()][3];
         int len=value/2;
-        int sum = (len*2)*(len*2);
+        int sum = ((len*2) + 1)*((len*2) + 1);
         
         for (int x = 0; x < image.getHeight(); ++x) {
             for (int y = 0; y < image.getWidth(); ++y) {
@@ -72,13 +72,13 @@ public class MeanFilter extends AbstractFilter {
                 r = RGBHelper.getRed(RGBA);
                 g = RGBHelper.getGreen(RGBA);
                 b = RGBHelper.getBlue(RGBA);
-                int maxj = x + len >= image.getHeight() ? image.getHeight() : x + len,
-                        maxi = y + len >= image.getWidth() ? image.getWidth() : y + len;
-                for (int i = y - len < 0 ? 0 : y - len; i < maxi; ++i) {
+                int maxj = x + len >= image.getHeight() ? image.getHeight()-1 : x + len,
+                        maxi = y + len >= image.getWidth() ? image.getWidth()-1 : y + len;
+                for (int i = y - len < 0 ? 0 : y - len; i <= maxi; ++i) {
 
-                    if (y == 0 || i == y + len - 1) {
+                    if (y == 0 || i == maxi ) {
                         tmp[i][0] = tmp[i][1] = tmp[i][2] = 0;
-                        for (int j = x - len < 0 ? 0 : x - len; j < maxj; ++j) {
+                        for (int j = x - len < 0 ? 0 : x - len; j <= maxj; ++j) {
                             RGBAA = image.getRGB(i, j);
                             tmp[i][0] += RGBHelper.getRed(RGBAA);
                             tmp[i][1] += RGBHelper.getGreen(RGBAA);
