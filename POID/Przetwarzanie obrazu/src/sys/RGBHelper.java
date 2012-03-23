@@ -26,6 +26,17 @@ public class RGBHelper {
         result[3] = (pixel >> 24) & 0xff;//alpha
         return result;
     }
+    
+    public static int getRed(int pixel) {
+        return  (pixel >> 16) & 0xff;//red
+    }
+    public static int getGreen(int pixel) {
+        return  (pixel >> 8) & 0xff;//green
+    }
+    public static int getBlue(int pixel) {
+        return (pixel) & 0xff;//blue
+    }
+    
 
     public static double[] hsv2rgb(double hue, double sat, double val) {
         double red = 0, grn = 0, blu = 0;
