@@ -22,19 +22,18 @@ public class MeanFilter extends AbstractFilter {
     int value =3;
     
     public MeanFilter() {
-        this.value = 3;
+        this(3);
+    }
+    
+    public MeanFilter(MeanFilter filter) {
+        super(filter);
+        this.value = filter.getValue();
+    }
+    
+    public MeanFilter(int value) {
+        this.value = value;
         this.setName("Mean Filter");
         this.setEditable(true);
-        
-    }
-    public MeanFilter(MeanFilter filter) {
-        this.value = filter.getValue();
-        this.name = filter.getName();
-        
-    }
-    public MeanFilter(int value) {
-        this();
-        this.value = value;
     }
 
     public int getValue() {
@@ -59,35 +58,25 @@ public class MeanFilter extends AbstractFilter {
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-                Color col;
-        int RGBA,RGBAA;
-        RGBA = image.getRGB(0, 0);
-        int r, g, b;
+        int[] BaseRGBA, RGBA,RGBAA;
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
-                RGBA = image.getRGB(x, y);
-                
-                col = new Color(RGBA,true);
-                r=col.getRed();b=col.getBlue();g=col.getGreen();
+                BaseRGBA = RGBHelper.toRGBA(image.getRGB(x, y));
+                RGBA = BaseRGBA.clone();
                 int len=value/2;
                 int sum = (len*2)*(len*2);
                 for( int i=x-len; i<x+len; ++i) {
                     for ( int j=y-len;j<y+len; ++j) {
-                        RGBAA = (i<0 || j<0  ||
-                                i > image.getWidth()-1 || j > image.getHeight()-1)?
-                                RGBA :image.getRGB(i, j);
-                        col = new Color(RGBAA, true);
-                        r+=col.getRed();
-                        b+=col.getBlue();
-                        g+=col.getGreen();
+                        RGBAA = (i<0 || j<0  || i > image.getWidth()-1 || j > image.getHeight()-1)? BaseRGBA :RGBHelper.toRGBA(image.getRGB(i, j));
+                        RGBA[0]+=RGBAA[0];
+                        RGBA[1]+=RGBAA[1];
+                        RGBA[2]+=RGBAA[2];
                     }
                 }
-                r/=sum;
-                g/=sum;
-                b/=sum;
-                
-                
-                image.setRGB(x, y, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
+                RGBA[0]/=sum;
+                RGBA[1]/=sum;
+                RGBA[2]/=sum;
+                image.setRGB(x, y, RGBHelper.toPixel(RGBA[0], RGBA[1], RGBA[2], 255));
             }
         }
         return image;    
