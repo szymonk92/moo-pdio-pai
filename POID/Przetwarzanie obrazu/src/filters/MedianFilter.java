@@ -71,10 +71,10 @@ public class MedianFilter extends AbstractFilter{
         int[] red=new int[sum];
         int[] green=new int[sum];
         int[] blue=new int[sum];
+        int[] c=new int[sum];
         
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
-                RGBA = image.getRGB(x, y);
                 ai=0;
                 
                 for( int i=x-len; i<=x+len; ++i) {
@@ -85,6 +85,7 @@ public class MedianFilter extends AbstractFilter{
                         red[ai]=RGBHelper.getRed(RGBAA);
                         green[ai]=RGBHelper.getGreen(RGBAA);
                         blue[ai]=RGBHelper.getBlue(RGBAA);
+                        c[ai]=RGBAA;
                         ai++;
                     }
                 }

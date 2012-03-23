@@ -68,10 +68,7 @@ public class MeanFilter extends AbstractFilter {
         
         for (int x = 0; x < image.getHeight(); ++x) {
             for (int y = 0; y < image.getWidth(); ++y) {
-                RGBA = image.getRGB(y, x);
-                r = RGBHelper.getRed(RGBA);
-                g = RGBHelper.getGreen(RGBA);
-                b = RGBHelper.getBlue(RGBA);
+                r=g=b=0;
                 int maxj = x + len >= image.getHeight() ? image.getHeight()-1 : x + len,
                         maxi = y + len >= image.getWidth() ? image.getWidth()-1 : y + len;
                 for (int i = y - len < 0 ? 0 : y - len; i <= maxi; ++i) {
