@@ -17,7 +17,7 @@ import org.jdesktop.observablecollections.ObservableListListener;
 public class ViewsListener implements ObservableListListener {
 
     MainPanel mainPanel;
-
+    
     public ViewsListener(MainPanel mainPanel) {
         this.mainPanel = mainPanel;
     }

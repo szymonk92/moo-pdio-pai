@@ -69,5 +69,6 @@ public class Stopwatch {
     public void reset() {
         tasks = new ArrayList<Task>();
         running = false;
+        changeSupport.firePropertyChange("Tasks", null, tasks);
     }
 }

@@ -7,6 +7,8 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
 import sys.FiltersListener;
 import sys.TabData;
@@ -16,7 +18,7 @@ import sys.ViewsListener;
  *
  * @author Lukasz
  */
-public final class MainPanel extends javax.swing.JPanel {
+public final class MainPanel extends javax.swing.JPanel implements PropertyChangeListener  {
 
     public TabData data;
     public JPanel columnpanel;
@@ -28,7 +30,7 @@ public final class MainPanel extends javax.swing.JPanel {
         this.data = data;
         initComponents();
 
-        this.data.getFilters().addObservableListListener(new FiltersListener(this));
+        this.data.getFiltersListener().setTaskPropertyChangeListener(this);
         this.data.getViews().addObservableListListener(new ViewsListener(this));
 
         JPanel borderlaoutpanel = new JPanel();
@@ -224,4 +226,15 @@ public final class MainPanel extends javax.swing.JPanel {
     public javax.swing.JProgressBar progressBar;
     private javax.swing.JLabel zoomLabel;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ("progress".equals(evt.getPropertyName())) {
+            int progress = (Integer) evt.getNewValue();
+            progressBar.setValue(progress);
+            if (progress >= 100) {
+                progressBar.setValue(0);
+            }
+        }
+    }
 }

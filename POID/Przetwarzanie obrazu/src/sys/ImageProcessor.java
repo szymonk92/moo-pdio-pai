@@ -6,8 +6,6 @@ package sys;
 
 import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 
 /**
@@ -27,6 +25,7 @@ public class ImageProcessor extends SwingWorker<BufferedImage, Object> {
     @Override
     protected BufferedImage doInBackground() {
         if (data.getFilters() == null || data.getFilters().isEmpty()) {
+            data.getStopWatch().reset();
             return BufferedImageHelper.copy(data.getBaseImage());
         }
         BufferedImage tmp;
@@ -41,9 +40,9 @@ public class ImageProcessor extends SwingWorker<BufferedImage, Object> {
             data.getStopWatch().reset();
             tmp = BufferedImageHelper.copy(data.getBaseImage());
             int progressStep = 100 / data.getFilters().size();
-
             for (int i = 0; i < data.getFilters().size(); i++) {
-                 data.getStopWatch().start(data.getFilters().get(i).getName());
+                if(this.isCancelled())return null;
+                data.getStopWatch().start(data.getFilters().get(i).getName());
                 tmp = data.getFilters().get(i).processImage(tmp);
                 data.getStopWatch().stop();
                 int progressValue = this.getProgress() + progressStep;
@@ -64,9 +63,11 @@ public class ImageProcessor extends SwingWorker<BufferedImage, Object> {
         try {
             data.setFilteredImage(get());
         } catch (InterruptedException ex) {
-            Logger.getLogger(ImageProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(ImageProcessor.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ExecutionException ex) {
-            Logger.getLogger(ImageProcessor.class.getName()).log(Level.SEVERE, null, ex);
+           //Logger.getLogger(ImageProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (java.util.concurrent.CancellationException ex) {
         }
         setProgress(100);
     }

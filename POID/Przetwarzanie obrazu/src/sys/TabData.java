@@ -22,7 +22,12 @@ public class TabData {
     private BufferedImage baseMiniatureImage;
     private BufferedImage filteredImage;
     private Stopwatch stopWatch;
+    private FiltersListener filtersListener;
 
+    public FiltersListener getFiltersListener() {
+        return filtersListener;
+    }
+    
     public Stopwatch getStopWatch() {
         return stopWatch;
     }
@@ -68,6 +73,8 @@ public class TabData {
         views = ObservableCollections.observableList(new ArrayList<IView>());
         changeSupport = new PropertyChangeSupport(this);
         stopWatch = new Stopwatch(image.getHeight()*image.getWidth());
+        filtersListener = new FiltersListener(this,null);
+        filters.addObservableListListener(filtersListener);
     }
 
     public void setFilteredImage(BufferedImage image) {
