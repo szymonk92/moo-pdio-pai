@@ -4,30 +4,18 @@
  */
 package views;
 
-import com.lowagie.text.Font;
 import java.awt.Color;
 import java.awt.Dimension;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.annotations.XYPointerAnnotation;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.category.AreaRenderer;
-import org.jfree.chart.renderer.category.CategoryItemRenderer;
-import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.TextAnchor;
 import sys.BufferedImageHelper;
 import sys.TabData;
 
@@ -38,8 +26,9 @@ import sys.TabData;
 public class HistogramPanel extends javax.swing.JPanel {
 
     private TabData data;
-XYPlot xyplot;
-XYItemRenderer renderer;
+    XYPlot xyplot;
+    XYItemRenderer renderer;
+
     /**
      * Creates new form HistogramPanel
      */
@@ -125,17 +114,16 @@ XYItemRenderer renderer;
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-renderer.setSeriesVisible(0, !renderer.getSeriesVisible(0));
+        renderer.setSeriesVisible(0, !renderer.getSeriesVisible(0));
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-renderer.setSeriesVisible(1, !renderer.getSeriesVisible(1));        // TODO add your handling code here:
+        renderer.setSeriesVisible(1, !renderer.getSeriesVisible(1));        // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-renderer.setSeriesVisible(2, !renderer.getSeriesVisible(2));        // TODO add your handling code here:
+        renderer.setSeriesVisible(2, !renderer.getSeriesVisible(2));        // TODO add your handling code here:
     }//GEN-LAST:event_jButton3ActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -155,10 +143,18 @@ renderer.setSeriesVisible(2, !renderer.getSeriesVisible(2));        // TODO add 
             }
             seriescollection.addSeries(series);
         }
+        if(max==3){
+            XYSeries series = new XYSeries(3);
+            double[] values = BufferedImageHelper.getLuminanceHistogram(this.data.getFilteredImage());
+            for (int x = 0; x < 255; x++) {
+                series.add(x, values[x]);
+            }
+            seriescollection.addSeries(series);
+        }
         return seriescollection;
     }
 
-    private  JFreeChart createChart(XYDataset xydataset) {
+    private JFreeChart createChart(XYDataset xydataset) {
         JFreeChart jfreechart = ChartFactory.createXYAreaChart(null, null, null, xydataset, PlotOrientation.VERTICAL, false, true, false);
         jfreechart.setBackgroundPaint(Color.white);
         xyplot = (XYPlot) jfreechart.getPlot();
@@ -171,17 +167,18 @@ renderer.setSeriesVisible(2, !renderer.getSeriesVisible(2));        // TODO add 
         valueaxis.setLowerMargin(0.0D);
         valueaxis.setUpperMargin(0.0D);
         renderer = xyplot.getRenderer();
-        if(xydataset.getSeriesCount()>1){
-        renderer.setSeriesPaint(0, Color.red);
-        renderer.setSeriesPaint(1, Color.green);
-        renderer.setSeriesPaint(2, Color.blue);
-         renderer.setSeriesVisible(0, true);
-        renderer.setSeriesVisible(1, true);
-        renderer.setSeriesVisible(2, true);
-        }
-        else{
-             renderer.setSeriesPaint(0, Color.BLACK);
-             renderer.setSeriesVisible(0, true);
+        if (xydataset.getSeriesCount() > 1) {
+            renderer.setSeriesPaint(0, Color.red);
+            renderer.setSeriesPaint(1, Color.green);
+            renderer.setSeriesPaint(2, Color.blue);
+            renderer.setSeriesVisible(0, true);
+            renderer.setSeriesVisible(1, true);
+            renderer.setSeriesVisible(2, true);
+            renderer.setSeriesPaint(3, Color.BLACK);
+            renderer.setSeriesVisible(3, true);
+        } else {
+            renderer.setSeriesPaint(0, Color.BLACK);
+            renderer.setSeriesVisible(0, true);
         }
         ValueAxis valueaxis1 = xyplot.getRangeAxis();
         valueaxis1.setTickMarkPaint(Color.black);

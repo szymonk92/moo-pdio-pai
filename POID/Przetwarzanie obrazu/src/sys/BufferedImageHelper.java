@@ -11,6 +11,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -55,4 +57,22 @@ public class BufferedImageHelper {
         }
         return histogram;
     }
+        static public double[] getLuminanceHistogram(BufferedImage src) {
+        
+               double[] histogram = new double[256];
+        for (int i = 0; i < 256; i++) {
+            histogram[ i] = 0;
+        }
+        Raster raster = src.getRaster();
+        if (raster.getNumBands() < 3) {
+            return histogram;
+        }
+        for (int y = 0; y < src.getHeight(); y++) {
+            for (int x = 0; x < src.getWidth(); x++) {
+                histogram[(raster.getSample(x, y, 0)+raster.getSample(x, y, 1)+raster.getSample(x, y, 2))/3]++;
+            }
+        }
+        return histogram;
+    }
+    
 }
