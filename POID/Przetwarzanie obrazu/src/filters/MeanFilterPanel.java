@@ -76,7 +76,7 @@ public class MeanFilterPanel extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
        int val = Integer.parseInt(jTextField1.getText());
-       val = val > 12 ? 12 : (val < 3 ?3 :val );
+       val = val > 20 ? 20 : (val < 3 ?3 :val );
        filter.setValue(val);
     }//GEN-LAST:event_jButton1ActionPerformed
 

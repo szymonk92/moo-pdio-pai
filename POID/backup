@@ -1,0 +1,36 @@
+ @Override
+    public BufferedImage processImage(BufferedImage image) {
+        int RGBA,RGBAA;
+        RGBA = image.getRGB(0, 0);
+        int r, g, b;
+        for (int x = 0; x < image.getWidth(); ++x) {
+            for (int y = 0; y < image.getHeight(); ++y) {
+                RGBA = image.getRGB(x, y);
+                r=RGBHelper.getRed(RGBA);
+                b=RGBHelper.getBlue(RGBA);
+                g=RGBHelper.getGreen(RGBA);
+                int len=value/2;
+                int sum = (len*2)*(len*2);
+                for( int i=x-len; i<x+len; ++i) {
+                    for ( int j=y-len;j<y+len; ++j) {
+                        RGBAA = (i<0 || j<0  ||
+                                i > image.getWidth()-1 || j > image.getHeight()-1)?
+                                RGBA :image.getRGB(i, j);
+                        r+=RGBHelper.getRed(RGBAA);
+                        b+=RGBHelper.getBlue(RGBAA);
+                        g+=RGBHelper.getGreen(RGBAA);
+                    }
+                }
+                r/=sum;
+                g/=sum;
+                b/=sum;
+                
+
+                image.setRGB(x, y, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
+            }
+        }
+        return image;    
+
+        
+    
+    }

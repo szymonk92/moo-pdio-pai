@@ -8,19 +8,19 @@ package filters;
  *
  * @author pawel
  */
-public class MedianFIlterPanel extends javax.swing.JPanel {
+public class MedianFilterPanel extends javax.swing.JPanel {
     
     
     MedianFilter filter;
 
     /**
-     * Creates new form MedianFIlterPanel
+     * Creates new form MedianFilterPanel
      */
-    public MedianFIlterPanel() {
+    public MedianFilterPanel() {
         initComponents();
     }
 
-    MedianFIlterPanel(MedianFilter aThis) {
+    MedianFilterPanel(MedianFilter aThis) {
         this();
         filter = aThis;
     }
