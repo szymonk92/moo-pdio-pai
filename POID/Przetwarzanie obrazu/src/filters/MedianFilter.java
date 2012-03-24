@@ -21,18 +21,17 @@ public class MedianFilter extends AbstractFilter{
     int value;
 
     public MedianFilter() {
-        this.name="Median Filter";
-        this.setEditable(true);
-        this.value=3;
+        this(3);
     }
 
     public MedianFilter(int value) {
-        this();
+        this.name="Median Filter";
+        this.setEditable(true);
         this.value = value;
     }
 
     public MedianFilter(MedianFilter filter) {
-        this.name = filter.getName();
+        super(filter);
         this.value = filter.getValue();
     }
     

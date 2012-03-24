@@ -63,7 +63,7 @@ public class RaleighFilter extends AbstractFilter {
        
 
     public RaleighFilter(RaleighFilter filter) {
-        this();
+        super(filter);
         this.gmin=filter.getGmin();
         this.channel=filter.getChannel();
         this.alpha=filter.getAlpha();
