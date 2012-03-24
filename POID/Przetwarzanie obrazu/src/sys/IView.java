@@ -10,12 +10,9 @@ import javax.swing.JPanel;
  *
  * @author Lukasz
  */
-public interface IView {
+public interface IView extends IPlugin{
     
-   public JPanel getView();
-   public String getName();
-   public String getIcon();
-   public void setTabData(TabData data);
+   public JPanel getView(TabData data);
    public boolean canByMultiple();
    public boolean addAtTop();
     

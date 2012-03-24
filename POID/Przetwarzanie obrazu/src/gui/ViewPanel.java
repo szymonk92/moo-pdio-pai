@@ -27,7 +27,6 @@ public class ViewPanel extends javax.swing.JPanel {
     public ViewPanel(IView view, TabData data) {
         this.data = data;
         this.view = view;
-        view.setTabData(data);
         initComponents();
         if (view.getIcon() == null) {
             titleLabel.setIcon(IconHelper.getDefaultIcon());
@@ -35,7 +34,7 @@ public class ViewPanel extends javax.swing.JPanel {
             titleLabel.setIcon(new ImageIcon(getClass().getResource(view.getIcon())));
         }
         this.titleLabel.setText(view.getName());
-        this.contentPanel.add(view.getView());
+        this.contentPanel.add(view.getView(data));
 
         setSize(maxd);
         setPreferredSize(maxd);

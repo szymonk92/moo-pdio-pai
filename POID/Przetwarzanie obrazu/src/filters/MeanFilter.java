@@ -4,7 +4,6 @@
  */
 package filters;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import sys.AbstractFilter;
@@ -62,7 +61,7 @@ public class MeanFilter extends AbstractFilter {
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 BaseRGBA = RGBHelper.toRGBA(image.getRGB(x, y));
-                RGBA = BaseRGBA.clone();
+                RGBA = BaseRGBA.clone(); //klonowanie jest najszybsze
                 int len=value/2;
                 int sum = (len*2)*(len*2);
                 for( int i=x-len; i<x+len; ++i) {
