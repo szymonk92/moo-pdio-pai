@@ -63,6 +63,8 @@ public class MedianFilter extends AbstractFilter{
     @Override
     public BufferedImage processImage(BufferedImage image) {
         
+        BufferedImage out = new BufferedImage(image.getWidth(),image.getHeight(),image.getType());
+        
         int RGBA,RGBAA;
         int r, g, b,ai,mid,mid2;
         int len=value/2;
@@ -106,10 +108,10 @@ public class MedianFilter extends AbstractFilter{
 
                 
                 
-                image.setRGB(x, y, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
+                out.setRGB(x, y, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
             }
         }
-        return image;  
+        return out;  
     }
     
 }
