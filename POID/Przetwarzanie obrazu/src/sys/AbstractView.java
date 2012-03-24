@@ -4,21 +4,17 @@
  */
 package sys;
 
+import java.beans.PropertyChangeSupport;
+
 /**
  *
  * @author Lukasz
  */
 public abstract class AbstractView implements IView {
 
-    public TabData data;
     @Override
     public String getIcon() {
         return null;
-    }
-    
-    @Override
-    public void setTabData(TabData data){
-        this.data = data;
     }
     
     @Override
@@ -29,6 +25,21 @@ public abstract class AbstractView implements IView {
     @Override
     public boolean addAtTop(){
         return false;
+    }
+    
+    @Override
+    public String getDescription() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public IPlugin getCopy() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public PropertyChangeSupport getChangeSupport() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
 }

@@ -6,6 +6,7 @@ package filters;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import javax.swing.JPanel;
 import sys.AbstractFilter;
 import sys.IFilter;
@@ -17,10 +18,14 @@ import sys.RGBHelper;
  */
 public class InverseColor extends AbstractFilter {
 
-    private boolean enabled = true;
+    private boolean enabled;
     private short[] invertTable;
 
     public InverseColor() {
+        this(true);
+    }
+
+    public InverseColor(boolean enabled) {
         this.setName("Inverse color");
         this.setDescription("Ten filtr odwrca kolory na obrazie.");
         this.setEditable(true);
@@ -29,8 +34,8 @@ public class InverseColor extends AbstractFilter {
             invertTable[i] = (short) (255 - i);
         }
     }
-    
-    public InverseColor(InverseColor filter){
+
+    public InverseColor(InverseColor filter) {
         super(filter);
         this.enabled = filter.isEnabled();
         this.invertTable = filter.invertTable.clone();
@@ -43,7 +48,7 @@ public class InverseColor extends AbstractFilter {
             for (int x = 0; x < image.getWidth(); x++) {
                 for (int y = 0; y < image.getHeight(); y++) {
                     RGBA = RGBHelper.toRGBA(image.getRGB(x, y));
-                    image.setRGB(x, y, RGBHelper.toPixel(invertTable[RGBA[0]], invertTable[RGBA[1]], invertTable[RGBA[2]],255)); //set the pixel to the altered colors
+                    image.setRGB(x, y, RGBHelper.toPixel(invertTable[RGBA[0]], invertTable[RGBA[1]], invertTable[RGBA[2]], 255)); //set the pixel to the altered colors
                 }
             }
         }
@@ -66,9 +71,9 @@ public class InverseColor extends AbstractFilter {
     }
 
     public boolean isEnabled() {
-       return this.enabled;
+        return this.enabled;
     }
-    
+
     @Override
     public String getIcon() {
         return "/images/invert.png";

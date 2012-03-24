@@ -14,27 +14,28 @@ import sys.TabData;
  *
  * @author Lukasz
  */
-public class HistoryView extends AbstractView{
+public class PerformanceView extends AbstractView{
 
     @Override
     public JPanel getView(TabData data) {
-       return new HistoryPanel(data);
+       return new PerformanceViewPanel(data);
     }
 
     @Override
     public String getName() {
-        return "Historia";
+        return "Performance";
     }
     
     @Override
-    public boolean addAtTop(){
-        return true;
+    public boolean canByMultiple(){
+        return false;
     }
     
     @Override
     public String getIcon() {
-        return "/images/history.png";
+        return "/images/performance.png";
     }
+
 
     @Override
     public String getDescription() {
@@ -50,5 +51,4 @@ public class HistoryView extends AbstractView{
     public PropertyChangeSupport getChangeSupport() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
 }

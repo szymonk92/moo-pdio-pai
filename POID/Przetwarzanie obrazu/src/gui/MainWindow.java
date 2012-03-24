@@ -9,6 +9,7 @@ import java.awt.event.ContainerListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +40,7 @@ public class MainWindow extends javax.swing.JFrame {
         this();
         this.filters = filtry;
         this.views = views;
+        Collections.sort(filters, new FilterSortyByName());
         filterSubMenuLoad(this.filtryMenu);
         viewSubMenuLoad(this.widokMenu);
         this.closableTabbedPane.addContainerListener(new ContainerListener() {

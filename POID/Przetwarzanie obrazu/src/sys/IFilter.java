@@ -5,23 +5,17 @@
 package sys;
 
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeSupport;
 import javax.swing.JPanel;
 
 /**
  *
  * @author Lukasz
  */
-public interface IFilter{
-
-    String getDescription();
+public interface IFilter extends IPlugin{
 
     JPanel getEditPanel();
     
-    String getIcon();
-    
-    String getName();
-
+    @Override
     IFilter getCopy();
     
     boolean isEditable();
@@ -31,7 +25,5 @@ public interface IFilter{
     void setDescription(String description);
 
     void setName(String name);
-    
-    public PropertyChangeSupport getChangeSupport();
     
 }

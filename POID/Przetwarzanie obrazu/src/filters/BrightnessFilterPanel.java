@@ -48,6 +48,7 @@ BrightnessFilter filter;
 
         jSlider.setMajorTickSpacing(50);
         jSlider.setMaximum(255);
+        jSlider.setMinimum(-255);
         jSlider.setMinorTickSpacing(10);
         jSlider.setPaintTicks(true);
         jSlider.setValue(0);

@@ -22,19 +22,18 @@ public class MeanFilter extends AbstractFilter {
     int value =3;
     
     public MeanFilter() {
-        this.value = 3;
+        this(3);
+    }
+    
+    public MeanFilter(MeanFilter filter) {
+        super(filter);
+        this.value = filter.getValue();
+    }
+    
+    public MeanFilter(int value) {
+        this.value = value;
         this.setName("Mean Filter");
         this.setEditable(true);
-        
-    }
-    public MeanFilter(MeanFilter filter) {
-        this.value = filter.getValue();
-        this.name = filter.getName();
-        
-    }
-    public MeanFilter(int value) {
-        this();
-        this.value = value;
     }
 
     public int getValue() {

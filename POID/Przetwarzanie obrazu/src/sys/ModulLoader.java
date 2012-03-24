@@ -64,7 +64,7 @@ public ArrayList<T> LoadByInterface(String packageName, String interfejs){
 			Class<?> modul = null;
 			try {
 				modul = Class.forName(packageName+"."+f.getName().replace(".class", ""));
-			} catch (ClassNotFoundException e) {
+			} catch (Exception e) {
 				Messages.error(e.getMessage());
 			}
 			if(isInterface(modul,interfejs)){
