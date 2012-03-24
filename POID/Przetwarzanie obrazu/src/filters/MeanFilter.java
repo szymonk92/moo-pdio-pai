@@ -59,6 +59,10 @@ public class MeanFilter extends AbstractFilter {
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
+        
+        BufferedImage out = new BufferedImage(image.getWidth(),image.getHeight(),image.getType());
+        
+        
         int RGBA,RGBAA;
         RGBA = image.getRGB(0, 0);
         int r, g, b;
@@ -92,10 +96,10 @@ public class MeanFilter extends AbstractFilter {
                 b /= sum;
                 
 
-                image.setRGB(y, x, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
+                out.setRGB(y, x, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
             }
         }
-        return image;    
+        return out;    
 
         
     
