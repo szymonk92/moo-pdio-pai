@@ -4,6 +4,7 @@
  */
 package filters;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import sys.AbstractFilter;
