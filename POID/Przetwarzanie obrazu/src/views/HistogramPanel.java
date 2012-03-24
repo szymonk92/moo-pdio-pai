@@ -47,20 +47,7 @@ XYItemRenderer renderer;
         this.data = data;
         initComponents();
         XYDataset xydataset = createDataset();
-
         JFreeChart chart = createChart(xydataset);
-        /*
-         * CategoryDataset dataset =
-         * DatasetUtilities.createCategoryDataset("Series ", "Type ", series);
-         * PlotOrientation orientation = PlotOrientation.VERTICAL; boolean show
-         * = false; boolean toolTips = false; boolean urls = false; JFreeChart
-         * chart = ChartFactory.createAreaChart(null, null, null, dataset,
-         * orientation, show, toolTips, urls); final CategoryPlot plot =
-         * chart.getCategoryPlot(); plot.setForegroundAlpha(0.5f); //plot.get
-         * final CategoryAxis domainAxis = plot.getDomainAxis(); final
-         * NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setVisible(false);
-         */
         ChartPanel chartpanel = new ChartPanel(chart);
         chartpanel.setPreferredSize(new Dimension(200, 200));
         this.jPanel2.add(new ChartPanel(chart));

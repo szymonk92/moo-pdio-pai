@@ -22,6 +22,7 @@ public class FiltersListener implements ObservableListListener, PropertyChangeLi
 
     public FiltersListener(MainPanel mainPanel) {
         this.mainPanel = mainPanel;
+        task = new ImageProcessor(mainPanel.data, true);
     }
 
     @Override
@@ -61,5 +62,12 @@ public class FiltersListener implements ObservableListListener, PropertyChangeLi
                 mainPanel.progressBar.setValue(0);
             }
         }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        task.cancel(true);
+        task = null;
+        super.finalize();
     }
 }

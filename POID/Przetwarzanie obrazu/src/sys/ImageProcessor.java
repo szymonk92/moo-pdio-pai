@@ -18,7 +18,7 @@ public class ImageProcessor extends SwingWorker<BufferedImage, Object> {
 
     private TabData data;
     private boolean Added;
-
+    
     public ImageProcessor(TabData data, boolean Added) {
         this.data = data;
         this.Added = Added;
@@ -32,15 +32,20 @@ public class ImageProcessor extends SwingWorker<BufferedImage, Object> {
         BufferedImage tmp;
         setProgress(0);
         if (Added) {
+            data.getStopWatch().start(data.getFilters().get(data.getFilters().size() - 1).getName());
             tmp = BufferedImageHelper.copy(data.getFilteredImage());
             tmp = data.getFilters().get(data.getFilters().size() - 1).processImage(tmp);
+            data.getStopWatch().stop();
             setProgress(100);
         } else {
+            data.getStopWatch().reset();
             tmp = BufferedImageHelper.copy(data.getBaseImage());
             int progressStep = 100 / data.getFilters().size();
 
             for (int i = 0; i < data.getFilters().size(); i++) {
+                 data.getStopWatch().start(data.getFilters().get(i).getName());
                 tmp = data.getFilters().get(i).processImage(tmp);
+                data.getStopWatch().stop();
                 int progressValue = this.getProgress() + progressStep;
                 if (progressValue > 100) {
                     progressValue = 100;
