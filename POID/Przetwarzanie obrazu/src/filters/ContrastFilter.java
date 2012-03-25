@@ -70,10 +70,10 @@ public class ContrastFilter extends  AbstractFilter {
                 RGBA = image.getRGB(x, y);
                 col = new Color(RGBA, true);
                 rt=col.getRed(); gt=col.getGreen(); bt=col.getBlue();
-//                rt/=255.0f;gt/=255.0f;bt/=255.0f;
-//                r = (int) ((((rt-0.5f)*value)+0.5f)*255.0f);
-//                g = (int) ((((gt-0.5f)*value)+0.5f)*255.0f);
-//                b = (int) ((((bt-0.5f)*value)+0.5f)*255.0f);
+              // rt/=255.0f;gt/=255.0f;bt/=255.0f;
+               // r = (int) ((((rt-0.5f)*value/100.0f)+0.5f)*255.0f);
+                //g = (int) ((((gt-0.5f)*value/100.0f)+0.5f)*255.0f);
+                //b = (int) ((((bt-0.5f)*value/100.0f)+0.5f)*255.0f);
                 r = (int) (((rt-value)*Math.exp(value/50.0f))+value);
                 g = (int) (((gt-value)*Math.exp(value/50.0f))+value);
                 b = (int) (((bt-value)*Math.exp(value/50.0f))+value);

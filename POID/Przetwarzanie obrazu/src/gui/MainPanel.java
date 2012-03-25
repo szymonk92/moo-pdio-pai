@@ -10,7 +10,6 @@ import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JPanel;
-import sys.FiltersListener;
 import sys.TabData;
 import sys.ViewsListener;
 
@@ -128,6 +127,7 @@ public final class MainPanel extends javax.swing.JPanel implements PropertyChang
 
         add(jSplitPane, java.awt.BorderLayout.CENTER);
 
+        optionPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         optionPanel.setMaximumSize(new java.awt.Dimension(32767, 25));
         optionPanel.setMinimumSize(new java.awt.Dimension(0, 25));
         optionPanel.setPreferredSize(new java.awt.Dimension(715, 25));
@@ -169,7 +169,7 @@ public final class MainPanel extends javax.swing.JPanel implements PropertyChang
                 .addComponent(zoomLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(hqLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 215, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 211, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         optionPanelLayout.setVerticalGroup(
@@ -214,7 +214,7 @@ public final class MainPanel extends javax.swing.JPanel implements PropertyChang
     }//GEN-LAST:event_navigableImagePanelPropertyChange
 
     private void formComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_formComponentAdded
-        this.navigableImagePanel.setImage(data.getFilteredImage());
+        this.navigableImagePanel.setTabData(data);
     }//GEN-LAST:event_formComponentAdded
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel hqLabel;

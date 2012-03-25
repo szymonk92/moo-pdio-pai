@@ -10,6 +10,7 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import sys.TabData;
 
 /**
  * <p>
@@ -126,11 +127,15 @@ public final class NavigableImagePanel extends JPanel implements PropertyChangeL
     private NavigableImagePanel.WheelZoomDevice wheelZoomDevice = null;
     private NavigableImagePanel.ButtonZoomDevice buttonZoomDevice = null;
     private boolean processing =false;
+    private TabData data;
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if ("filteredImage".equals(evt.getPropertyName())) {
-            this.setImage((BufferedImage)evt.getNewValue());
-            this.invalidate();
+             this.image = (BufferedImage)evt.getNewValue();
+             if (isNavigationImageEnabled()) {
+            createNavigationImage();
+        }
+            repaint();
         }
     }
 
@@ -307,11 +312,16 @@ public final class NavigableImagePanel extends JPanel implements PropertyChangeL
      * <p>Creates a new navigable image panel with the specified image and the
      * mouse scroll wheel as the zooming device.</p>
      */
-    public NavigableImagePanel(BufferedImage image) throws IOException {
+    public NavigableImagePanel(TabData data) throws IOException {
         this();
-        setImage(image);
+        setTabData(data);
+        setImage(this.data.getFilteredImage());
     }
-
+public void setTabData(TabData data){
+     this.data = data;
+     this.data.getChangeSupport().addPropertyChangeListener(this);
+     setImage(this.data.getFilteredImage());
+}
     private void addWheelZoomDevice() {
         if (wheelZoomDevice == null) {
             wheelZoomDevice = new NavigableImagePanel.WheelZoomDevice();

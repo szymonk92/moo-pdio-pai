@@ -49,6 +49,8 @@ public class ContrastFilterPanel extends javax.swing.JPanel {
         jSlider1.setMinimum(-100);
         jSlider1.setMinorTickSpacing(5);
         jSlider1.setPaintTicks(true);
+        jSlider1.setPaintTrack(false);
+        jSlider1.setSnapToTicks(true);
         jSlider1.setValue(0);
         jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {

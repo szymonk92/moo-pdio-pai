@@ -50,6 +50,8 @@
         <Property name="minimum" type="int" value="-100"/>
         <Property name="minorTickSpacing" type="int" value="5"/>
         <Property name="paintTicks" type="boolean" value="true"/>
+        <Property name="paintTrack" type="boolean" value="false"/>
+        <Property name="snapToTicks" type="boolean" value="true"/>
         <Property name="value" type="int" value="0"/>
       </Properties>
       <Events>
