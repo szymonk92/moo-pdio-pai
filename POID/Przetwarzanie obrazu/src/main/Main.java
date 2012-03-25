@@ -13,7 +13,6 @@ public class Main {
      * @param args
      */
     public static void  main(String[] args) {
-        
         modulLoader = new ModulLoader<IFilter>();
         final ArrayList<IFilter> filters  = modulLoader.LoadByInterface("filters", "sys.IFilter");
         modulLoader = new ModulLoader<IView>();

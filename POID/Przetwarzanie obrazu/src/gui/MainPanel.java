@@ -17,8 +17,8 @@ import sys.ViewsListener;
  *
  * @author Lukasz
  */
-public final class MainPanel extends javax.swing.JPanel implements PropertyChangeListener  {
-
+public final class MainPanel extends javax.swing.JPanel implements PropertyChangeListener {
+    
     public TabData data;
     public JPanel columnpanel;
 
@@ -28,14 +28,15 @@ public final class MainPanel extends javax.swing.JPanel implements PropertyChang
     public MainPanel(TabData data) {
         this.data = data;
         initComponents();
-
+        
         this.data.getFiltersListener().setTaskPropertyChangeListener(this);
         this.data.getViews().addObservableListListener(new ViewsListener(this));
-
+        
         JPanel borderlaoutpanel = new JPanel();
         this.jScrollPane.setViewportView(borderlaoutpanel);
         borderlaoutpanel.setLayout(new BorderLayout(0, 0));
-
+        this.typeLabel.setText(this.data.getFilteredImageType().getName());
+        this.typeLabel.setToolTipText(this.data.getFilteredImageType().getDescription());
         columnpanel = new JPanel();
         borderlaoutpanel.add(columnpanel, BorderLayout.NORTH);
         columnpanel.setLayout(new GridLayout(0, 1, 0, 1));
@@ -43,7 +44,7 @@ public final class MainPanel extends javax.swing.JPanel implements PropertyChang
         this.data.getChangeSupport().addPropertyChangeListener(navigableImagePanel);
         setSplit();
     }
-
+    
     public void setSplit() {
         if (data.getViews().size() > 0) {
             this.remove(this.navigableImagePanel);
@@ -72,6 +73,7 @@ public final class MainPanel extends javax.swing.JPanel implements PropertyChang
         zoomLabel = new javax.swing.JLabel();
         hqLabel = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
+        typeLabel = new javax.swing.JLabel();
 
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
@@ -161,22 +163,39 @@ public final class MainPanel extends javax.swing.JPanel implements PropertyChang
         progressBar.setMinimumSize(new java.awt.Dimension(100, 20));
         progressBar.setPreferredSize(new java.awt.Dimension(300, 20));
 
+        typeLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        typeLabel.setMaximumSize(new java.awt.Dimension(100, 25));
+        typeLabel.setMinimumSize(new java.awt.Dimension(100, 25));
+        typeLabel.setPreferredSize(new java.awt.Dimension(100, 25));
+        typeLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                typeLabelMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout optionPanelLayout = new javax.swing.GroupLayout(optionPanel);
         optionPanel.setLayout(optionPanelLayout);
         optionPanelLayout.setHorizontalGroup(
             optionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(optionPanelLayout.createSequentialGroup()
-                .addComponent(zoomLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
+                .addComponent(zoomLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(typeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29)
                 .addComponent(hqLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 211, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         optionPanelLayout.setVerticalGroup(
             optionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(zoomLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(hqLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(optionPanelLayout.createSequentialGroup()
+                .addGroup(optionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(optionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(zoomLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(typeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(hqLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         zoomLabel.getAccessibleContext().setAccessibleName("zoomLabel");
@@ -190,20 +209,20 @@ public final class MainPanel extends javax.swing.JPanel implements PropertyChang
                 - jSplitPane.getDividerSize()
                 - 300);
     }//GEN-LAST:event_jSplitPaneComponentResized
-
+    
     private void navigableImagePanelMouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_navigableImagePanelMouseWheelMoved
     }//GEN-LAST:event_navigableImagePanelMouseWheelMoved
-
+    
     private void zoomLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_zoomLabelMouseClicked
         this.navigableImagePanel.setZoom(1.0);
         this.navigableImagePanel.repaint();
     }//GEN-LAST:event_zoomLabelMouseClicked
-
+    
     private void hqLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hqLabelMouseClicked
         this.navigableImagePanel.setHighQualityRenderingEnabled(!this.navigableImagePanel.isHighQualityRenderingEnabled());
         this.navigableImagePanel.repaint();
     }//GEN-LAST:event_hqLabelMouseClicked
-
+    
     private void navigableImagePanelPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_navigableImagePanelPropertyChange
         if (NavigableImagePanel.ZOOM_LEVEL_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
             this.zoomLabel.setText(this.navigableImagePanel.getZoom() * 100 + "%");
@@ -212,10 +231,14 @@ public final class MainPanel extends javax.swing.JPanel implements PropertyChang
             this.hqLabel.setText((Boolean) evt.getNewValue() ? "HQ" : "LQ");
         }
     }//GEN-LAST:event_navigableImagePanelPropertyChange
-
+    
     private void formComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_formComponentAdded
         this.navigableImagePanel.setTabData(data);
     }//GEN-LAST:event_formComponentAdded
+    
+    private void typeLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_typeLabelMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_typeLabelMouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel hqLabel;
     private javax.swing.JScrollPane jScrollPane;
@@ -224,6 +247,7 @@ public final class MainPanel extends javax.swing.JPanel implements PropertyChang
     public gui.NavigableImagePanel navigableImagePanel;
     private javax.swing.JPanel optionPanel;
     public javax.swing.JProgressBar progressBar;
+    private javax.swing.JLabel typeLabel;
     private javax.swing.JLabel zoomLabel;
     // End of variables declaration//GEN-END:variables
 
