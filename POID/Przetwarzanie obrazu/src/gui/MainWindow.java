@@ -28,6 +28,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     private List<IFilter> filters;
     private List<IView> views;
+    DiffWindow diffWindow;
 
     /**
      * Creates new form MainWindow
@@ -40,6 +41,7 @@ public class MainWindow extends javax.swing.JFrame {
         this();
         this.filters = filtry;
         this.views = views;
+        diffWindow= new DiffWindow();
         Collections.sort(filters, new FilterSortyByName());
         filterSubMenuLoad(this.filtryMenu);
         viewSubMenuLoad(this.widokMenu);
@@ -89,6 +91,7 @@ public class MainWindow extends javax.swing.JFrame {
         closeMenuItem = new javax.swing.JMenuItem();
         widokMenu = new javax.swing.JMenu();
         filtryMenu = new javax.swing.JMenu();
+        jMenu1 = new javax.swing.JMenu();
 
         openFileChooser.setAcceptAllFileFilterUsed(false);
         openFileChooser.setAccessory(new components.ImagePreview(this.openFileChooser));
@@ -146,6 +149,18 @@ public class MainWindow extends javax.swing.JFrame {
         filtryMenu.setText("Filtry");
         filtryMenu.setActionCommand("Filtr");
         jMenuBar1.add(filtryMenu);
+
+        jMenu1.setText("Diff");
+        jMenu1.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                jMenu1MenuSelected(evt);
+            }
+        });
+        jMenuBar1.add(jMenu1);
 
         setJMenuBar(jMenuBar1);
 
@@ -209,10 +224,17 @@ public class MainWindow extends javax.swing.JFrame {
         }
         this.saveFileChooser.setSelectedFile(null);        // TODO add your handling code here:
     }//GEN-LAST:event_saveFileMenuItemActionPerformed
+
+    private void jMenu1MenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu1MenuSelected
+        // TODO add your handling code here:
+            diffWindow.setVisible(true);
+    }//GEN-LAST:event_jMenu1MenuSelected
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private gui.ClosableTabbedPane closableTabbedPane;
     private javax.swing.JMenuItem closeMenuItem;
     private javax.swing.JMenu filtryMenu;
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JFileChooser openFileChooser;
     private javax.swing.JMenuItem openFileMenuItem;
