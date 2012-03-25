@@ -56,7 +56,7 @@ public class DiffWindow extends javax.swing.JFrame {
         psnr = new javax.swing.JRadioButton();
         mae = new javax.swing.JRadioButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         inputButton.setText("input");
         inputButton.addMouseListener(new java.awt.event.MouseAdapter() {
