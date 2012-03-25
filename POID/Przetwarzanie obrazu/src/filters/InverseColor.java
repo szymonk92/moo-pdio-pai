@@ -18,10 +18,6 @@ public class InverseColor extends AbstractFilter {
     private short[] invertTable;
 
     public InverseColor() {
-        this(true);
-    }
-
-    public InverseColor(boolean enabled) {
         this.setName("Inverse color");
         this.setDescription("Ten filtr odwrca kolory na obrazie.");
         invertTable = new short[256];
