@@ -4,6 +4,7 @@
  */
 package gui;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -39,6 +40,14 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         this.copyFiltr = filter.getCopy();
         initComponents();
         JPanel panel = copyFiltr.getEditPanel();
+        int panelWidth = panel.getPreferredSize().width;
+        int panelHeight = panel.getPreferredSize().height;
+        int width = panelWidth>100?panelWidth+20:100;
+        int height = panelHeight>50?panelHeight-50+300:300;
+        setPreferredSize(new java.awt.Dimension(width,height ));
+        pack();
+        this.settingsPanel.setPreferredSize(panel.getPreferredSize());
+        this.settingsPanel.setMinimumSize(panel.getMinimumSize());
         copyFiltr.getChangeSupport().addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -98,9 +107,10 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setAlwaysOnTop(true);
         setLocationByPlatform(true);
-        setMaximumSize(new java.awt.Dimension(500, 500));
-        setMinimumSize(new java.awt.Dimension(400, 400));
+        setMaximumSize(null);
+        setMinimumSize(null);
         setPreferredSize(new java.awt.Dimension(500, 400));
+        setResizable(false);
 
         previewPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Preview"));
         previewPanel.setMaximumSize(new java.awt.Dimension(32767, 130));
@@ -123,7 +133,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         settingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Opcje"));
         settingsPanel.setMaximumSize(new java.awt.Dimension(2147483647, 130));
         settingsPanel.setMinimumSize(new java.awt.Dimension(12, 130));
-        settingsPanel.setPreferredSize(new java.awt.Dimension(12, 130));
+        settingsPanel.setPreferredSize(null);
         settingsPanel.setLayout(new java.awt.BorderLayout());
         getContentPane().add(settingsPanel, java.awt.BorderLayout.CENTER);
 
@@ -196,7 +206,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
     private javax.swing.JButton cancelButton;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton okButton;
-    public ImagePreviewPanel previewPanel;
+    public gui.ImagePreviewPanel previewPanel;
     public javax.swing.JPanel settingsPanel;
     // End of variables declaration//GEN-END:variables
 
