@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
@@ -23,10 +24,10 @@ public class BufferedImageHelper {
     private static List<ImageType> ImageTypes;
 
     public static List<ImageType> getImageTypes() {
-        if(ImageTypes == null){
+        if (ImageTypes == null) {
             ImageTypes = new ArrayList<ImageType>();
         }
-        if(ImageTypes.isEmpty()){
+        if (ImageTypes.isEmpty()) {
             FillImageTypesList();
         }
         return ImageTypes;
@@ -70,14 +71,21 @@ public class BufferedImageHelper {
         return resizedImage;
     }
 
-    static public double[] getHistogram(BufferedImage src, int channel) {
-        double[] histogram = new double[256];
-        for (int i = 0; i < 256; i++) {
-            histogram[ i] = 0;
+    static public int getBoundSize(BufferedImage src, int channel) {
+        if(src.getSampleModel().getNumBands()<channel||channel<0){
+            return 0;
         }
+        return (int) Math.pow(2, src.getSampleModel().getSampleSize(channel));
+    }
+
+    static public double[] getHistogram(BufferedImage src, int channel) {
         Raster raster = src.getRaster();
-        if (raster.getNumBands() < channel) {
-            return histogram;
+        if (raster.getNumBands() < channel||channel<0) {
+            return null;
+        }
+        double[] histogram = new double[getBoundSize(src, channel)];
+        for (int i = 0; i < histogram.length; i++) {
+            histogram[i] = 0;
         }
         for (int y = 0; y < src.getHeight(); y++) {
             for (int x = 0; x < src.getWidth(); x++) {

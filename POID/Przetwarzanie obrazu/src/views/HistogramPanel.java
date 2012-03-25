@@ -6,13 +6,17 @@ package views;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -35,8 +39,16 @@ public class HistogramPanel extends javax.swing.JPanel {
     public HistogramPanel(TabData data) {
         this.data = data;
         initComponents();
-        XYDataset xydataset = createDataset();
-        JFreeChart chart = createChart(xydataset);
+        JFreeChart chart;
+        if (data.getFilteredImage().getType() != BufferedImage.TYPE_BYTE_BINARY) {
+            XYDataset xydataset = createDataset();
+            chart = createChart(xydataset);
+        } else {
+            this.remove(this.jPanel1);
+            DefaultCategoryDataset dataset = createbinaryDataset();
+            chart = createChart(dataset);
+        }
+
         ChartPanel chartpanel = new ChartPanel(chart);
         chartpanel.setPreferredSize(new Dimension(200, 200));
         this.jPanel2.add(new ChartPanel(chart));
@@ -56,56 +68,91 @@ public class HistogramPanel extends javax.swing.JPanel {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
 
         setLayout(new java.awt.BorderLayout());
 
         jPanel1.setAlignmentX(0.0F);
         jPanel1.setAlignmentY(0.0F);
-        jPanel1.setMaximumSize(new java.awt.Dimension(32767, 23));
-        jPanel1.setMinimumSize(new java.awt.Dimension(89, 23));
-        jPanel1.setPreferredSize(new java.awt.Dimension(100, 23));
+        jPanel1.setMaximumSize(new java.awt.Dimension(32767, 15));
+        jPanel1.setMinimumSize(new java.awt.Dimension(89, 15));
+        jPanel1.setPreferredSize(new java.awt.Dimension(100, 15));
 
         jButton1.setBackground(new java.awt.Color(255, 0, 0));
         jButton1.setText("R");
         jButton1.setAlignmentY(0.0F);
         jButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        jButton1.setMaximumSize(new java.awt.Dimension(23, 23));
-        jButton1.setMinimumSize(new java.awt.Dimension(23, 23));
-        jButton1.setPreferredSize(new java.awt.Dimension(23, 23));
+        jButton1.setMaximumSize(new java.awt.Dimension(40, 15));
+        jButton1.setMinimumSize(new java.awt.Dimension(40, 15));
+        jButton1.setPreferredSize(new java.awt.Dimension(40, 15));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton1);
 
         jButton2.setBackground(new java.awt.Color(0, 255, 0));
         jButton2.setText("G");
         jButton2.setAlignmentY(0.0F);
         jButton2.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        jButton2.setMaximumSize(new java.awt.Dimension(23, 23));
-        jButton2.setMinimumSize(new java.awt.Dimension(23, 23));
-        jButton2.setPreferredSize(new java.awt.Dimension(23, 23));
+        jButton2.setMaximumSize(new java.awt.Dimension(40, 15));
+        jButton2.setMinimumSize(new java.awt.Dimension(40, 15));
+        jButton2.setPreferredSize(new java.awt.Dimension(40, 15));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton2);
 
         jButton3.setBackground(new java.awt.Color(0, 0, 255));
         jButton3.setText("B");
         jButton3.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        jButton3.setMaximumSize(new java.awt.Dimension(23, 23));
-        jButton3.setMinimumSize(new java.awt.Dimension(23, 23));
-        jButton3.setPreferredSize(new java.awt.Dimension(23, 23));
+        jButton3.setMaximumSize(new java.awt.Dimension(40, 15));
+        jButton3.setMinimumSize(new java.awt.Dimension(40, 15));
+        jButton3.setPreferredSize(new java.awt.Dimension(40, 15));
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton3);
+
+        jButton4.setBackground(new java.awt.Color(0, 0, 0));
+        jButton4.setForeground(new java.awt.Color(255, 255, 255));
+        jButton4.setText("I");
+        jButton4.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jButton4.setMaximumSize(new java.awt.Dimension(40, 15));
+        jButton4.setMinimumSize(new java.awt.Dimension(40, 15));
+        jButton4.setPreferredSize(new java.awt.Dimension(40, 15));
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(81, 81, 81)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(141, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         add(jPanel1, java.awt.BorderLayout.PAGE_START);
 
@@ -124,34 +171,60 @@ public class HistogramPanel extends javax.swing.JPanel {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         renderer.setSeriesVisible(2, !renderer.getSeriesVisible(2));        // TODO add your handling code here:
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+       renderer.setSeriesVisible(3, !renderer.getSeriesVisible(3));
+    }//GEN-LAST:event_jButton4ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
 
+    private DefaultCategoryDataset createbinaryDataset() {
+        int max = this.data.getFilteredImage().getSampleModel().getNumBands();
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        for (int y = 0; y < max; y++) {
+            double[] values = BufferedImageHelper.getHistogram(this.data.getFilteredImage(), y);
+            for (int x = 0; x < values.length; x++) {
+                dataset.setValue(values[x], "", Integer.toString(x));
+            }
+        }
+
+        return dataset;
+    }
+
     private XYDataset createDataset() {
-        int max = this.data.getFilteredImage().getColorModel().getNumColorComponents();
+        int max = this.data.getFilteredImage().getSampleModel().getNumBands();
         XYSeriesCollection seriescollection = new XYSeriesCollection();
         for (int y = 0; y < max; y++) {
             XYSeries series = new XYSeries(y);
             double[] values = BufferedImageHelper.getHistogram(this.data.getFilteredImage(), y);
-            for (int x = 0; x < 255; x++) {
+            for (int x = 0; x < values.length; x++) {
                 series.add(x, values[x]);
             }
             seriescollection.addSeries(series);
         }
-        if(max==3){
+        if (max == 3) {
             XYSeries series = new XYSeries(3);
             double[] values = BufferedImageHelper.getLuminanceHistogram(this.data.getFilteredImage());
-            for (int x = 0; x < 255; x++) {
+            for (int x = 0; x < values.length; x++) {
                 series.add(x, values[x]);
             }
             seriescollection.addSeries(series);
         }
         return seriescollection;
+    }
+
+    private JFreeChart createChart(DefaultCategoryDataset dataset) {
+        JFreeChart jfreechart = ChartFactory.createBarChart(null, null, null, dataset, PlotOrientation.VERTICAL, false, false, false);
+        final CategoryPlot plot = jfreechart.getCategoryPlot();
+        BarRenderer barRenderer = (BarRenderer) plot.getRenderer();
+        return jfreechart;
     }
 
     private JFreeChart createChart(XYDataset xydataset) {
@@ -167,7 +240,7 @@ public class HistogramPanel extends javax.swing.JPanel {
         valueaxis.setLowerMargin(0.0D);
         valueaxis.setUpperMargin(0.0D);
         renderer = xyplot.getRenderer();
-        if (xydataset.getSeriesCount() > 1) {
+        if (xydataset.getSeriesCount() == 4) {
             renderer.setSeriesPaint(0, Color.red);
             renderer.setSeriesPaint(1, Color.green);
             renderer.setSeriesPaint(2, Color.blue);
@@ -177,6 +250,7 @@ public class HistogramPanel extends javax.swing.JPanel {
             renderer.setSeriesPaint(3, Color.BLACK);
             renderer.setSeriesVisible(3, true);
         } else {
+            this.remove(this.jPanel1);
             renderer.setSeriesPaint(0, Color.BLACK);
             renderer.setSeriesVisible(0, true);
         }
