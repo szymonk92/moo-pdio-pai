@@ -85,7 +85,12 @@ public class RaleighFilter extends AbstractFilter {
     @Override
     public BufferedImage processImage(BufferedImage image) {
         int RGBA,r, g, b;
-        alpha = 255.0f/(float)Math.sqrt(2*Math.log(image.getWidth()*image.getHeight()));
+//        if (alpha == 0.0f)
+            alpha = 255.0f/(float)Math.sqrt(2*Math.log(image.getWidth()*image.getHeight()));
+        
+        
+        
+        
         
         if ( out == null) out = new int[4];
         
@@ -94,7 +99,7 @@ public class RaleighFilter extends AbstractFilter {
         double pixsum = image.getWidth()*image.getHeight();
         
         //compute histograms, only one time
-        if (H == null) {
+//        if (H == null) {
             H = new int[4][256];
             
             //compute all histograms
@@ -106,7 +111,7 @@ public class RaleighFilter extends AbstractFilter {
                     H[2][RGBHelper.getBlue(RGBA)]++;
                 }
             }
-        }
+//        }
         
         for (int x = 0; x < image.getWidth(); ++x) {
             for (int y = 0; y < image.getHeight(); ++y) {
@@ -116,10 +121,11 @@ public class RaleighFilter extends AbstractFilter {
                 b = RGBHelper.getBlue(RGBA);
                 for (int ch = 0; ch < 4; ++ch) {
                     if (channel[ch]) {
-                        int s = 0;
+                        double s = 0;
+                        int f= (ch == 0) ? r : ((ch == 1) ? g : b);
                         double c = alpha;
-                        for (int i = 0; i <= r; i++) s += H[ch][i];
-                        c *= Math.log(pixsum / (double) s);
+                        for (int i = 0; i <= f; i++) s += H[ch][i];
+                        c *= Math.log(pixsum /s);
                         c = Math.sqrt(c);
                         out[ch] = gmin + ((int) c);
                     } else {

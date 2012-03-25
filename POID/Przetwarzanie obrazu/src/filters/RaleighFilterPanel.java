@@ -143,6 +143,7 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
 //        } catch (Exception e) {
 //            System.out.println(e.getMessage());
 //        }
+        filter.setAlpha(Float.parseFloat(editAlpha.getText()));
         filter.refresh();
     }//GEN-LAST:event_applyButtonActionPerformed
 
