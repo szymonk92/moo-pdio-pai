@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -41,7 +39,7 @@ public class MainWindow extends javax.swing.JFrame {
         this();
         this.filters = filtry;
         this.views = views;
-        diffWindow= new DiffWindow();
+        diffWindow = new DiffWindow();
         Collections.sort(filters, new FilterSortyByName());
         filterSubMenuLoad(this.filtryMenu);
         viewSubMenuLoad(this.widokMenu);
@@ -227,9 +225,8 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void jMenu1MenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu1MenuSelected
         // TODO add your handling code here:
-            diffWindow.setVisible(true);
+        diffWindow.setVisible(true);
     }//GEN-LAST:event_jMenu1MenuSelected
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private gui.ClosableTabbedPane closableTabbedPane;
     private javax.swing.JMenuItem closeMenuItem;
