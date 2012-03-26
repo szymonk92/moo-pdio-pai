@@ -27,7 +27,7 @@ public class DiffCalculator {
             if (type < 3) {
                 for (int i = 0; i < in.getWidth(); ++i) {
                     for (int j = 0; j < in.getHeight(); ++j) {
-                        int ini = in.getRGB(j, j),
+                        int ini = in.getRGB(i, j),
                                 outi = out.getRGB(i, j);
                         sr += (RGBHelper.getRed(ini) - RGBHelper.getRed(outi))
                                 * (RGBHelper.getRed(ini) - RGBHelper.getRed(outi));
@@ -39,19 +39,19 @@ public class DiffCalculator {
                 }
                 ratio = sr + sb + sg;
                 //MSE
-                ratio /= (double) (in.getHeight() * in.getWidth());
+                ratio /= (double) (in.getHeight() * in.getWidth()*3);
 
                 if (type == 1) {
                     return ratio;
                 }
 
                 //PSNR
-                ratio = 10.0f * Math.log10((255.0f * 255.0f * 3) / ratio);
+                ratio = 10.0f * Math.log10((255.0f * 255.0f ) / ratio);
                 return ratio;
             } else {
                 for (int i = 0; i < in.getWidth(); ++i) {
                     for (int j = 0; j < in.getHeight(); ++j) {
-                        int ini = in.getRGB(j, j),
+                        int ini = in.getRGB(i, j),
                                 outi = out.getRGB(i, j);
                         sr += Math.abs(RGBHelper.getRed(ini) - RGBHelper.getRed(outi));
                         sg += Math.abs(RGBHelper.getGreen(ini) - RGBHelper.getGreen(outi));

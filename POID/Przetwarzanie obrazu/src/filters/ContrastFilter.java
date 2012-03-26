@@ -49,8 +49,8 @@ public class ContrastFilter extends AbstractFilter {
 
     private void generateLut() {
         for (int i = 0; i < 256; i++) {
-            lut[i] = RGBHelper.calmp((int) (((i - value) * Math.exp(value / 50.0f)) + value));
-            //lut[i] = RGBHelper.calmp((int) (((i - 128) * value / 100.0f) + 128));
+            //lut[i] = RGBHelper.calmp((int) (((i - value) * Math.exp(value / 50.0f)) + value));
+            lut[i] = RGBHelper.calmp((int) (((i - 127) * value) + 127));
         }
     }
 
