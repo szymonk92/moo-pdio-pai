@@ -19,10 +19,10 @@ import sys.RGBHelper;
  * @author pawel
  */
 public class DiffWindow extends javax.swing.JFrame {
-    
+
     JFileChooser chooser;
     File input, output;
-    
+
     /**
      * Creates new form DiffWindow
      */
@@ -171,27 +171,29 @@ public class DiffWindow extends javax.swing.JFrame {
 
     private void inputButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inputButtonMouseClicked
         chooser.showOpenDialog(this);
-        input=chooser.getSelectedFile();
-        if(input!=null)
+        input = chooser.getSelectedFile();
+        if (input != null) {
             inputText.setText(input.getPath());
+        }
     }//GEN-LAST:event_inputButtonMouseClicked
 
     private void outputButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_outputButtonMouseClicked
         chooser.showOpenDialog(this);
-        output=chooser.getSelectedFile();
-        if(output!=null)
+        output = chooser.getSelectedFile();
+        if (output != null) {
             outputText.setText(output.getPath());
+        }
     }//GEN-LAST:event_outputButtonMouseClicked
 
     private void computeButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_computeButtonMouseClicked
         // TODO add your handling code here:
-        
+
         if (mse.isSelected()) {
-            computedText.setText(""+error(1));
+            computedText.setText("" + error(1));
         } else if (psnr.isSelected()) {
-            computedText.setText(""+error(2));
+            computedText.setText("" + error(2));
         } else if (mae.isSelected()) {
-            computedText.setText(""+error(3));
+            computedText.setText("" + error(3));
         }
     }//GEN-LAST:event_computeButtonMouseClicked
 
@@ -199,7 +201,6 @@ public class DiffWindow extends javax.swing.JFrame {
         // TODO add your handling code here:
         this.setVisible(false);
     }//GEN-LAST:event_closeButtonMouseClicked
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;
     private javax.swing.JButton computeButton;
@@ -215,66 +216,65 @@ public class DiffWindow extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     /**
-     * 
-     * @param type java enums scares me,
-     * sorry for that i'm using integers rather than this marvelous java objects :]
-     * 
-     * @return 
+     *
+     * @param type java enums scares me, sorry for that i'm using integers
+     * rather than this marvelous java objects :]
+     *
+     * @return
      */
-double error (int type) {
-    double ratio=0;
-    BufferedImage in=null,out=null;
+    double error(int type) {
+        double ratio = 0;
+        BufferedImage in = null, out = null;
         try {
-            in= ImageIO.read(input);
+            in = ImageIO.read(input);
             out = ImageIO.read(output);
-            
+
         } catch (IOException ex) {
             Logger.getLogger(DiffWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
-            
-        if ( in != null && out != null &&
-             in.getHeight()==out.getHeight() && in.getWidth()==out.getWidth()) {
-            double sr=0,sg=0,sb=0;
-            if (type <3) {
-                for( int i=0; i<in.getWidth(); ++i) {
-                    for ( int j=0; j<in.getHeight(); ++j) {
+
+        if (in != null && out != null
+                && in.getHeight() == out.getHeight() && in.getWidth() == out.getWidth()) {
+            double sr = 0, sg = 0, sb = 0;
+            if (type < 3) {
+                for (int i = 0; i < in.getWidth(); ++i) {
+                    for (int j = 0; j < in.getHeight(); ++j) {
                         int ini = in.getRGB(j, j),
-                                  outi=out.getRGB(i, j);
-                        sr+=(RGBHelper.getRed(ini)-RGBHelper.getRed(outi))*
-                                (RGBHelper.getRed(ini)-RGBHelper.getRed(outi));
-                        sg+=(RGBHelper.getGreen(ini)-RGBHelper.getGreen(outi))*
-                                (RGBHelper.getGreen(ini)-RGBHelper.getGreen(outi));
-                        sb+=(RGBHelper.getBlue(ini)-RGBHelper.getBlue(outi))*
-                                (RGBHelper.getBlue(ini)-RGBHelper.getBlue(outi));
+                                outi = out.getRGB(i, j);
+                        sr += (RGBHelper.getRed(ini) - RGBHelper.getRed(outi))
+                                * (RGBHelper.getRed(ini) - RGBHelper.getRed(outi));
+                        sg += (RGBHelper.getGreen(ini) - RGBHelper.getGreen(outi))
+                                * (RGBHelper.getGreen(ini) - RGBHelper.getGreen(outi));
+                        sb += (RGBHelper.getBlue(ini) - RGBHelper.getBlue(outi))
+                                * (RGBHelper.getBlue(ini) - RGBHelper.getBlue(outi));
                     }
                 }
-                ratio=sr+sb+sg;
+                ratio = sr + sb + sg;
                 //MSE
-                ratio/=(double)(in.getHeight()*in.getWidth());
-                
-                if (type==1) return ratio;
-                
+                ratio /= (double) (in.getHeight() * in.getWidth());
+
+                if (type == 1) {
+                    return ratio;
+                }
+
                 //PSNR
-                ratio = 10.0f*Math.log10((255.0f*255.0f*3)/ratio);
+                ratio = 10.0f * Math.log10((255.0f * 255.0f * 3) / ratio);
                 return ratio;
             } else {
-                for( int i=0; i<in.getWidth(); ++i) {
-                    for ( int j=0; j<in.getHeight(); ++j) {
+                for (int i = 0; i < in.getWidth(); ++i) {
+                    for (int j = 0; j < in.getHeight(); ++j) {
                         int ini = in.getRGB(j, j),
-                                  outi=out.getRGB(i, j);
-                        sr+=Math.abs(RGBHelper.getRed(ini)-RGBHelper.getRed(outi));
-                        sg+=Math.abs(RGBHelper.getGreen(ini)-RGBHelper.getGreen(outi));
-                        sb+=Math.abs(RGBHelper.getBlue(ini)-RGBHelper.getBlue(outi));
+                                outi = out.getRGB(i, j);
+                        sr += Math.abs(RGBHelper.getRed(ini) - RGBHelper.getRed(outi));
+                        sg += Math.abs(RGBHelper.getGreen(ini) - RGBHelper.getGreen(outi));
+                        sb += Math.abs(RGBHelper.getBlue(ini) - RGBHelper.getBlue(outi));
                     }
                 }
-                return (double)(sr+sb+sg)/(double)(in.getHeight()*in.getWidth());
+                return (double) (sr + sb + sg) / (double) (in.getHeight() * in.getWidth());
             }
 
         }
-    
-    return ratio;
+
+        return ratio;
+    }
 }
-
-
-}
-

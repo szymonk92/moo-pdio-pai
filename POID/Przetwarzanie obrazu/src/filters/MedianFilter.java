@@ -4,7 +4,6 @@
  */
 package filters;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import javax.swing.JPanel;
@@ -35,9 +34,6 @@ public class MedianFilter extends AbstractFilter{
         this.value = filter.getValue();
     }
     
-    
-    
-
     public void setValue(int value) {
         this.value = value;
         this.changeSupport.firePropertyChange("value", null, this.value);
@@ -46,14 +42,11 @@ public class MedianFilter extends AbstractFilter{
     public int getValue() {
         return value;
     }
-    
-    
 
     @Override
     public JPanel getEditPanel() {
         return new MedianFilterPanel(this);
     }
-    
 
     @Override
     public IFilter getCopy() {
@@ -91,8 +84,7 @@ public class MedianFilter extends AbstractFilter{
                     }
                 }
                 Arrays.sort(red);Arrays.sort(blue);Arrays.sort(green);
-                
-                
+      
                 if (sum%2 == 0) { //parzyste, nie zachodzi
                     mid = sum / 2;
                     mid2 = (sum / 2) + 1;
@@ -105,13 +97,9 @@ public class MedianFilter extends AbstractFilter{
                     g=green[mid];
                     b=blue[mid];
                 }
-
-                
-                
-                out.setRGB(x, y, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
+                out.setRGB(x, y, RGBHelper.toPixel(r, g, b));
             }
         }
         return out;  
     }
-    
 }

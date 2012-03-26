@@ -4,7 +4,6 @@
  */
 package filters;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import sys.AbstractFilter;
@@ -18,28 +17,37 @@ import sys.RGBHelper;
 public class BrightnessFilter extends AbstractFilter {
 
     private int brightnessValue = 0;
+    private int[] lut;
 
     public int getBrightnessValue() {
         return brightnessValue;
     }
 
-
-
     public BrightnessFilter() {
         this.setName("Brightness");
         this.setEditable(true);
+        this.lut = new int[256];
+        generateLut();
     }
 
     public BrightnessFilter(BrightnessFilter filter) {
         super(filter);
         this.brightnessValue = filter.getBrightnessValue();
+        this.lut = filter.lut.clone();
     }
 
     public void setBrightnessValue(int value) {
         this.brightnessValue = value;
+        generateLut();
         this.changeSupport.firePropertyChange("brightnessValue", null, this.brightnessValue);
     }
 
+    private void generateLut() {
+        for (int i = 0; i < 256; i++) {
+            lut[i] = RGBHelper.calmp(i + brightnessValue);
+            //float brightnessAdjust = ((float) brightnessValue / 255.0f) * 8.0f;
+        }
+    }
 
     @Override
     public IFilter getCopy() {
@@ -53,29 +61,15 @@ public class BrightnessFilter extends AbstractFilter {
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-        //Color col;
         int[] RGBA;
-       
-        //RGBA = image.getRGB(0, 0);
-        //col = new Color(RGBA, true);
-
-        int r, g, b;
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 RGBA = RGBHelper.toRGBA(image.getRGB(x, y));
-                //col = new Color(RGBA, true);
-                //float brightnessAdjust = ((float) brightnessValue / 255.0f) * 8.0f;
-                RGBA[0] = (int) (RGBA[0]+brightnessValue );
-                RGBA[1] = (int) (RGBA[1]+brightnessValue );
-                RGBA[2] = (int) (RGBA[2]+brightnessValue );
-                image.setRGB(x, y, RGBHelper.toPixel(RGBA[0], RGBA[1], RGBA[2], 255));
+                image.setRGB(x, y, RGBHelper.fastToPixel(lut[RGBA[0]], lut[RGBA[1]], lut[RGBA[2]]));
             }
         }
-
         return image;
     }
-
-
 
     @Override
     public String getIcon() {

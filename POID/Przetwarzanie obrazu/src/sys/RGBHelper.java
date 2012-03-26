@@ -17,7 +17,11 @@ public class RGBHelper {
     public static int toPixel(int r, int g, int b, int a) {
         return ((calmp(a) & 0xFF) << 24) | ((calmp(r) & 0xFF) << 16) | ((calmp(g) & 0xFF) << 8) | ((calmp(b) & 0xFF));
     }
-
+    
+    public static int fastToPixel(int r, int g, int b, int a) {
+        return ((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | ((b & 0xFF));
+    }
+    
     public static int[] toRGBA(int pixel) {
         int[] result = new int[4];
         result[0] = (pixel >> 16) & 0xff;//red
@@ -106,5 +110,12 @@ public class RGBHelper {
         result[1] = sat;
         result[2] = val;
         return result;
+    }
+
+    public static int toPixel(int r, int g, int b) {
+        return toPixel(r,g,b,255);
+    }
+     public static int fastToPixel(int r, int g, int b) {
+        return fastToPixel(r,g,b,255);
     }
 }

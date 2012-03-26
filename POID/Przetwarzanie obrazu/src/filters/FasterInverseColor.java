@@ -30,10 +30,7 @@ public class FasterInverseColor extends InverseColor {
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-        final int w = image.getWidth();
-        final int h = image.getHeight();
-        final BufferedImage dst = new BufferedImage(w, h, image.getType());
-
+        final BufferedImage dst = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
         final BufferedImageOp invertOp = new LookupOp(new ShortLookupTable(0, invertTable), null);
         return invertOp.filter(image, dst);
     }

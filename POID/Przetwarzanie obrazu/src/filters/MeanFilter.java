@@ -4,7 +4,6 @@
  */
 package filters;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import sys.AbstractFilter;
@@ -16,20 +15,21 @@ import sys.RGBHelper;
  * @author pawel
  */
 public class MeanFilter extends AbstractFilter {
+
     /**
-     * dimension of sibilings 
+     * dimension of sibilings
      */
-    int value =3;
-    
+    int value = 3;
+
     public MeanFilter() {
         this(3);
     }
-    
+
     public MeanFilter(MeanFilter filter) {
         super(filter);
         this.value = filter.getValue();
     }
-    
+
     public MeanFilter(int value) {
         this.value = value;
         this.setName("Mean Filter");
@@ -45,12 +45,11 @@ public class MeanFilter extends AbstractFilter {
         this.changeSupport.firePropertyChange("value", null, this.value);
     }
 
-    
-@Override
+    @Override
     public JPanel getEditPanel() {
         return new MeanFilterPanel(this);
     }
-    
+
     @Override
     public IFilter getCopy() {
         return new MeanFilter(this);
@@ -58,25 +57,24 @@ public class MeanFilter extends AbstractFilter {
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-        
-        BufferedImage out = new BufferedImage(image.getWidth(),image.getHeight(),image.getType());
-        
-        
-        int RGBA,RGBAA;
+
+        BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+
+        int RGBA, RGBAA;
         RGBA = image.getRGB(0, 0);
         int r, g, b;
-        int [][] tmp = new int[image.getWidth()][3];
-        int len=value/2;
-        int sum = ((len*2) + 1)*((len*2) + 1);
-        
+        int[][] tmp = new int[image.getWidth()][3];
+        int len = value / 2;
+        int sum = ((len * 2) + 1) * ((len * 2) + 1);
+
         for (int x = 0; x < image.getHeight(); ++x) {
             for (int y = 0; y < image.getWidth(); ++y) {
-                r=g=b=0;
-                int maxj = x + len >= image.getHeight() ? image.getHeight()-1 : x + len,
-                        maxi = y + len >= image.getWidth() ? image.getWidth()-1 : y + len;
+                r = g = b = 0;
+                int maxj = x + len >= image.getHeight() ? image.getHeight() - 1 : x + len,
+                        maxi = y + len >= image.getWidth() ? image.getWidth() - 1 : y + len;
                 for (int i = y - len < 0 ? 0 : y - len; i <= maxi; ++i) {
 
-                    if (y == 0 || i == maxi ) {
+                    if (y == 0 || i == maxi) {
                         tmp[i][0] = tmp[i][1] = tmp[i][2] = 0;
                         for (int j = x - len < 0 ? 0 : x - len; j <= maxj; ++j) {
                             RGBAA = image.getRGB(i, j);
@@ -93,16 +91,9 @@ public class MeanFilter extends AbstractFilter {
                 r /= sum;
                 g /= sum;
                 b /= sum;
-                
-
-                out.setRGB(y, x, new Color(RGBHelper.calmp(r), RGBHelper.calmp(g), RGBHelper.calmp(b)).getRGB());
+                out.setRGB(y, x, RGBHelper.toPixel(r, g, b));
             }
         }
-        return out;    
-
-        
-    
+        return out;
     }
-    
-    
-} 
+}

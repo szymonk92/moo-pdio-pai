@@ -147,10 +147,8 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="zoomLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="typeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="typeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="zoomLabel" min="-2" max="-2" attributes="0"/>
                       <Component id="progressBar" min="-2" max="-2" attributes="0"/>
                       <Component id="hqLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
