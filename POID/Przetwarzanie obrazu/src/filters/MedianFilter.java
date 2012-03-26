@@ -58,7 +58,7 @@ public class MedianFilter extends AbstractFilter{
         
         BufferedImage out = new BufferedImage(image.getWidth(),image.getHeight(),image.getType());
         
-        int RGBA,RGBAA;
+        int RGBA;
         int r, g, b,ai,mid,mid2;
         int len=value/2;
         int sum = ((len*2) + 1)*((len*2) + 1);
@@ -73,13 +73,13 @@ public class MedianFilter extends AbstractFilter{
                 
                 for( int i=x-len; i<=x+len; ++i) {
                     for ( int j=y-len;j<=y+len; ++j) {
-                        RGBAA = (i<0 || j<0  ||
+                        RGBA = (i<0 || j<0  ||
                                 i > image.getWidth()-1 || j > image.getHeight()-1)?
                                 0 :image.getRGB(i, j);
-                        red[ai]=RGBHelper.getRed(RGBAA);
-                        green[ai]=RGBHelper.getGreen(RGBAA);
-                        blue[ai]=RGBHelper.getBlue(RGBAA);
-                        c[ai]=RGBAA;
+                        red[ai]=RGBHelper.getRed(RGBA);
+                        green[ai]=RGBHelper.getGreen(RGBA);
+                        blue[ai]=RGBHelper.getBlue(RGBA);
+                        c[ai]=RGBA;
                         ai++;
                     }
                 }

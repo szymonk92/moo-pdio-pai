@@ -81,9 +81,8 @@ public class LineIdentification extends AbstractFilter {
     public BufferedImage processImage(BufferedImage image) {
 
         BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
-        int RGBA, RGBAA;
-        RGBA = image.getRGB(0, 0);
-        int r, g, b, px;
+        int RGBA;
+        int r, g, b, px; /*FIXME: Nie używana zmienna*/
 
         int[][] mask = type < 0 ? custom : predefined[type];
         int len = mask.length / 2;
@@ -96,11 +95,11 @@ public class LineIdentification extends AbstractFilter {
                         maxi = y + len >= image.getWidth() ? image.getWidth() - 1 : y + len;
                 for (int ii = 0, i = y - len < 0 ? 0 : y - len; i <= maxi; ++ii, ++i) {
                     for (int jj = 0, j = x - len < 0 ? 0 : x - len; j <= maxj; ++jj, ++j) {
-                        RGBAA = image.getRGB(i, j);
+                        RGBA = image.getRGB(i, j);
 //                            px+=RGBAA*mask[ii][jj];
-                        r += RGBHelper.getRed(RGBAA) * mask[ii][jj];
-                        g += RGBHelper.getGreen(RGBAA) * mask[ii][jj];
-                        b += RGBHelper.getBlue(RGBAA) * mask[ii][jj];
+                        r += RGBHelper.getRed(RGBA) * mask[ii][jj];
+                        g += RGBHelper.getGreen(RGBA) * mask[ii][jj];
+                        b += RGBHelper.getBlue(RGBA) * mask[ii][jj];
                     }
                 }
                 out.setRGB(y, x, RGBHelper.toPixel(r, g, b));

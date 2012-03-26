@@ -60,8 +60,7 @@ public class MeanFilter extends AbstractFilter {
 
         BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
 
-        int RGBA, RGBAA;
-        RGBA = image.getRGB(0, 0);
+        int RGBA;
         int r, g, b;
         int[][] tmp = new int[image.getWidth()][3];
         int len = value / 2;
@@ -77,10 +76,10 @@ public class MeanFilter extends AbstractFilter {
                     if (y == 0 || i == maxi) {
                         tmp[i][0] = tmp[i][1] = tmp[i][2] = 0;
                         for (int j = x - len < 0 ? 0 : x - len; j <= maxj; ++j) {
-                            RGBAA = image.getRGB(i, j);
-                            tmp[i][0] += RGBHelper.getRed(RGBAA);
-                            tmp[i][1] += RGBHelper.getGreen(RGBAA);
-                            tmp[i][2] += RGBHelper.getBlue(RGBAA);
+                            RGBA = image.getRGB(i, j);
+                            tmp[i][0] += RGBHelper.getRed(RGBA);
+                            tmp[i][1] += RGBHelper.getGreen(RGBA);
+                            tmp[i][2] += RGBHelper.getBlue(RGBA);
                         }
                     }
                     r += (i < 0 || i >= image.getWidth()) ? 0 : tmp[i][0];

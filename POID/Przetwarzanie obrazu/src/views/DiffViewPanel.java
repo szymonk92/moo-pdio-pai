@@ -157,9 +157,21 @@ public class DiffViewPanel extends javax.swing.JPanel implements PropertyChangeL
             File file = this.openFileChooser.getSelectedFile();
             try {
                 baseImage = ImageIO.read(file);
-                this.fileNameLabel.setText(file.getName());
+                if(baseImage.getHeight() != data.getBaseImage().getHeight() ||baseImage.getWidth() != data.getBaseImage().getWidth())
+                {
+                    baseImage = null;
+                    Messages.info("Rozmiar obrazka nie zgadza się z obrazem początkowym");
+                    return;
+                }
+                this.fileNameLabel.setText(file.getAbsolutePath());
                 DiffWorker worker = new DiffWorker(baseImage,data.getBaseImage(),this.resultTable,0);
                 worker.run();
+                if(baseImage.getHeight() != data.getFilteredImage().getHeight() ||baseImage.getWidth() != data.getFilteredImage().getWidth())
+                {
+                    baseImage = null;
+                    Messages.info("Rozmiar obrazka nie zgadza się z obrazem końcowym");
+                    return;
+                }
                 DiffWorker worker2 = new DiffWorker(baseImage,data.getFilteredImage(),this.resultTable,1);
                 worker2.run();
             } catch (IOException ex) {

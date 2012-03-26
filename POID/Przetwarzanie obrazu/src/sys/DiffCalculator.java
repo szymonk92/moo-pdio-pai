@@ -40,11 +40,14 @@ public class DiffCalculator {
                 ratio = sr + sb + sg;
                 //MSE
                 ratio /= (double) (in.getHeight() * in.getWidth()*3);
-
+                
                 if (type == 1) {
                     return ratio;
                 }
-
+                //ratio== 0 dla PSNR oznacza dzielenie przez 0 dlatego zwracamy Double.POSITIVE_INFINITY
+                if(ratio == 0){
+                    return Double.POSITIVE_INFINITY;
+                }
                 //PSNR
                 ratio = 10.0f * Math.log10((255.0f * 255.0f ) / ratio);
                 return ratio;
