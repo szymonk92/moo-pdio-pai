@@ -81,11 +81,10 @@ public class RaleighFilter extends AbstractFilter {
     public BufferedImage processImage(BufferedImage image) {
         int RGBA, r, g, b,dim=image.getWidth() * image.getHeight();
         double a2a = alpha*2*alpha;
-        if (alpha == 0.0f || pdim!=dim) {
+        if (alpha == 0.0f) {
             alpha = 255.0f / (float) Math.sqrt(2 * Math.log(dim));
             a2a = alpha*2*alpha;
         }
-        System.out.println(name+" process"+alpha+" "+gmin);
         pdim=dim;
         
         out = new int[4];
