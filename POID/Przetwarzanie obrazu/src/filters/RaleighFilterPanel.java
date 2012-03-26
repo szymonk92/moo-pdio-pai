@@ -60,7 +60,7 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
         editGmin.setText("0");
 
         editAlpha.setColumns(3);
-        editAlpha.setText("1");
+        editAlpha.setText("0");
 
         jLabel3.setText("channel");
 
@@ -134,16 +134,20 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
         filter.setChannel(0,checkRed.isSelected());
         filter.setChannel(1,checkGreen.isSelected());
         filter.setChannel(2,checkBlue.isSelected());
-        filter.setChannel(3, checkGrey.isSelected());
+        if ( checkGrey.isSelected() ) {
+            filter.setChannel(0,true);
+            filter.setChannel(1,true);
+            filter.setChannel(2,true);
+        }
         filter.setGmin(Integer.parseInt(editGmin.getText()));
-//        float alpha=-1;
-//        try {
-//            alpha= Float.parseFloat(editAlpha.getText());
-//            filter.setAlpha(alpha);
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-        filter.setAlpha(Float.parseFloat(editAlpha.getText()));
+        float alpha=0.0f;
+        try {
+            alpha= Float.parseFloat(editAlpha.getText());
+            filter.setAlpha(alpha);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        filter.setAlpha(alpha);
         filter.refresh();
     }//GEN-LAST:event_applyButtonActionPerformed
 

@@ -23,7 +23,7 @@ public class RaleighFilter extends AbstractFilter {
     boolean[] channel = new boolean[4];
     int[][] H;
     int[] out;
-    int gmin;
+    int gmin,pdim;
 
     public void setGmin(int gmin) {
         this.gmin = gmin;
@@ -64,6 +64,7 @@ public class RaleighFilter extends AbstractFilter {
         this.channel = filter.getChannel();
         this.alpha = filter.getAlpha();
         this.H = filter.H;
+        this.pdim = filter.pdim;
     }
 
     @Override
@@ -78,21 +79,19 @@ public class RaleighFilter extends AbstractFilter {
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-        int RGBA, r, g, b;
-//        if (alpha == 0.0f)
-        alpha = 255.0f / (float) Math.sqrt(2 * Math.log(image.getWidth() * image.getHeight()));
-
-        if (out == null) {
-            out = new int[4];
+        int RGBA, r, g, b,dim=image.getWidth() * image.getHeight();
+        double a2a = alpha*2*alpha;
+        if (alpha == 0.0f || pdim!=dim) {
+            alpha = 255.0f / (float) Math.sqrt(2 * Math.log(dim));
+            a2a = alpha*2*alpha;
         }
-
-        //three operation less to do
-        alpha *= 2 * alpha;
-        double pixsum = image.getWidth() * image.getHeight();
-
-        //compute histograms, only one time
-//        if (H == null) {
+        System.out.println(name+" process"+alpha+" "+gmin);
+        pdim=dim;
+        
+        out = new int[4];
         H = new int[4][256];
+
+        double pixsum = image.getWidth() * image.getHeight();
 
         //compute all histograms
         for (int x = 0; x < image.getWidth(); ++x) {
@@ -103,7 +102,6 @@ public class RaleighFilter extends AbstractFilter {
                 H[2][RGBHelper.getBlue(RGBA)]++;
             }
         }
-//        }
 
         for (int x = 0; x < image.getWidth(); ++x) {
             for (int y = 0; y < image.getHeight(); ++y) {
@@ -111,11 +109,11 @@ public class RaleighFilter extends AbstractFilter {
                 r = RGBHelper.getRed(RGBA);
                 g = RGBHelper.getGreen(RGBA);
                 b = RGBHelper.getBlue(RGBA);
-                for (int ch = 0; ch < 4; ++ch) {
+                for (int ch = 0; ch < 3; ++ch) {
                     if (channel[ch]) {
                         double s = 0;
                         int f = (ch == 0) ? r : ((ch == 1) ? g : b);
-                        double c = alpha;
+                        double c = a2a;
                         for (int i = 0; i <= f; i++) {
                             s += H[ch][i];
                         }

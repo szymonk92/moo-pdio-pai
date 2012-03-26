@@ -220,11 +220,4 @@ public class DiffWindow extends javax.swing.JFrame {
     private javax.swing.JRadioButton psnr;
     // End of variables declaration//GEN-END:variables
 
-    /**
-     *
-     * @param type java enums scares me, sorry for that i'm using integers
-     * rather than this marvelous java objects :]
-     *
-     * @return
-     */
 }

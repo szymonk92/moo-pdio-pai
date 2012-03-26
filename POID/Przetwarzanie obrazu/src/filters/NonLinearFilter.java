@@ -60,7 +60,6 @@ public class NonLinearFilter extends AbstractFilter {
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 int r1 = 0, r2 = 0, b1 = 0, b2 = 0, g1 = 0, g2 = 0;
-                int s1 = 0, s2 = 0; /* FIXME: Nie użyte zminnne */
                 for (int i = 1; i <= R; ++i) {
                     RGBA = x + i - 1 >= image.getWidth() ? 0 : image.getRGB(x + i - 1, y);
                     RGBAA = x - i < 0 ? 0 : image.getRGB(x - i, y);
