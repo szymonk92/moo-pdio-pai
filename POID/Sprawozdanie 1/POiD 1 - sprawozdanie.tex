@@ -67,25 +67,26 @@ showstringspaces=false}
 
 \addtocounter{footnote}{1}
 
+\tableofcontents
+
 \section{Cel}
 
-Celem zadania było stworzenie szkieletu aplikacji służącej do wczytywania, zapisywania i przede wszystkim przetwarzania obrazów, która zostanie wykorzysta zarówno w tym, jak i w następnym zadaniu. Na potrzeby pierwszego zadania w powstałym szkielecie należało:
+Celem zadania było stworzenie szkieletu aplikacji służącej do wczytywania, zapisywania i  przetwarzania obrazów, która zostanie wykorzysta zarówno w tym, jak i w następnym zadaniu. Dodatkowo należało zaimplementować kilka filtrów i podstawowych operacji przetwarzania obrazów takich jak zmiana jasności, kontrastu czy odwrócenie kolorów obrazu. Pełny spis wymagań i przygotowanych filtrów został przedstawiony poniżej:
 
 \begin{list}{•}{}
 \item zaimplementować podstawowe operacje przetwarzania obrazów: zmianę jasności i kontrastu oraz wyznaczenie negatywu obrazu;
 \item zaimplementować filtr ze średnią arytmetyczną i filtr medianowy z możliwością wyboru rozmiaru maski oraz zaproponować metody obiektywnej oceny ich działania i skuteczności w usuwaniu różnego rodzaju szumu;
 \item wyznaczyć i wyświetlić histogram jasności pikseli obrazu, a w przypadku
 obrazów kolorowych także histogram wartości poszczególnych kanałów;
-\item w oparciu o wyznaczony histogram dokonać modyfikacji obrazu w taki sposób, aby osiągnąć zadaną charakterystykę histogramu obrazu wynikowego;
-\item zaimplementować możliwość filtracji liniowej opartej o splot w dwóch wersjach: na podstawie jednego z wariantów gotowych masek oraz z możliwością wyboru własnego rozmiaru maski i wartości poszczególnych jej elementów;
-\item opracować i zaimplementować algorytm filtracji nieliniowej obrazu w dziedzinie czasu zgodnie z regułą zawartą w przydzielonym wariancie zadania, a także zapewnić możliwość wyboru parametrów filtru tam, gdzie jest to konieczne;
-\item przemyśleć i zaimplementować sposób normalizacji wyników dla dwóch poprzednich punktów tak, aby mogły być one wyświetlone w postaci obrazu wynikowego.
+\item w oparciu o wyznaczony histogram dokonać modyfikacji obrazu w taki sposób, aby osiągnąć zadaną charakterystykę histogramu obrazu wynikowego [(H3) Wyjściowa gęstość prawdopodobieństwa podana wzorem Raleigha];
+\item zaimplementować możliwość filtracji liniowej opartej o splot w dwóch wersjach: na podstawie jednego z wariantów gotowych masek oraz z możliwością wyboru własnego rozmiaru maski i wartości poszczególnych jej elementów [(S6) Identyfikowanie linii];
+\item opracować i zaimplementować algorytm filtracji nieliniowej obrazu w dziedzinie czasu zgodnie z regułą zawartą w przydzielonym wariancie zadania, a także zapewnić możliwość wyboru parametrów filtru tam, gdzie jest to konieczne [(O5) Operator Rosenfelda];
 \end{list}
 
-W sprawozdaniu zamieszczono wyniki działania poszczególnych algorytmów oraz porównanie ich w różnych wariantach ustawień i~dla różnych problemów. Badania przeprowadzono zarówno na obrazach kolorowych (24-bitowych), jak i~w odcieniach szarości (8-bitowych), a~także czarno-białych (1-bitowych). 
+W sprawozdaniu zamieszczono wyniki działania poszczególnych algorytmów oraz porównanie ich pracy w różnych wariantach ustawień i~dla różnych problemów. Badania przeprowadzono zarówno na obrazach kolorowych (24-bitowych), jak i~w odcieniach szarości (8-bitowych), a~część badań również na obrazach czarno-białych (1-bitowych). 
 
 \section{Wprowadzenie}
-Aby przetworzyć obraz należy w programie przechowywać go w postaci wartości poszczególnych pikseli w obrazie. Wartości te przechowywane są na 8-bitach dla obrazu w odcieniach szarości oraz w 24-bitach (po 8 bitów na kanał) w obrazach kolorowych. Na tych wartościach wykonywane są poszczególne algorytmy (dla obrazu kolorowego na każdym kanale osobno).
+Obrazy przechowywane są w pamięci komputera w postaci bitowej, w której określa się ilość bitów przypadającą na każdy piksel obrazu. Kolorowe zdjęcia zapisywane są w formacie 24-bitowym co odpowiada 8-bitom na każdy~z trzech składowych kanałów formatu RGB. Fotografie w odcieniach szarości wykorzystują tylko jeden kanał dlatego wystarczy tutaj przechowywać 8-bitów na każdy zapisany piksel. Taki zapis umożliwia uzyskanie 256 różnych wartość danego piksela czyli 256 różnych odcieni szarości poczynając od białego na kolorze czarnym kończąc. W przypadku obrazów kolorowych liczba kombinacji jest dużo większa i wynosi 16,777,216, co nie oznacza, że wszystkie uzyskane w ten sposób kolory są między sobą rozróżnialne. W tej pracy wszystkie przygotowane algorytmy operują na poszczególnych wartościach każdego kanału obrazu.
 
 \subsection{Zmiana jasności}
 Zmiana jasności obrazu polega na zmniejszeniu bądź zwiększeniu składowych RGB o pewną wartość stałej b. Jeżeli jedna składowa uzyska wartość większą od dopuszczalnego zakresu to wynikiem jest wartość maksymalna z tego zakresu. Analogicznie, jeżeli składowa ma wartość mniejszą to wynikiem jest wartość minimalna. Powyższą operacją można zapisać za pomocą wzoru:
@@ -105,6 +106,16 @@ gdzie:
 \item b -- stała, o którą zmieniamy daną składową RGB,
 \item $i_{max}$ -- maksymalna dopuszczalna wartość.
 \end{description}
+
+W przypadku obrazów czarno-białych (1-bitowych) zmiany jasności prowadzą do uzyskania całego białego bądź czarnego obrazu.
+Przebieg zaprezentowanej tutaj funkcji zmiany jasności przedstawia (Rysunek \ref{fig:jasnosc}).
+
+\begin{figure}[h!]
+\centering
+\includegraphics{obrazy/jasnosc.png} 
+\caption[Zmiana jasności]{Przebiegi funkcji zmiany jasności z różną wartością stałej $b$.}
+\label{fig:jasnosc}
+\end{figure}
 
 \subsection{Zmiana kontrastu}
 Zmiana kontrastu polega na przekształceniu danego obrazu wykonując operację według wzoru:
@@ -126,10 +137,17 @@ gdzie:
 \item $i_{max}$ -- maksymalna dopuszczalna wartość.
 \end{description}
 
-W przypadku jeżeli stała a przyjmuje wartości większe od 1, następuje zwiększenie kontrastu obrazu. Natomiast, jeżeli wartości są mniejsze od 1 to kontrast jest zmniejszany. 
+W przypadku jeżeli stała $a$ przyjmuje wartości większe od 1, następuje zwiększenie kontrastu obrazu. Natomiast, jeżeli wartości są mniejsze od 1 to kontrast jest zmniejszany. Przebieg zaprezentowanej tutaj funkcji zmiany kontrastu przedstawia (Rysunek \ref{fig:kontrast}).
+
+\begin{figure}[h!]
+\centering
+\includegraphics{obrazy/kontrast.png} 
+\caption[Zmiana kontrastu]{Przebiegi funkcji zmiany kontrastu z różną wartością parametru $a$.}
+\label{fig:kontrast}
+\end{figure}
 
 \subsection{Negatyw}
-Wykonanie negatywu danego obrazu polega na przekształceniu wszystkich pixeli za pomocą wzoru:
+Wykonanie negatywu danego obrazu polega na przekształceniu wszystkich pikseli za pomocą wzoru:
 \begin{equation}
  p(i) = i_{max} - i
 \end{equation}
@@ -140,28 +158,43 @@ gdzie:
 \item i -- wartość konkretnej składowej danego piksela.
 \end{description}
 
+Tą operację należy wykonać na każdym z kanałów z osobna w celu uzyskania pełnego negatywu w przypadku np. zdjęć kolorowych.
+
 \subsection{Filtr ze średnią arytmetyczną}
-Filtracja za pomocą tego algorytmu polega na wybraniu wielkości okna maski (w środku okna znajduje się piksel aktualnie przetwarzany). Kolejnym krokiem jest uśrednienie wartości poszczególnych pikseli w danym oknie. Dla obrazu kolorowego algorytm wykonujemy dla każdego kanału osobna. Np. dla maski rozmiaru 3x3 uśredniane są wartości 9 pikseli.
+
+Filtracja za pomocą tego algorytmu polega na wybraniu wielkości okna maski (w środku okna znajduje się piksel aktualnie przetwarzany). Kolejnym krokiem jest uśrednienie wartości poszczególnych pikseli w danym oknie. Dla obrazu kolorowego algorytm wykonujemy dla każdego kanału osobna. Np. dla maski rozmiaru 3x3 uśredniane są wartości 9 pikseli. Efekt działania tego filtru przedstawia (Rysunek \ref{fig:meanFilter}).
+\begin{figure}[h!]
+\centering
+\includegraphics[width=7.83cm]{obrazy/meanFilter.png} 
+\caption[Filtr ze średnią arytmetyczną]{Przykład działania filtru ze średnią arytmetyczną z maską rozmiaru 3x3.}
+\label{fig:meanFilter}
+\end{figure}
 
 \subsection{Filtr medianowy}
-Algorytm podobny do filtracji ze średnią arytmetyczną jednak zamiast uśredniana wartości poszczególnych pikseli w masce wybierana jest ich mediana czyli wartość środkowa z uszeregowanego rosnąco ciągu wszystkich wartości. Dla obrazu kolorowego algorytm również wykonywany jest dla każdego kanału osobno.
+Algorytm podobny do filtracji ze średnią arytmetyczną jednak zamiast uśredniana wartości poszczególnych pikseli w masce wybierana jest ich mediana czyli wartość środkowa z uszeregowanego rosnąco ciągu wszystkich wartości. Dla obrazu kolorowego algorytm również wykonywany jest dla każdego kanału osobno. Efekt działania tego filtru przedstawia (Rysunek \ref{fig:medianFilter}).
+\begin{figure}[h!]
+\centering
+\includegraphics[width=7.89cm]{obrazy/medianFilter.png} 
+\caption[Filtr medianowy]{Przykład działania filtru medianowego z maską rozmiaru 3x3.}
+\label{fig:medianFilter}
+\end{figure}
 
 \subsection{Generowanie i modyfikacja histogramu}
-Aby wygenerować histogram należy zebrać informacje o tym ile pikseli w danym kolorze znajduje się na obrazie (dla obrazu kolorowego każdy kanał badamy osobno). Po zsumowaniu wszystkich pikseli generowany jest wykres słupkowy gdzie na osi X znajdują się kolejne wartości jakie może przyjąć kolor (zwykle jest to 0-255) a na osi Y ilość pikseli w danym kolorze na obrazie.
+Aby wygenerować histogram należy zebrać informacje o tym ile pikseli w danym kolorze znajduje się na obrazie (dla obrazu kolorowego każdy kanał badamy osobno). Po zsumowaniu wszystkich pikseli generowany jest wykres słupkowy gdzie na osi X znajdują się kolejne wartości jakie może przyjąć kolor a na osi Y ilość pikseli w danym kolorze na obrazie.
 
-Dla obrazu w odcieniach szarości generowany jest jeden histogram natomiast dla kolorowego cztery. Trzy z nich to kolejne kanały obrazu (red, green, blue) a jeden dodatkowy to histogram wartości luminacji dla danego obrazu liczona ze wzoru:
+Dla obrazu w odcieniach szarości i czarno-białego generowany jest jeden histogram natomiast dla kolorowego cztery. Trzy z nich to reprezentują kolejne kanały obrazu (czerwony, zielony i niebieski) a jeden dodatkowy to histogram wartości luminacji dla danego piksela liczona według wzoru:
 \begin{equation}
  y = 0,299r + 0,587g + 0,114b, \label{luminacja}
  \end{equation}
 gdzie:
 \begin{description}
 \item y -- wartość luminacji dla danego piksela,
-\item r -- wartość kanału red dla danego piksela,
-\item g -- wartość kanału green dla danego piksela,
-\item b -- wartość kanału blue dla danego piksela.
+\item r -- wartość kanału czerwonego dla danego piksela,
+\item g -- wartość kanału zielonego dla danego piksela,
+\item b -- wartość kanału niebieskiego dla danego piksela.
 \end{description}
 
-\subsection{Filtracja liniowa - identyfikowanie linii}
+\subsection{Filtracja liniowa -- identyfikowanie linii}
 Filtracja liniowa poleca na przekształceniu obrazu wejściowego poprzez nakładanie maski o określonym rozmiarze i wagach poszczególnych pikseli w masce.
 \begin{matrix}
 
@@ -206,6 +239,9 @@ Dla piksela wejściowego, wyjściem będzie uśredniona wartość różnicy elem
 
 
 \subsection{Miary podobieństwa}
+Aby dokładnie określić jak bardzo dwa obrazy się od siebie różnią zastosowaliśmy szereg miar podobieństwa, które wyliczamy w trakcie pracy programu. Mają one nam pozwolić na obiektywne stwierdzenie jakości poprawy przetworzonego za pomocą filtrów obrazu i porównanie go z obrazem początkowym.
+
+\subsubsection*{Błąd średniokwadratowy (MSE)}
 Błąd średniokwadratowy (MSE) określony jest wzorem:
 \begin{equation}
  MSE = \frac{1}{N M}\sum\limits_{i=1}^N \sum\limits_{j=1}^M ([f(i,j)-f'(i,j)]^2) 
@@ -217,7 +253,10 @@ gdzie:
  \item $f'(x,y)$ -- wartość piksela obrazu badanego
 \end{description}
 
-Szczytowy stosunek sygnału do szumu (PSNR) wyrażony w dB:
+Im wartość tego błędu jest większa tym porównywane obrazy bardziej się od siebie różnią.
+
+\subsubsection*{Szczytowy stosunek sygnału do szumu (PSNR)}
+Kolejną wykorzystywaną przez nas miarą podobieństwa jest szczytowy stosunek sygnału do szumu (PSNR) wyrażony w dB:
 \begin{equation}
  PSNR = 10 \log_{10}\frac{k^2}{MSE}
 \end{equation}
@@ -226,6 +265,21 @@ gdzie:
  \item $k$ -- liczba kolorów obrazu minus 1(w naszym przypadku 255)
 \end{description}
 
+W przypadku tej miary podobieństwa im większa otrzymana wartość określająca stosunek sygnału do szumy tym bardziej dwa porównywane obrazy są do siebie podobne. Wartość ta powinna zatem rosnąć wraz s poprawą jakość bądź też niwelacją szumu w obrazie pierwotnym.
+
+\subsubsection*{Średni błąd bezwzględny (MAE)}
+Średni błąd bezwzględny (MAE) określony jest wzorem:
+\begin{equation}
+ MAE = \frac{1}{N M}\sum\limits_{i=1}^N \sum\limits_{j=1}^M (|[f(i,j)-f'(i,j)]|) 
+\end{equation}
+gdzie:
+\begin{description}
+ \item $N,M$ -- wymiary obrazka
+ \item $f(x,y)$ -- wartość piksela obrazu wzorcowego
+ \item $f'(x,y)$ -- wartość piksela obrazu badanego
+\end{description}
+
+W porównaniu do wartości błędu średniokwadratowego, ta miara dopasowania jest mniej czuła na wartości odstające, to znaczy wyjątkowo duże wartości błędu będą wpływać na wartość MAE w mniejszym stopniu niż na wartość MSE.
 
 \section{Opis implementacji}
 
