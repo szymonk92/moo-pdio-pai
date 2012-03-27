@@ -162,8 +162,48 @@ gdzie:
 \end{description}
 
 \subsection{Filtracja liniowa - identyfikowanie linii}
+Filtracja liniowa poleca na przekształceniu obrazu wejściowego poprzez nakładanie maski o określonym rozmiarze i wagach poszczególnych pikseli w masce.
+\begin{matrix}
+
+\begin{tabular}{|c|c|c|}
+\hline -1 & 2 & -1 \\ 
+\hline -1 & 2 & -1 \\ 
+\hline -1 & 2 & -1 \\ 
+\hline 
+\end{tabular} 
+
+\begin{tabular}{|c|c|c|}
+\hline -1 & -1 & -1 \\ 
+\hline 2 & 2 & 2 \\ 
+\hline -1 & -1 & -1 \\ 
+\hline 
+\end{tabular} 
+
+\begin{tabular}{|c|c|c|}
+\hline -1 & -1 & 2 \\ 
+\hline -1 & 2 & -1 \\ 
+\hline 2 & -1 & -1 \\ 
+\hline 
+\end{tabular} 
+
+\begin{tabular}{|c|c|c|}
+\hline 2 & -1 & -1 \\ 
+\hline -1 & 2 & -1 \\ 
+\hline -1 & -1 & 2 \\ 
+\hline 
+\end{tabular} 
+
+
+W naszym przypadku wagi są ustanowione tak, aby w obrazie w miejscach gdzie występują linie odpowiadające orientacji wag dodatnich nastąpiło wzmocnienie, a gdzie ujemne osłabienie. W ten sposób na obrazie wynikowym otrzymujemy wykryte linie zaznaczone jaśniejszymi odcieniami, a tam gdzie ich nie wykryto obszary zacienione.
+
 
 \subsection{Filtracja nieliniowa - operator Rosenfelda}
+Filtracja nieliniowa realizująca operator Rosenfelda o wzorze :
+\begin{equation}
+g(x,y)=\frac{1}{R}\left( \sum \limits _{i=1} ^{R} f \left( x+i-1,y \right) - \sum \limits _{i=1} ^{R} f \left(x-i,y \right) \right)
+\end{equation}
+Dla piksela wejściowego, wyjściem będzie uśredniona wartość różnicy elementów powyżej i poniżej wejściowego rozpatrywanego elementu. W wyniku daje nam do metodę identyfikacji krzywych na obrazie. jeśli punkt leży na pograniczu dwóch dwóch nasyceń różnica będzie duża, dzięki czemu uzyskamy w danym punkcie jasny obszar, a przeciwnym wypadku, będzie to obszar zacieniony.
+
 
 \subsection{Miary podobieństwa}
 Błąd średniokwadratowy (MSE) określony jest wzorem:
