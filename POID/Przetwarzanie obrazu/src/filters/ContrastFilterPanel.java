@@ -48,9 +48,8 @@ public class ContrastFilterPanel extends javax.swing.JPanel {
         jSlider1.setMajorTickSpacing(10);
         jSlider1.setMaximum(50);
         jSlider1.setMinimum(-30);
-        jSlider1.setMinorTickSpacing(5);
+        jSlider1.setMinorTickSpacing(1);
         jSlider1.setPaintTicks(true);
-        jSlider1.setPaintTrack(false);
         jSlider1.setSnapToTicks(true);
         jSlider1.setValue(10);
         jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -97,18 +96,19 @@ public class ContrastFilterPanel extends javax.swing.JPanel {
 
     private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
         filter.setValue(  ((float)this.jSlider1.getValue()/10f)  );
-        jTextField1.setText(""+this.jSlider1.getValue());
+        jTextField1.setText(""+this.jSlider1.getValue()/10f);
     }//GEN-LAST:event_jSlider1StateChanged
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         int value = Integer.parseInt(this.jTextField1.getText());
-        if (value > 30) {
-            value = 30;
+        if (value > 5) {
+            value = 5;
         }
-        if (value < -30) {
-            value = -30;
+        if (value < -3) {
+            value = -3;
         }
-        filter.setValue(  ((float)value/10f)  );
+        this.jSlider1.setValue((int)(value*10f));
+        filter.setValue(((float)value*10f));
     }//GEN-LAST:event_jButton1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

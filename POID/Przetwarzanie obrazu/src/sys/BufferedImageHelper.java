@@ -9,7 +9,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
@@ -105,9 +104,11 @@ public class BufferedImageHelper {
         if (raster.getNumBands() < 3) {
             return histogram;
         }
+        int[] RGB;
         for (int y = 0; y < src.getHeight(); y++) {
             for (int x = 0; x < src.getWidth(); x++) {
-                histogram[(raster.getSample(x, y, 0) + raster.getSample(x, y, 1) + raster.getSample(x, y, 2)) / 3]++;
+                RGB = RGBHelper.toRGBA(src.getRGB(x, y));
+                histogram[RGBHelper.calmp((int) (0.299 * RGB[0] + 0.587* RGB[1] + 0.114* RGB[2]))]++;
             }
         }
         return histogram;
