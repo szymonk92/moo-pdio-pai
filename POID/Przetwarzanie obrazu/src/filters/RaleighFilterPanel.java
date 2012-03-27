@@ -9,7 +9,7 @@ package filters;
  * @author pawel
  */
 public class RaleighFilterPanel extends javax.swing.JPanel {
-    
+
     RaleighFilter filter;
 
     /**
@@ -22,6 +22,11 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
     RaleighFilterPanel(RaleighFilter aThis) {
         this();
         this.filter = aThis;
+        checkRed.setSelected(this.filter.getChannel()[0]);
+        checkGreen.setSelected(this.filter.getChannel()[1]);
+        checkBlue.setSelected(this.filter.getChannel()[2]);
+        this.editGmin.setText(String.valueOf(this.filter.getGmin()));
+        this.editAlpha.setText(String.valueOf(this.filter.getAlpha()));
     }
 
     /**
@@ -84,8 +89,9 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
                         .addComponent(editGmin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel2)
-                        .addGap(4, 4, 4)
-                        .addComponent(editAlpha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(editAlpha, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(5, 5, 5)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -131,18 +137,18 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void applyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyButtonActionPerformed
-        filter.setChannel(0,checkRed.isSelected());
-        filter.setChannel(1,checkGreen.isSelected());
-        filter.setChannel(2,checkBlue.isSelected());
-        if ( checkGrey.isSelected() ) {
-            filter.setChannel(0,true);
-            filter.setChannel(1,true);
-            filter.setChannel(2,true);
+        filter.setChannel(0, checkRed.isSelected());
+        filter.setChannel(1, checkGreen.isSelected());
+        filter.setChannel(2, checkBlue.isSelected());
+        if (checkGrey.isSelected()) {
+            filter.setChannel(0, true);
+            filter.setChannel(1, true);
+            filter.setChannel(2, true);
         }
         filter.setGmin(Integer.parseInt(editGmin.getText()));
-        float alpha=0.0f;
+        float alpha = 0.0f;
         try {
-            alpha= Float.parseFloat(editAlpha.getText());
+            alpha = Float.parseFloat(editAlpha.getText());
             filter.setAlpha(alpha);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -150,7 +156,6 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
         filter.setAlpha(alpha);
         filter.refresh();
     }//GEN-LAST:event_applyButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton applyButton;
     private javax.swing.JCheckBox checkBlue;
