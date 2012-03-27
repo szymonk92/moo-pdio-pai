@@ -2,11 +2,12 @@
 \usepackage[utf8]{inputenc}
 
 \usepackage[pdftex]{color,graphicx}
-\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.bmp}
 
 \usepackage{float}
-
+\usepackage{subfig}
 \usepackage{color}
+\usepackage{tabularx}
 
 \usepackage{listings}
 
@@ -19,7 +20,7 @@
 \usepackage[polish]{babel}
 
 \usepackage{enumitem}
-
+\usepackage{paralist}
 \usepackage{indentfirst}
 
 \hypersetup{colorlinks=false,pdfborder={0 0 0}}
@@ -203,30 +204,307 @@ cel konkretnego testu. Najlepiej byłoby wyraźnie wyszczególnić (ponumerować
 poszczególne eksperymenty tak, aby łatwo było się do nich odwoływać dalej.
 
 \section{Wyniki}
-W tej sekcji należy zaprezentować, dla każdego przeprowadzonego eksperymentu,
-kompletny zestaw wyników w postaci tabel, wykresów itp. Powinny być one tak
-ponazywane, aby było wiadomo, do czego się odnoszą. Wszystkie tabele i wykresy
-należy oczywiście opisać (opisać co jest na osiach, w kolumnach itd.) stosując
-się do przyjętych wcześniej oznaczeń. Nie należy tu komentować i interpretować
-wyników, gdyż miejsce na to jest w kolejnej sekcji. Tu również dobrze jest
-wprowadzić oznaczenia (tabel, wykresów) aby móc się do nich odwoływać
-poniżej.
+
+\subsection{Wyniki odszumiania}
+
+%% ODSZUMIANIE FILTREM UŚREDNIAJĄCYM ZDJĘCIA CZARNO-BIAŁE
+
+\subsubsection{Filtr uśredniający}
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[szum pulsacyjny, uśrednienie wartości 5x5px]{
+	  \label{avg:bwimpulse}
+	  \includegraphics[width=0.3\textwidth]{testy/szum/mean/bw/lena_impulse2_p=5}
+  }
+  \subfloat[szum jednorodny uśrednienie wartości 3x3px]{
+  		\label{avg:bwuniform}
+  		\includegraphics[width=0.3\textwidth]{testy/szum/mean/bw/lena_uniform3_p=3}
+  	}
+  \subfloat[szum normalny uśrednienie wartości 3x3px]{
+  		\label{avg:bwnormal}
+  		\includegraphics[width=0.3\textwidth]{testy/szum/mean/bw/lena_normal3_p=3}
+  }
+  \caption{Odszumianie zdjęć czarno-białych filtrem uśredniajacym.}
+  \label{avg:bw}
+\end{figure}
+
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|l|l|l|}
+			\hline
+			obraz & MSE przed & PSNR przed & MAE przed & MSE po & PSNR po & MAE po \\
+			\hline
+			a & 923.99 & 18.47 & 16.91 & 149.42 & 26.38 & 22.79 \\
+			b & 1044.60 & 17.94 & 47.43 & 181.45 & 25.54 & 28.14 \\
+			c & 1007.17 & 18.09 & 37.56 & 172.87 & 25.75 & 27.34 \\
+			\hline
+		\end{tabular}
+		\caption{Wartość współczynników zaszumienia dla rysunku \ref{avg:bw}.}
+			\label{avgtab:bw}
+	\end{center}
+
+\end{table}
+
+
+%% ODSZUMIANIE FILTREM UŚREDNIAJĄCYM ZDJĘCIA KOLOROWE
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[szum pulsacyjny, uśrednienie wartości 5x5px]{
+	  \label{avg:colimpulse}
+	  \includegraphics[width=0.3\textwidth]{testy/szum/mean/color/lena_impulse2_p=5}
+  }
+  \subfloat[szum jednorodny uśrednienie wartości 3x3px]{
+  		\label{avg:coluniform}
+  		\includegraphics[width=0.3\textwidth]{testy/szum/mean/color/lena_uniform3_p=3}
+  	}
+  \subfloat[szum normalny uśrednienie wartości 3x3px]{
+  		\label{avg:colnormal}
+  		\includegraphics[width=0.3\textwidth]{testy/szum/mean/color/lena_normal3_p=3}
+  }
+  \caption{Odszumianie zdjęć kolorowych filtrem uśredniajacym.}
+  \label{avg:col}
+\end{figure}
+
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|l|l|l|}
+			\hline
+			obraz & MSE przed & PSNR przed & MAE przed & MSE po & PSNR po & MAE po \\
+			\hline
+			a & 9577.64 & 20.51 & 13.99 & 125.89 & 27.13 & 21.12 \\
+			b & 1738.53 & 15.72 & 58.27 & 253.08 & 24.09 & 36.35 \\
+			c & 1090.84 & 17.75 & 51.92 & 169.58 & 25.83 & 29.79\\
+			\hline
+		\end{tabular}
+		\caption{Wartość współczynników zaszumienia dla rysunku \ref{avg:col}.}
+			\label{avgtab:col}
+	\end{center}
+
+\end{table}
+
+
+
+
+%% ODSZUMIANIE FILTREM MEDIANOWYM ZDJĘCIA CZARNO-BIAŁE
+
+\subsubsection{Filtr medianowy}
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[szum pulsacyjny, mediana wartości 3x3px]{
+	  \label{men:bwimpulse}
+	  \includegraphics[width=0.3\textwidth]{testy/szum/median/bw/lena_impulse3_p=3}
+  }
+  \subfloat[szum jednorodny mediana wartości 3x3px]{
+  		\label{men:bwuniform}
+  		\includegraphics[width=0.3\textwidth]{testy/szum/median/bw/lena_uniform3_p=3}
+  	}
+  \subfloat[szum normalny mediana wartości 3x3px]{
+  		\label{men:bwnormal}
+  		\includegraphics[width=0.3\textwidth]{testy/szum/median/bw/lena_normal3_p=3}
+  }
+  \caption{Odszumianie zdjęć czarno-białych filtrem medianowym.}
+  \label{men:bw}
+\end{figure}
+
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|l|l|l|}
+			\hline
+			obraz & MSE przed & PSNR przed & MAE przed & MSE po & PSNR po & MAE po \\
+			\hline
+			a & 1762.70 & 15.66 & 33.14 & 21.43 & 34.82 & 5.19 \\
+			b & 1044.60 & 17.94 & 47.43 & 48.50 & 31.27 & 9.15 \\
+			c & 1007.17 & 18.09 & 37.56 & 29.57 & 33.42 & 6.54 \\
+			\hline
+		\end{tabular}
+		\caption{Wartość współczynników zaszumienia dla rysunku \ref{men:bw}.}
+			\label{mentabbw}
+	\end{center}
+
+\end{table}
+
+
+%% ODSZUMIANIE FILTREM MEDIANOWYM ZDJĘCIA KOLOROWE
+
+ \begin{figure}[H]
+  \centering
+  \def\tabularxcolumn#1{m{#1}}
+\begin{tabularx}{\linewidth}{@{}cXX@{}}
+%
+\begin{tabular}{cc}
+
+  \subfloat[szum pulsacyjny, mediana wartości 3x3px]{
+	  \label{men:colimpulse}
+	  \includegraphics[width=0.48\textwidth]{testy/szum/median/color/lena_impulse3_p=3}
+  } &
+  \subfloat[szum jednorodny mediana wartości 3x3px]{
+  		\label{men:coluniform}
+  		\includegraphics[width=0.48\textwidth]{testy/szum/median/color/lena_uniform3_p=3}
+  	}\\
+  \subfloat[szum jednorodny mediana wartości 5x5px]{
+  		\label{men:coluniform2}
+  		\includegraphics[width=0.48\textwidth]{testy/szum/median/color/lena_uniform3_p=5}
+  	}&
+  \subfloat[szum normalny uśrednienie wartości 3x3px]{
+  		\label{men:colnormal}
+  		\includegraphics[width=0.48\textwidth]{testy/szum/median/color/lena_normal3_p=3}
+  }\\
+  \end{tabular}
+
+  \end{tabularx}
+
+  \caption{Odszumianie zdjęć kolorowych filtrem medianowym.}
+  \label{men:col}
+\end{figure}
+
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|l|l|l|}
+			\hline
+			obraz & MSE przed & PSNR przed & MAE przed & MSE po & PSNR po & MAE po \\
+			\hline
+			a & 866.83 & 18.75 & 20.99 & 21.95 & 34.71 & 6.29 \\
+			b & 1738.53 & 15.72 & 58.27 & 56.22 & 30.63 & 9.98 \\
+			c & 1738.53 & 15.72 & 58.27 & 72.11 & 29.55 & 12.71\\
+			d & 1090.84 & 17.75 & 51.92 & 67.27 & 29.85 & 10.78\\
+			\hline
+		\end{tabular}
+		\caption{Wartość współczynników zaszumienia dla rysunku \ref{men:col}.}
+			\label{mentabcol}
+	\end{center}
+
+\end{table}
+
+\subsection{Filtracja liniowa}
+
+ \begin{figure}[H]
+  \centering
+  \def\tabularxcolumn#1{m{#1}}
+\begin{tabularx}{\linewidth}{@{}cXX@{}}
+%
+\begin{tabular}{cc}
+
+  \subfloat[wykrywanie linii poziomych]{
+	  \label{line:linearA1}
+	  \includegraphics[width=0.37\textwidth]{testy/filtr_liniowy/pentagon1}
+  } &
+  \subfloat[wykrywanie linii pionowych]{
+  		\label{line:linearA2}
+  		\includegraphics[width=0.37\textwidth]{testy/filtr_liniowy/pentagon2}
+  	}\\
+  \subfloat[wykrywanie linii skośnych]{
+  		\label{line:linearA3}
+  		\includegraphics[width=0.37\textwidth]{testy/filtr_liniowy/pentagon3}
+  	}&
+  \subfloat[wykrywanie linii skośnych]{
+  		\label{line:linearA4}
+  		\includegraphics[width=0.37\textwidth]{testy/filtr_liniowy/pentagon4}
+  }\\
+  \end{tabular}
+
+  \end{tabularx}
+
+  \caption{Filtr liniowy, wykrywanie linii, obraz ,,pentagon''.}
+  \label{line:linearA}
+\end{figure}
+
+
+ \begin{figure}[H]
+  \centering
+  \def\tabularxcolumn#1{m{#1}}
+\begin{tabularx}{\linewidth}{@{}cXX@{}}
+%
+\begin{tabular}{cc}
+
+
+  \subfloat[wykrywanie linii poziomych]{
+	  \label{line:linearB1}
+	  \includegraphics[width=0.37\textwidth]{testy/filtr_liniowy/camera1}
+  } &
+  \subfloat[wykrywanie linii pionowych]{
+  		\label{line:linearB2}
+  		\includegraphics[width=0.37\textwidth]{testy/filtr_liniowy/camera2}
+  	}\\
+  \subfloat[wykrywanie linii skośnych]{
+  		\label{line:linearB3}
+  		\includegraphics[width=0.37\textwidth]{testy/filtr_liniowy/camera3}
+  	}&
+  \subfloat[wykrywanie linii skośnych]{
+  		\label{line:linearB4}
+  		\includegraphics[width=0.37\textwidth]{testy/filtr_liniowy/camera4}
+  }\\
+  \end{tabular}
+
+  \end{tabularx}
+
+  \caption{Filtr liniowy, obraz ,,camera''.}
+  \label{line:linearB}
+\end{figure}
+
+\subsection{Filtracja nieliniowa}
+ \begin{figure}[H]
+  \centering
+  \def\tabularxcolumn#1{m{#1}}
+\begin{tabularx}{\linewidth}{@{}cXX@{}}
+%
+\begin{tabular}{cc}
+  \subfloat[wykrywanie linii poziomych]{
+	  \label{line:nlinearA1}
+	  \includegraphics[width=0.37\textwidth]{testy/filtr_nieliniowy/camera}
+  } & 
+  \subfloat[wykrywanie linii pionowych]{
+  		\label{line:nlinearA2}
+  		\includegraphics[width=0.37\textwidth]{testy/filtr_nieliniowy/mandrilc}
+  	}\\
+  	  \subfloat[wykrywanie linii pionowych]{
+  		\label{line:nlinearA3}
+  		\includegraphics[width=0.37\textwidth]{testy/filtr_nieliniowy/lenac}
+  	}\\
+  	  \end{tabular}
+
+  \end{tabularx}
+
+  \caption{Filtr nieliniowy, obraz ,,camera'' , ,,mandrilc'' oraz ,,lenac''.}
+  \label{line:nlinear}
+\end{figure}
 
 \section{Dyskusja}
-Sekcja ta powinna zawierać dokładną interpretację uzyskanych wyników
-eksperymentów wraz ze szczegółowymi wnioskami z nich płynącymi. Najcenniejsze
-są, rzecz jasna, wnioski o charakterze uniwersalnym, które mogą być istotne
-przy innych, podobnych zadaniach. Należy również omówić i wyjaśnić wszystkie
-napotakane problemy (jeśli takie były). Każdy wniosek powinien mieć poparcie
-we wcześniej przeprowadzonych eksperymentach (odwołania do konkretnych
-wyników). Jest to jedna z najważniejszych sekcji tego sprawozdania, gdyż
-prezentuje poziom zrozumienia badanego problemu.
+
+\subsection{Odszumianie}
+
+W większości przypadków, zebrane tutaj dane wynikowe dotyczą wariantów najbardziej zaszumionych z każdego rodzaju szumi. Dobrano takie przykładu aby uwypuklić różnice pomiędzy metodami.
+
+\subsubsection{Filtr uśredniający}
+
+Filtr uśredniający niestety nie radzi sobie zbyt dobrze z żadnym rodzajem szumu. Coraz to lepsze efekty daje dopiero, gdy bierzemy większe otoczenie do uśrednienia, lecz skutkuje rozmyciem obrazu, zanikają wyraźne krawędzie, co może być bardzo dużym minusem jeśli zdjęcie ma służyć dalszej obróbce. Przykładem takich zabiegów mogą być zdjęcia \ref{avg:bwimpulse} oraz \ref{avg:colimpulse}. Obrazy te wydają się być umiarkowanie odszumione, lecz straciliśmy na ich dokładności. W standardowym przypadku gdy bierzemy pod uwagę matryce 3x3px nie ma zauważalnej różnicy w wyrazistości  Wyniki badań  przyjętymi wskaźnikami zaszumienia zestawione w tabelach \ref{avgtab:bw} , \ref{avgtab:col} pokazują, że nasza subiektywna ocena może się czasem mylić, obrazy tak naprawdę są w pewnym stopniu odszumione, niestety dla naszego oka efekt jest niezadowalający.
+
+\subsubsection{Filtr medianowy}
+
+W porównaniu do wyżej wymienionej metody odszumiania obrazu ,,filtru uśredniającego'', metoda ta daje zaskakująco dobre efekty, w niektórych przypadkach, nie da się zauważyć różnic pomiędzy obrazem oryginalnym a obrazem odszumionym. Jak można zauważyć 
+na rysunku \ref{men:bw} na pierwszy rzut oka trudno zauważyć jakąkolwiek różnice pomiędzy obrazami. Podobnie jest na rysunku \ref{men:col}, jednaj tutaj można już zauważyć pewne artefakty (widoczne na rys \ref{men:colnormal} i rys. \ref{men:coluniform}) zaistniałe z wyniku zastosowania tejże metody. Zniwelować ich wystąpienie możemy dzięki zastosowaniu mediany z matryc o wymiarze 5x5px rys. \ref{men:coluniform2}, jednak jak wspomniano przy okazji omawiania wyników metody z sekcji poprzedniej w ten sposób otrzymujemy obraz rozmyty. Odnosząc się do wskaźników zaszumienia zebranych w tabelach \ref{mentabbw}, \ref{mentabcol} widać znaczną poprawę jakości zdjęć.
+
+
+\subsection{Filtr liniowy}
+Wskazany wariant filtracji liniowej, i jego zastosowanie można odczytać z samych przykładowych masek. W badaniach wykorzystano podstawowe maski, które dawały wyraźne jednoznacznie dające się interpretować wyniki. Na rysunkach \ref{line:linearA} \ref{line:linearB}  zamieszczono po 4 przekształcenia tego samego obrazu. Każde z czterech przekształceń dotyczy jednej z podstawowych orientacji lini :
+ \begin{inparaenum}[\itshape a\upshape)]
+\item pozioma
+\item pionowa
+\item skos z lewej na prawą
+\item skos z prawej na lewą
+\end{inparaenum}. W pierwszym przypadku wybrano zdjęcie nieostre, nieposiadające wyraźnych krawędzi, w rezultacie dając tylko lekko wykryte krawędzi, aby uwydatnić efekt, należałoby rozjaśnić obrazy. Na poszczególnych wariantach obrazu  \ref{line:linearA} można rozpoznać w której orientacji działa filtr. Biorąc pod uwagę jednak obraz badany na rysunku \ref{line:linearB} gdzie na obrazie wejściowym widoczne są już na pierwszy rzut oka krawędzie. Filtr nawet niezależnie od badanej orientacji linii wykrywa bardzo dużą ilość linii.
+
+
+\subsubsection{Filtr nieliniowy}
+
+Filtr ten w rezultacie daje nam wynik bardzo podobny do filtru liniowego stosującego maski do wykrywania linii. Jednak nie mamy tutaj do czynienia z możliwością dobrania filtru jednak określamy wielkość otoczenia branego pod uwagę, analogicznie do przypadku odszumiania - zwiększając otoczenie brane pod uwagę zmniejszamy wyraźność linii. Metoda ta jest o wiele bardziej wrażliwa od poprzedniej pod względem zaszumienia i potrzeby wyraźnych konturów do wykrycia. Po zastosowaniu tejże metody do obrazu ,,pentagon'' obraz dał bardzo słabo widoczne krzywe reprezentujące krawędzi wykryte na obrazku. W przypadku zdjęcia \ref{line:linearB} było już o wiele lepiej, jak zostało zauważone w poprzedniej sekcji zdjęcie to zawiera wyraźne kontury, z którymi bardzo dobrze sobie radziła. Wyniki zastosowania tej metody można zaobserwować na rysunku zestawiającym przykładowe obrazy wyjściowe \ref{line:nlinear}, gdzie jako pierwszy został zamieszczony znany nam już obraz \ref{line:nlinearA1}. Porównując obrazy wyjściowe zebrane w  rysunku \ref{line:linearB} z obrazem wyjściowym z filtru nieliniowego \ref{line:nlinearA1} można zauważyć, że metoda ta wykrywa najbardziej widoczne krzywe, nie tylko w określonej orientacji,tak jak miało to miejsce w filtrze liniowym identyfikującym linie w określonej orientacji. Kolejne bardziej złożone, kolorowe obrazy ,,lenac'' i ,,mandrilc'' wydają się potwierdzać założenie że obraz wynikowy tejże metody jest wyznaczonymi krzywymi z obrazu.
+
 
 \section{Wnioski}
-W tej, przedostatniej, sekcji należy zamieścić podsumowanie
-najważniejszych wniosków z sekcji poprzedniej. Najlepiej jest je po prostu
-wypunktować. Znów, tak jak poprzednio, najistotniejsze są wnioski o
-charakterze uniwersalnym.
+Porównując dwie metody do odszumiania obrazu, nie trudno wybrać lepszą. Według wszystkich danych wszystko wskazuje, że niezależnie od typu szumu i jego intensywności w praktycznie każdym przypadku zastosowanie metody filtru medianowego daje lepsze efekty. Jednak w krytycznych sytuacjach mogą wystąpić zauważone na rys \ref{men:coluniform} artefakty. Jeśli zależy nam na czystości zdjęcia możemy wtedy zastosować filtr medianowy działający na sąsiedztwie np 5x5px, lecz jednak, który usunie artefakty lecz efektem ubocznym będzie lekkie rozmycie obrazu.
+\\W przypadku filtru liniowego(identyfikującego linie) i filtru nieliniowego realizującego operator Rosenfelda, wydaje się że filtr liniowy może dać lepsze wyniki od operatora Rosenfelda jeśli nałożymy efekty 4 wariantów na jeden obraz, otrzymany w ten sposób obraz miałby wyraźniej zarysowane kontury jak w przypadku operatora Rosenfelda. Jednak minusem tej operacji byłaby o wiele większa złożoność w porównaniu z jednokrotnym wywołaniem filtru nieliniowego.
 
 \begin{thebibliography}{8}
 
