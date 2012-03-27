@@ -1,0 +1,235 @@
+\documentclass{classrep}
+\usepackage[utf8]{inputenc}
+
+\usepackage[pdftex]{color,graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+\usepackage{float}
+
+\usepackage{color}
+
+\usepackage{listings}
+
+\usepackage{color}
+
+\usepackage{url}
+
+\usepackage{hyperref}
+
+\usepackage[polish]{babel}
+
+\usepackage{enumitem}
+
+\usepackage{indentfirst}
+
+\hypersetup{colorlinks=false,pdfborder={0 0 0}}
+
+
+\definecolor{javared}{rgb}{0.6,0,0} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
+\definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
+
+\lstset{language=Java,
+basicstyle=\ttfamily,
+keywordstyle=\color{javapurple}\bfseries,
+stringstyle=\color{javared},
+commentstyle=\color{javagreen},
+morecomment=[s][\color{javadocblue}]{/**}{*/},
+numbers=left,
+numberstyle=\tiny\color{black},
+stepnumber=2,
+numbersep=10pt,
+tabsize=4,
+showspaces=false,
+showstringspaces=false}
+
+
+\studycycle{Informatyka, studia dzienne, mgr II st.}
+\coursesemester{I}
+
+\coursename{Przetwarzanie obrazu i dźwięku}
+\courseyear{2011/2012}
+
+\courseteacher{dr inż. Arkadiusz Tomczyk}
+\coursegroup{środa, 8:15}
+
+\author{
+  \studentinfo{Paweł Musiał}{178726} \and
+  \studentinfo{Łukasz Michalski}{178724}
+}
+\title{Zadanie 1:\\  \textbf {Szkielet aplikacji do przetwarzania \\i analizy obrazów, operacje podstawowe, usuwanie szumu, modyfikacje histogramu, filtracja liniowa i nieliniowa, splot}}
+\svnurl{http://serce.ics.p.lodz.pl/svn/labs/poid/at_sr0800/lmpm}
+
+\begin{document}
+\maketitle
+
+\addtocounter{footnote}{1}
+
+\section{Cel}
+
+Celem zadania było stworzenie szkieletu aplikacji służącej do wczytywania, zapisywania i przede wszystkim przetwarzania obrazów, która zostanie wykorzysta zarówno w tym, jak i w następnym zadaniu. Na potrzeby pierwszego zadania w powstałym szkielecie należało:
+
+\begin{list}{•}{}
+\item zaimplementować podstawowe operacje przetwarzania obrazów: zmianę jasności i kontrastu oraz wyznaczenie negatywu obrazu;
+\item zaimplementować filtr ze średnią arytmetyczną i filtr medianowy z możliwością wyboru rozmiaru maski oraz zaproponować metody obiektywnej oceny ich działania i skuteczności w usuwaniu różnego rodzaju szumu;
+\item wyznaczyć i wyświetlić histogram jasności pikseli obrazu, a w przypadku
+obrazów kolorowych także histogram wartości poszczególnych kanałów;
+\item w oparciu o wyznaczony histogram dokonać modyfikacji obrazu w taki sposób, aby osiągnąć zadaną charakterystykę histogramu obrazu wynikowego;
+\item zaimplementować możliwość filtracji liniowej opartej o splot w dwóch wersjach: na podstawie jednego z wariantów gotowych masek oraz z możliwością wyboru własnego rozmiaru maski i wartości poszczególnych jej elementów;
+\item opracować i zaimplementować algorytm filtracji nieliniowej obrazu w dziedzinie czasu zgodnie z regułą zawartą w przydzielonym wariancie zadania, a także zapewnić możliwość wyboru parametrów filtru tam, gdzie jest to konieczne;
+\item przemyśleć i zaimplementować sposób normalizacji wyników dla dwóch poprzednich punktów tak, aby mogły być one wyświetlone w postaci obrazu wynikowego.
+\end{list}
+
+W sprawozdaniu zamieszczono wyniki działania poszczególnych algorytmów oraz porównanie ich w różnych wariantach ustawień i~dla różnych problemów. Badania przeprowadzono zarówno na obrazach kolorowych (24-bitowych), jak i~w odcieniach szarości (8-bitowych), a~także czarno-białych (1-bitowych). 
+
+\section{Wprowadzenie}
+Aby przetworzyć obraz należy w programie przechowywać go w postaci wartości poszczególnych pikseli w obrazie. Wartości te przechowywane są na 8-bitach dla obrazu w odcieniach szarości oraz w 24-bitach (po 8 bitów na kanał) w obrazach kolorowych. Na tych wartościach wykonywane są poszczególne algorytmy (dla obrazu kolorowego na każdym kanale osobno).
+
+\subsection{Zmiana jasności}
+Zmiana jasności obrazu polega na zmniejszeniu bądź zwiększeniu składowych RGB o pewną wartość stałej b. Jeżeli jedna składowa uzyska wartość większą od dopuszczalnego zakresu to wynikiem jest wartość maksymalna z tego zakresu. Analogicznie, jeżeli składowa ma wartość mniejszą to wynikiem jest wartość minimalna. Powyższą operacją można zapisać za pomocą wzoru:
+\begin{equation}
+p(i)=\left\{
+\begin{array}{l l l}
+0 & \quad \mbox{i +b $<$ 0,} \\
+i+b & \quad \mbox{0 $\leq$ i + b $\leq$  $i_{max}$,} \\
+i_{max} & \quad \mbox{i + b $>$ $i_{max}$,} \\
+\end{array}
+\right.
+\end{equation}
+gdzie:
+\begin{description}
+\item $p(i)$ -- nowa wartość składowej RGB,
+\item i -- wartość konkretnej składowej danego piksela,
+\item b -- stała, o którą zmieniamy daną składową RGB,
+\item $i_{max}$ -- maksymalna dopuszczalna wartość.
+\end{description}
+
+\subsection{Zmiana kontrastu}
+Zmiana kontrastu polega na przekształceniu danego obrazu wykonując operację według wzoru:
+\begin{equation}
+\label{kontrastWzor}
+p(i)=\left\{
+\begin{array}{l l l}
+0 & \quad \mbox{$a (i-\frac{i_{max}}{2}) + \frac{i_{max}}{2}$ $<$ 0,} \\
+a (i-\frac{i_{max}}{2}) + \frac{i_{max}}{2} & \quad \mbox{0 $\leq$ $a (i-\frac{i_{max}}{2}) + \frac{i_{max}}{2}$ $\leq i_{max}$ ,} \\
+i_{max} & \quad \mbox{$a (i-\frac{i_{max}}{2}) + \frac{i_{max}}{2}$ $ > i_{max}$,} \\
+\end{array}
+\right.
+\end{equation}
+gdzie:
+\begin{description}
+\item $p(i)$ -- nowa wartość składowej RGB,
+\item i -- wartość konkretnej składowej danego piksela,
+\item a -- stała, której wartość określa czy zwiększa się kontrast obrazu
+\item $i_{max}$ -- maksymalna dopuszczalna wartość.
+\end{description}
+
+W przypadku jeżeli stała a przyjmuje wartości większe od 1, następuje zwiększenie kontrastu obrazu. Natomiast, jeżeli wartości są mniejsze od 1 to kontrast jest zmniejszany. 
+
+\subsection{Negatyw}
+Wykonanie negatywu danego obrazu polega na przekształceniu wszystkich pixeli za pomocą wzoru:
+\begin{equation}
+ p(i) = i_{max} - i
+\end{equation}
+gdzie:
+\begin{description}
+\item $p(i)$ -- nowa wartość składowej RGB,
+\item $i_{max}$ -- maksymalna dopuszczalna wartość,
+\item i -- wartość konkretnej składowej danego piksela.
+\end{description}
+
+\subsection{Filtr ze średnią arytmetyczną}
+Filtracja za pomocą tego algorytmu polega na wybraniu wielkości okna maski (w środku okna znajduje się piksel aktualnie przetwarzany). Kolejnym krokiem jest uśrednienie wartości poszczególnych pikseli w danym oknie. Dla obrazu kolorowego algorytm wykonujemy dla każdego kanału osobna. Np. dla maski rozmiaru 3x3 uśredniane są wartości 9 pikseli.
+
+\subsection{Filtr medianowy}
+Algorytm podobny do filtracji ze średnią arytmetyczną jednak zamiast uśredniana wartości poszczególnych pikseli w masce wybierana jest ich mediana czyli wartość środkowa z uszeregowanego rosnąco ciągu wszystkich wartości. Dla obrazu kolorowego algorytm również wykonywany jest dla każdego kanału osobno.
+
+\subsection{Generowanie i modyfikacja histogramu}
+Aby wygenerować histogram należy zebrać informacje o tym ile pikseli w danym kolorze znajduje się na obrazie (dla obrazu kolorowego każdy kanał badamy osobno). Po zsumowaniu wszystkich pikseli generowany jest wykres słupkowy gdzie na osi X znajdują się kolejne wartości jakie może przyjąć kolor (zwykle jest to 0-255) a na osi Y ilość pikseli w danym kolorze na obrazie.
+
+Dla obrazu w odcieniach szarości generowany jest jeden histogram natomiast dla kolorowego cztery. Trzy z nich to kolejne kanały obrazu (red, green, blue) a jeden dodatkowy to histogram wartości luminacji dla danego obrazu liczona ze wzoru:
+\begin{equation}
+ y = 0,299r + 0,587g + 0,114b, \label{luminacja}
+ \end{equation}
+gdzie:
+\begin{description}
+\item y -- wartość luminacji dla danego piksela,
+\item r -- wartość kanału red dla danego piksela,
+\item g -- wartość kanału green dla danego piksela,
+\item b -- wartość kanału blue dla danego piksela.
+\end{description}
+
+\subsection{Filtracja liniowa - identyfikowanie linii}
+
+\subsection{Filtracja nieliniowa - operator Rosenfelda}
+
+\subsection{Miary podobieństwa}
+Błąd średniokwadratowy (MSE) określony jest wzorem:
+\begin{equation}
+ MSE = \frac{1}{N M}\sum\limits_{i=1}^N \sum\limits_{j=1}^M ([f(i,j)-f'(i,j)]^2) 
+\end{equation}
+gdzie:
+\begin{description}
+ \item $N,M$ -- wymiary obrazka
+ \item $f(x,y)$ -- wartość piksela obrazu wzorcowego
+ \item $f'(x,y)$ -- wartość piksela obrazu badanego
+\end{description}
+
+Szczytowy stosunek sygnału do szumu (PSNR) wyrażony w dB:
+\begin{equation}
+ PSNR = 10 \log_{10}\frac{k^2}{MSE}
+\end{equation}
+gdzie:
+\begin{description}
+ \item $k$ -- liczba kolorów obrazu minus 1(w naszym przypadku 255)
+\end{description}
+
+
+\section{Opis implementacji}
+
+
+\section{Materiały i metody}
+W tym miejscu należy opisać, jak przeprowadzone zostały wszystkie badania,
+których wyniki i dyskusja zamieszczane są w dalszych sekcjach. Opis ten
+powinien być na tyle dokładny, aby osoba czytająca go potrafiła wszystkie
+przeprowadzone badania samodzielnie powtórzyć w celu zweryfikowania ich
+poprawności (a zatem m.in. należy zamieścić tu opis architektury sieci,
+wartości współczynników użytych w kolejnych eksperymentach, sposób
+inicjalizacji wag, metodę uczenia itp. oraz informacje o danych, na których
+prowadzone były badania). Przy opisie należy odwoływać się i stosować do
+opisanych w sekcji drugiej wzorów i oznaczeń, a także w jasny sposób opisać
+cel konkretnego testu. Najlepiej byłoby wyraźnie wyszczególnić (ponumerować)
+poszczególne eksperymenty tak, aby łatwo było się do nich odwoływać dalej.
+
+\section{Wyniki}
+W tej sekcji należy zaprezentować, dla każdego przeprowadzonego eksperymentu,
+kompletny zestaw wyników w postaci tabel, wykresów itp. Powinny być one tak
+ponazywane, aby było wiadomo, do czego się odnoszą. Wszystkie tabele i wykresy
+należy oczywiście opisać (opisać co jest na osiach, w kolumnach itd.) stosując
+się do przyjętych wcześniej oznaczeń. Nie należy tu komentować i interpretować
+wyników, gdyż miejsce na to jest w kolejnej sekcji. Tu również dobrze jest
+wprowadzić oznaczenia (tabel, wykresów) aby móc się do nich odwoływać
+poniżej.
+
+\section{Dyskusja}
+Sekcja ta powinna zawierać dokładną interpretację uzyskanych wyników
+eksperymentów wraz ze szczegółowymi wnioskami z nich płynącymi. Najcenniejsze
+są, rzecz jasna, wnioski o charakterze uniwersalnym, które mogą być istotne
+przy innych, podobnych zadaniach. Należy również omówić i wyjaśnić wszystkie
+napotakane problemy (jeśli takie były). Każdy wniosek powinien mieć poparcie
+we wcześniej przeprowadzonych eksperymentach (odwołania do konkretnych
+wyników). Jest to jedna z najważniejszych sekcji tego sprawozdania, gdyż
+prezentuje poziom zrozumienia badanego problemu.
+
+\section{Wnioski}
+W tej, przedostatniej, sekcji należy zamieścić podsumowanie
+najważniejszych wniosków z sekcji poprzedniej. Najlepiej jest je po prostu
+wypunktować. Znów, tak jak poprzednio, najistotniejsze są wnioski o
+charakterze uniwersalnym.
+
+\begin{thebibliography}{8}
+
+\end{thebibliography}
+
+\end{document}
