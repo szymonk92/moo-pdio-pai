@@ -7,6 +7,8 @@ package views;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -27,11 +29,13 @@ import sys.TabData;
  *
  * @author Lukasz
  */
-public class HistogramPanel extends javax.swing.JPanel {
+public class HistogramPanel extends javax.swing.JPanel implements PropertyChangeListener {
 
     private TabData data;
     XYPlot xyplot;
     XYItemRenderer renderer;
+    boolean autoUpdate = false;
+    ChartPanel chartpanel;
 
     /**
      * Creates new form HistogramPanel
@@ -39,20 +43,8 @@ public class HistogramPanel extends javax.swing.JPanel {
     public HistogramPanel(TabData data) {
         this.data = data;
         initComponents();
-        JFreeChart chart;
-        if (data.getFilteredImage().getType() != BufferedImage.TYPE_BYTE_BINARY) {
-            XYDataset xydataset = createDataset();
-            chart = createChart(xydataset);
-        } else {
-            this.remove(this.jPanel1);
-            DefaultCategoryDataset dataset = createbinaryDataset();
-            chart = createChart(dataset);
-        }
-
-        ChartPanel chartpanel = new ChartPanel(chart);
-        chartpanel.setPreferredSize(new Dimension(200, 200));
-        this.jPanel2.add(new ChartPanel(chart));
-
+        MakeChart();
+        this.data.getChangeSupport().addPropertyChangeListener(this);
     }
 
     /**
@@ -69,6 +61,7 @@ public class HistogramPanel extends javax.swing.JPanel {
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jCheckBox1 = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
 
         setLayout(new java.awt.BorderLayout());
@@ -130,12 +123,21 @@ public class HistogramPanel extends javax.swing.JPanel {
             }
         });
 
+        jCheckBox1.setText("Auto Update");
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(81, 81, 81)
+                .addContainerGap()
+                .addComponent(jCheckBox1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -143,15 +145,19 @@ public class HistogramPanel extends javax.swing.JPanel {
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(141, Short.MAX_VALUE))
+                .addContainerGap(127, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jCheckBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE, false)
+                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         add(jPanel1, java.awt.BorderLayout.PAGE_START);
@@ -173,17 +179,45 @@ public class HistogramPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-       renderer.setSeriesVisible(3, !renderer.getSeriesVisible(3));
+        renderer.setSeriesVisible(3, !renderer.getSeriesVisible(3));
     }//GEN-LAST:event_jButton4ActionPerformed
 
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        autoUpdate = this.jCheckBox1.isSelected();
+        if (autoUpdate) {
+            MakeChart();
+        }
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
+
+    private void MakeChart() {
+        JFreeChart chart;
+        if (data.getFilteredImage().getType() != BufferedImage.TYPE_BYTE_BINARY) {
+            XYDataset xydataset = createDataset();
+            chart = createChart(xydataset);
+        } else {
+            this.remove(this.jPanel1);
+            DefaultCategoryDataset dataset = createbinaryDataset();
+            chart = createChart(dataset);
+        }
+
+        ChartPanel chartpanelTmp = new ChartPanel(chart);
+        chartpanelTmp.setPreferredSize(new Dimension(200, 200));
+        if (this.chartpanel != null && this.jPanel2.getComponents().length > 0) {
+            this.jPanel2.remove(this.chartpanel);
+        }
+        this.chartpanel = chartpanelTmp;
+        this.jPanel2.add(this.chartpanel);
+        this.jPanel2.revalidate();
+    }
 
     private DefaultCategoryDataset createbinaryDataset() {
         int max = this.data.getFilteredImage().getSampleModel().getNumBands();
@@ -257,5 +291,14 @@ public class HistogramPanel extends javax.swing.JPanel {
         ValueAxis valueaxis1 = xyplot.getRangeAxis();
         valueaxis1.setTickMarkPaint(Color.black);
         return jfreechart;
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ("filteredImage".equals(evt.getPropertyName())) {
+            if (autoUpdate) {
+                MakeChart();
+            }
+        }
     }
 }
