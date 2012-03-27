@@ -87,7 +87,7 @@ public class RaleighFilter extends AbstractFilter {
             alpha = 255.0f / (float) Math.sqrt(2 * Math.log(dim));
             a2a = alpha * 2 * alpha;
         }
-        System.out.println("" + alpha);
+        //System.out.println("" + alpha);
         double[] il = new double[256];
         int[] RGB;
         for (int y = 0; y < image.getHeight(); y++) {
