@@ -471,6 +471,73 @@ poszczególne eksperymenty tak, aby łatwo było się do nich odwoływać dalej.
   \label{line:nlinear}
 \end{figure}
 
+
+\subsection{Modyfikacja histogramowa}
+ \begin{figure}[H]
+  \centering
+  \def\tabularxcolumn#1{m{#1}}
+\begin{tabularx}{\linewidth}{@{}cXX@{}}
+%
+\begin{tabular}{cc}
+
+
+  \subfloat[obraz oryginalny]{
+	  \label{raleight:lena_in}
+	  \includegraphics[width=0.37\textwidth]{testy/raleight/lenac}
+  } &
+  \subfloat[histogram obrazu oryginalnego]{
+  		\label{raleight:lena_inhist}
+  		\includegraphics[width=0.37\textwidth]{testy/raleight/lenac_in_hist}
+  	}\\
+  \subfloat[obraz po przekształceniu]{
+  		\label{raleight:lena_out}
+  		\includegraphics[width=0.37\textwidth]{testy/raleight/lenac_out}
+  	}&
+  \subfloat[histogram obrazu przekształconego]{
+  		\label{raleight:lena_outhist}
+  		\includegraphics[width=0.37\textwidth]{testy/raleight/lenac_out_hist}
+  }\\
+  \end{tabular}
+
+  \end{tabularx}
+
+  \caption{Przekształcenie histogramowe obrazu ,,lenac'' parametr gmin=0, alpha oszacowany automatycznie.}
+  \label{raleight:lena}
+\end{figure}
+
+ \begin{figure}[H]
+  \centering
+  \def\tabularxcolumn#1{m{#1}}
+\begin{tabularx}{\linewidth}{@{}cXX@{}}
+%
+\begin{tabular}{cc}
+
+
+  \subfloat[obraz oryginalny]{
+	  \label{raleight:mandrilc_in}
+	  \includegraphics[width=0.37\textwidth]{testy/raleight/mandrilc}
+  } &
+  \subfloat[histogram obrazu oryginalnego]{
+  		\label{raleight:mandrilc_inhist}
+  		\includegraphics[width=0.37\textwidth]{testy/raleight/mandrilc_in_hist}
+  	}\\
+  \subfloat[obraz po przekształceniu]{
+  		\label{raleight:mandrilc_out}
+  		\includegraphics[width=0.37\textwidth]{testy/raleight/mandrilc_out}
+  	}&
+  \subfloat[histogram obrazu przekształconego]{
+  		\label{raleight:mandrilc_outhist}
+  		\includegraphics[width=0.37\textwidth]{testy/raleight/mandrilc_out_hist}
+  }\\
+  \end{tabular}
+
+  \end{tabularx}
+
+  \caption{Przekształcenie histogramowe obrazu ,,mandrilc'' parametr gmin=0, alpha oszacowany automatycznie.}
+  \label{raleight:mandrilc}
+\end{figure}
+
+
 \section{Dyskusja}
 
 \subsection{Odszumianie}
@@ -497,14 +564,20 @@ Wskazany wariant filtracji liniowej, i jego zastosowanie można odczytać z samy
 \end{inparaenum}. W pierwszym przypadku wybrano zdjęcie nieostre, nieposiadające wyraźnych krawędzi, w rezultacie dając tylko lekko wykryte krawędzi, aby uwydatnić efekt, należałoby rozjaśnić obrazy. Na poszczególnych wariantach obrazu  \ref{line:linearA} można rozpoznać w której orientacji działa filtr. Biorąc pod uwagę jednak obraz badany na rysunku \ref{line:linearB} gdzie na obrazie wejściowym widoczne są już na pierwszy rzut oka krawędzie. Filtr nawet niezależnie od badanej orientacji linii wykrywa bardzo dużą ilość linii.
 
 
-\subsubsection{Filtr nieliniowy}
+\subsection{Filtr nieliniowy}
 
 Filtr ten w rezultacie daje nam wynik bardzo podobny do filtru liniowego stosującego maski do wykrywania linii. Jednak nie mamy tutaj do czynienia z możliwością dobrania filtru jednak określamy wielkość otoczenia branego pod uwagę, analogicznie do przypadku odszumiania - zwiększając otoczenie brane pod uwagę zmniejszamy wyraźność linii. Metoda ta jest o wiele bardziej wrażliwa od poprzedniej pod względem zaszumienia i potrzeby wyraźnych konturów do wykrycia. Po zastosowaniu tejże metody do obrazu ,,pentagon'' obraz dał bardzo słabo widoczne krzywe reprezentujące krawędzi wykryte na obrazku. W przypadku zdjęcia \ref{line:linearB} było już o wiele lepiej, jak zostało zauważone w poprzedniej sekcji zdjęcie to zawiera wyraźne kontury, z którymi bardzo dobrze sobie radziła. Wyniki zastosowania tej metody można zaobserwować na rysunku zestawiającym przykładowe obrazy wyjściowe \ref{line:nlinear}, gdzie jako pierwszy został zamieszczony znany nam już obraz \ref{line:nlinearA1}. Porównując obrazy wyjściowe zebrane w  rysunku \ref{line:linearB} z obrazem wyjściowym z filtru nieliniowego \ref{line:nlinearA1} można zauważyć, że metoda ta wykrywa najbardziej widoczne krzywe, nie tylko w określonej orientacji,tak jak miało to miejsce w filtrze liniowym identyfikującym linie w określonej orientacji. Kolejne bardziej złożone, kolorowe obrazy ,,lenac'' i ,,mandrilc'' wydają się potwierdzać założenie że obraz wynikowy tejże metody jest wyznaczonymi krzywymi z obrazu.
+
+
+\subsection{Modyfikacja histogramowa}
+
+Modyfikacja ta ma na celu zmianę nasyceń kolorów w taki sposób aby histogram wyjściowego obrazu miał zadany rozkład. Zabieg taki jak widać na rysunkach \ref{raleight:lena} i \ref{raleight:mandrilc} może pomóc w zauważeniu pewnych fragmentów zdjęć które w oryginalnym zdjęciu byłby trudne lub nawet niemożliwe do zauważenia. Mamy tutaj na myśli na przykład zacieniony fragment przy nosie \ref{raleight:mandrilc_in} kŧóry dzięki przekszałceniu jest widoczny i możliwe zauważenie owłosienia. W przypadku obrazu \ref{raleight:mandrilc} niestety przekształcenie nie dało żadnych zauważalnych, przydatnych informacji.
 
 
 \section{Wnioski}
 Porównując dwie metody do odszumiania obrazu, nie trudno wybrać lepszą. Według wszystkich danych wszystko wskazuje, że niezależnie od typu szumu i jego intensywności w praktycznie każdym przypadku zastosowanie metody filtru medianowego daje lepsze efekty. Jednak w krytycznych sytuacjach mogą wystąpić zauważone na rys \ref{men:coluniform} artefakty. Jeśli zależy nam na czystości zdjęcia możemy wtedy zastosować filtr medianowy działający na sąsiedztwie np 5x5px, lecz jednak, który usunie artefakty lecz efektem ubocznym będzie lekkie rozmycie obrazu.
 \\W przypadku filtru liniowego(identyfikującego linie) i filtru nieliniowego realizującego operator Rosenfelda, wydaje się że filtr liniowy może dać lepsze wyniki od operatora Rosenfelda jeśli nałożymy efekty 4 wariantów na jeden obraz, otrzymany w ten sposób obraz miałby wyraźniej zarysowane kontury jak w przypadku operatora Rosenfelda. Jednak minusem tej operacji byłaby o wiele większa złożoność w porównaniu z jednokrotnym wywołaniem filtru nieliniowego.
+\\Modyfikacja histogramowa może być przydatna do uwydatnienia pewnych cech obrazu, lecz nie zawsze może być w tym pomocna.
 
 \begin{thebibliography}{8}
 
