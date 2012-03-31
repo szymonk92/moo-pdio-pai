@@ -39,7 +39,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         this.filtr = filter;
         this.copyFiltr = filter.getCopy();
         initComponents();
-        JPanel panel = copyFiltr.getEditPanel();
+        JPanel panel = copyFiltr.getEditPanel(data);
         int panelWidth = panel.getPreferredSize().width;
         int panelHeight = panel.getPreferredSize().height;
         int width = panelWidth>100?panelWidth+20:100;
@@ -108,7 +108,6 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         setAlwaysOnTop(true);
         setLocationByPlatform(true);
         setMaximumSize(null);
-        setMinimumSize(null);
         setPreferredSize(new java.awt.Dimension(500, 400));
         setResizable(false);
 
@@ -133,7 +132,6 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         settingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Opcje"));
         settingsPanel.setMaximumSize(new java.awt.Dimension(2147483647, 130));
         settingsPanel.setMinimumSize(new java.awt.Dimension(12, 130));
-        settingsPanel.setPreferredSize(null);
         settingsPanel.setLayout(new java.awt.BorderLayout());
         getContentPane().add(settingsPanel, java.awt.BorderLayout.CENTER);
 

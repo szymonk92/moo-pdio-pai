@@ -13,7 +13,7 @@ import javax.swing.JPanel;
  */
 public interface IFilter extends IPlugin{
 
-    JPanel getEditPanel();
+    JPanel getEditPanel(TabData data);
     
     @Override
     IFilter getCopy();

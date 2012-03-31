@@ -118,4 +118,8 @@ public class RGBHelper {
      public static int fastToPixel(int r, int g, int b) {
         return fastToPixel(r,g,b,255);
     }
+
+    public static double calmp(double value) {
+        return Math.max(Math.min(value, 255), 0);
+    }
 }

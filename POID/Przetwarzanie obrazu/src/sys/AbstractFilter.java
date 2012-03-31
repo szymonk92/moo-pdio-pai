@@ -59,7 +59,7 @@ public abstract class AbstractFilter implements IFilter {
     }
 
     @Override
-    public JPanel getEditPanel() {
+    public JPanel getEditPanel(TabData data) {
         return null;
     }
 

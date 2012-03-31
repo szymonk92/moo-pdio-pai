@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import sys.AbstractFilter;
 import sys.IFilter;
 import sys.RGBHelper;
+import sys.TabData;
 
 /**
  *
@@ -44,7 +45,7 @@ public class MedianFilter extends AbstractFilter{
     }
 
     @Override
-    public JPanel getEditPanel() {
+    public JPanel getEditPanel(TabData data) {
         return new MedianFilterPanel(this);
     }
 

@@ -5,11 +5,9 @@
 package filters;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import javax.swing.JPanel;
-import sys.AbstractFilter;
-import sys.BufferedImageHelper;
-import sys.IFilter;
-import sys.RGBHelper;
+import sys.*;
 
 /**
  *
@@ -53,7 +51,7 @@ public class RaleighFilter extends AbstractFilter {
     public RaleighFilter() {
         this.name = "Raleigh Filter";
         this.setEditable(true);
-        channel[0]=channel[1]=channel[2]=false;
+        channel[0] = channel[1] = channel[2] = false;
     }
 
     public void refresh() {
@@ -70,8 +68,8 @@ public class RaleighFilter extends AbstractFilter {
     }
 
     @Override
-    public JPanel getEditPanel() {
-        return new RaleighFilterPanel(this);
+    public JPanel getEditPanel(TabData data) {
+        return new RaleighFilterPanel(this, data);
     }
 
     @Override
@@ -81,46 +79,69 @@ public class RaleighFilter extends AbstractFilter {
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-        int RGBA, dim = image.getWidth() * image.getHeight();
-        double a2a = alpha * 2 * alpha,r,g,b;
+        int dim = image.getWidth() * image.getHeight();
+        double a2a, r, g, b;
+        WritableRaster raster = image.getRaster();
         if (alpha == 0.0f) {
             alpha = 255.0f / (float) Math.sqrt(2 * Math.log(dim));
-            a2a = alpha * 2 * alpha;
         }
+        a2a = alpha * 2 * alpha;
         //System.out.println("" + alpha);
-        double[] il = new double[256];
-        int[] RGB;
-        for (int y = 0; y < image.getHeight(); y++) {
-            for (int x = 0; x < image.getWidth(); x++) {
-                RGB = RGBHelper.toRGBA(image.getRGB(x, y));
-                il[RGBHelper.calmp((int) (0.299 * RGB[0] + 0.587* RGB[1] + 0.114* RGB[2]))]++;
+        double[][] histograms = new double[4][];
+        double[][] histogramSum = new double[4][];
+        double[][] histogramIlo = new double[4][];
+        if (raster.getNumBands() == 3 && !channel[3]) {
+            for (int i = 0; i < raster.getNumBands(); i++) {
+                histograms[i] = BufferedImageHelper.getHistogram(image, i);
+                histogramIlo[i] = new double[histograms[i].length];
+                histogramSum[i] = new double[histograms[i].length];
+                for (int j = 0; j < histograms[i].length; j++) {
+                    if (j == 0) {
+                        histogramSum[i][j] = histograms[i][j];
+                    } else {
+                        histogramSum[i][j] += histogramSum[i][j - 1] + histograms[i][j];
+                    }
+                    histogramIlo[i][j] = RGBHelper.calmp(gmin + Math.sqrt(a2a * Math.log(((double) dim) / histogramSum[i][j])));
+                }
             }
         }
-        double[] ilo = new double[il.length];
+        histograms[3] = BufferedImageHelper.getLuminanceHistogram(image);
+        histogramSum[3] = new double[histograms[3].length];
+        histogramIlo[3] = new double[histograms[3].length];
+        for (int j = 0; j < histograms[3].length; j++) {
+            if (j == 0) {
+                histogramSum[3][j] = histograms[3][j];
+            } else {
+                histogramSum[3][j] += histogramSum[3][j - 1] + histograms[3][j];
+            }
+            histogramIlo[3][j] = RGBHelper.calmp(gmin + Math.sqrt(a2a * Math.log(((double) dim) / histogramSum[3][j])));
+        }
 
-        for (int i = 0; i < il.length; ++i) {
-            double s = 0, c = a2a;
-            for (int j = 0; j <= i; ++j) {
-                s += il[j];
-            }
-            c *= Math.log(dim / s);
-            c = Math.sqrt(c);
-            ilo[i] = (float) gmin + c;
-        }
         out = new int[4];
         final double aa = 0.299, bb = 0.587, cc = 0.114;
-
+        int RGBA;
         for (int x = 0; x < image.getWidth(); ++x) {
             for (int y = 0; y < image.getHeight(); ++y) {
-                RGBA = image.getRGB(x, y);
-                r = RGBHelper.getRed(RGBA);
-                g = RGBHelper.getGreen(RGBA);
-                b = RGBHelper.getBlue(RGBA);
-                double ill = ilo[RGBHelper.calmp((int) ((aa * r) + (bb * g) + (cc * b)))];
-                out[0] = (int) ((channel[0]==true) ? (ill / (aa + (bb * g) / r + (cc * b) / r)) : r);
-                out[1] = (int) ((channel[1]==true) ? (ill / (bb + (aa * r) / g + (cc * b) / g)) : g);
-                out[2] = (int) ((channel[2]==true) ? (ill / (cc + (aa * r) / b + (bb * g) / b)) : b);
-                image.setRGB(x, y, RGBHelper.toPixel(out[0], out[1], out[2]));
+                if (raster.getNumBands() == 3) {
+                    RGBA = image.getRGB(x, y);
+                    r = RGBHelper.getRed(RGBA);
+                    g = RGBHelper.getGreen(RGBA);
+                    b = RGBHelper.getBlue(RGBA);
+                    if (channel[3]) {
+                        double ill = histogramIlo[3][RGBHelper.calmp((int) ((aa * r) + (bb * g) + (cc * b)))];
+                        out[0] = (int) ((channel[0] == true) ? (ill / (aa + (bb * g) / r + (cc * b) / r)) : r);
+                        out[1] = (int) ((channel[1] == true) ? (ill / (bb + (aa * r) / g + (cc * b) / g)) : g);
+                        out[2] = (int) ((channel[2] == true) ? (ill / (cc + (aa * r) / b + (bb * g) / b)) : b);
+                    } else {
+                        out[0] = (int) (channel[0] ? histogramIlo[0][(int) (r)] : r);
+                        out[1] = (int) (channel[1] ? histogramIlo[1][(int) (g)] : g);
+                        out[2] = (int) (channel[2] ? histogramIlo[2][(int) (b)] : b);
+                    }
+                    image.setRGB(x, y, RGBHelper.toPixel(out[0], out[1], out[2]));
+                }
+                if (raster.getNumBands() == 1) {
+                    raster.setSample(x, y, 0, histogramIlo[3][raster.getSample(x, y, 0)]);
+                }
             }
         }
         return image;

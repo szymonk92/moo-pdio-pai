@@ -71,7 +71,7 @@ public class BufferedImageHelper {
     }
 
     static public int getBoundSize(BufferedImage src, int channel) {
-        if(src.getSampleModel().getNumBands()<channel||channel<0){
+        if (src.getSampleModel().getNumBands() < channel || channel < 0) {
             return 0;
         }
         return (int) Math.pow(2, src.getSampleModel().getSampleSize(channel));
@@ -79,13 +79,11 @@ public class BufferedImageHelper {
 
     static public double[] getHistogram(BufferedImage src, int channel) {
         Raster raster = src.getRaster();
-        if (raster.getNumBands() < channel||channel<0) {
+        if (raster.getNumBands() < channel || channel < 0) {
             return null;
         }
         double[] histogram = new double[getBoundSize(src, channel)];
-        for (int i = 0; i < histogram.length; i++) {
-            histogram[i] = 0;
-        }
+        
         for (int y = 0; y < src.getHeight(); y++) {
             for (int x = 0; x < src.getWidth(); x++) {
                 histogram[ raster.getSample(x, y, channel)]++;
@@ -95,20 +93,16 @@ public class BufferedImageHelper {
     }
 
     static public double[] getLuminanceHistogram(BufferedImage src) {
-
-        double[] histogram = new double[256];
-        for (int i = 0; i < 256; i++) {
-            histogram[ i] = 0;
-        }
         Raster raster = src.getRaster();
-        if (raster.getNumBands() < 3) {
-            return histogram;
+        if (raster.getNumBands() == 1) {
+            return getHistogram(src, 0);
         }
+        double[] histogram = new double[256];
         int[] RGB;
         for (int y = 0; y < src.getHeight(); y++) {
             for (int x = 0; x < src.getWidth(); x++) {
                 RGB = RGBHelper.toRGBA(src.getRGB(x, y));
-                histogram[RGBHelper.calmp((int) (0.299 * RGB[0] + 0.587* RGB[1] + 0.114* RGB[2]))]++;
+                histogram[RGBHelper.calmp((int) (0.299 * RGB[0] + 0.587 * RGB[1] + 0.114 * RGB[2]))]++;
             }
         }
         return histogram;

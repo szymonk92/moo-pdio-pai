@@ -4,6 +4,8 @@
  */
 package filters;
 
+import sys.TabData;
+
 /**
  *
  * @author pawel
@@ -19,14 +21,20 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
         initComponents();
     }
 
-    RaleighFilterPanel(RaleighFilter aThis) {
+    RaleighFilterPanel(RaleighFilter aThis, TabData data) {
         this();
         this.filter = aThis;
-        checkRed.setSelected(this.filter.getChannel()[0]);
-        checkGreen.setSelected(this.filter.getChannel()[1]);
-        checkBlue.setSelected(this.filter.getChannel()[2]);
+        if (data.getFilteredImage().getRaster().getNumBands() == 3) {
+            this.chanelPanel.setVisible(true);
+            checkRed.setSelected(this.filter.getChannel()[0]);
+            checkGreen.setSelected(this.filter.getChannel()[1]);
+            checkBlue.setSelected(this.filter.getChannel()[2]);
+        } else {
+            this.chanelPanel.setVisible(false);
+        }
         this.editGmin.setText(String.valueOf(this.filter.getGmin()));
         this.editAlpha.setText(String.valueOf(this.filter.getAlpha()));
+
     }
 
     /**
@@ -38,36 +46,34 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        editGmin = new javax.swing.JTextField();
+        editAlpha = new javax.swing.JTextField();
+        applyButton = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        chanelPanel = new javax.swing.JPanel();
+        checkLumnia = new javax.swing.JCheckBox();
         checkRed = new javax.swing.JCheckBox();
         checkGreen = new javax.swing.JCheckBox();
         checkBlue = new javax.swing.JCheckBox();
-        checkGrey = new javax.swing.JCheckBox();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        editGmin = new javax.swing.JTextField();
-        editAlpha = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        applyButton = new javax.swing.JButton();
 
-        checkRed.setText("Red");
+        setPreferredSize(new java.awt.Dimension(350, 100));
+        setLayout(new java.awt.BorderLayout());
 
-        checkGreen.setText("Green");
-
-        checkBlue.setText("Blue");
-
-        checkGrey.setText("Grey-scale");
-
-        jLabel1.setText("gmin");
-
-        jLabel2.setText("alpha");
+        jPanel1.setPreferredSize(new java.awt.Dimension(200, 80));
 
         editGmin.setColumns(3);
         editGmin.setText("0");
 
         editAlpha.setColumns(3);
         editAlpha.setText("0");
-
-        jLabel3.setText("channel");
+        editAlpha.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editAlphaActionPerformed(evt);
+            }
+        });
 
         applyButton.setText("Apply");
         applyButton.addActionListener(new java.awt.event.ActionListener() {
@@ -76,75 +82,102 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
             }
         });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        jLabel1.setText("Minimal value:");
+
+        jLabel2.setText("Alpha:");
+
+        chanelPanel.setPreferredSize(new java.awt.Dimension(200, 100));
+
+        checkLumnia.setText("By luminance");
+        checkLumnia.setActionCommand("Lumnia");
+
+        checkRed.setText("Red");
+
+        checkGreen.setText("Green");
+
+        checkBlue.setText("Blue");
+
+        jLabel3.setText("Channels:");
+
+        javax.swing.GroupLayout chanelPanelLayout = new javax.swing.GroupLayout(chanelPanel);
+        chanelPanel.setLayout(chanelPanelLayout);
+        chanelPanelLayout.setHorizontalGroup(
+            chanelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(chanelPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
+                .addComponent(checkRed)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(checkGreen)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(checkBlue)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(checkLumnia)
+                .addContainerGap(14, Short.MAX_VALUE))
+            .addGroup(chanelPanelLayout.createSequentialGroup()
+                .addComponent(jLabel3)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        chanelPanelLayout.setVerticalGroup(
+            chanelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(chanelPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(chanelPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkRed)
+                    .addComponent(checkGreen)
+                    .addComponent(checkBlue)
+                    .addComponent(checkLumnia)))
+        );
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addGap(4, 4, 4)
-                        .addComponent(editGmin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(editGmin, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(editAlpha, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(editAlpha, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(5, 5, 5)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(checkGrey)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(7, 7, 7)
-                                        .addComponent(jLabel3))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(checkRed)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(checkGreen)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(checkBlue)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 79, Short.MAX_VALUE)
-                                .addComponent(applyButton)))))
-                .addContainerGap(65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(chanelPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(applyButton)
+                        .addGap(24, 24, 24))))
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(editGmin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(editAlpha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(applyButton)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(checkRed)
-                            .addComponent(checkGreen)
-                            .addComponent(checkBlue))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(checkGrey)))
+                    .addComponent(chanelPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        add(jPanel1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
     private void applyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyButtonActionPerformed
         filter.setChannel(0, checkRed.isSelected());
         filter.setChannel(1, checkGreen.isSelected());
         filter.setChannel(2, checkBlue.isSelected());
-        if (checkGrey.isSelected()) {
-            filter.setChannel(0, true);
-            filter.setChannel(1, true);
-            filter.setChannel(2, true);
-        }
+        filter.setChannel(3, checkLumnia.isSelected());
+
         filter.setGmin(Integer.parseInt(editGmin.getText()));
         float alpha = 0.0f;
         try {
@@ -156,16 +189,22 @@ public class RaleighFilterPanel extends javax.swing.JPanel {
         filter.setAlpha(alpha);
         filter.refresh();
     }//GEN-LAST:event_applyButtonActionPerformed
+
+    private void editAlphaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editAlphaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_editAlphaActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton applyButton;
+    private javax.swing.JPanel chanelPanel;
     private javax.swing.JCheckBox checkBlue;
     private javax.swing.JCheckBox checkGreen;
-    private javax.swing.JCheckBox checkGrey;
+    private javax.swing.JCheckBox checkLumnia;
     private javax.swing.JCheckBox checkRed;
     private javax.swing.JTextField editAlpha;
     private javax.swing.JTextField editGmin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 }

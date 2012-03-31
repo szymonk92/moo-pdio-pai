@@ -90,6 +90,7 @@ public class MainWindow extends javax.swing.JFrame {
         widokMenu = new javax.swing.JMenu();
         filtryMenu = new javax.swing.JMenu();
         jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         openFileChooser.setAcceptAllFileFilterUsed(false);
         openFileChooser.setAccessory(new components.ImagePreview(this.openFileChooser));
@@ -148,16 +149,16 @@ public class MainWindow extends javax.swing.JFrame {
         filtryMenu.setActionCommand("Filtr");
         jMenuBar1.add(filtryMenu);
 
-        jMenu1.setText("Diff");
-        jMenu1.addMenuListener(new javax.swing.event.MenuListener() {
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
-            }
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
-            }
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
-                jMenu1MenuSelected(evt);
+        jMenu1.setText("Other");
+
+        jMenuItem1.setText("Image diff");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
             }
         });
+        jMenu1.add(jMenuItem1);
+
         jMenuBar1.add(jMenu1);
 
         setJMenuBar(jMenuBar1);
@@ -223,16 +224,17 @@ public class MainWindow extends javax.swing.JFrame {
         this.saveFileChooser.setSelectedFile(null);        // TODO add your handling code here:
     }//GEN-LAST:event_saveFileMenuItemActionPerformed
 
-    private void jMenu1MenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_jMenu1MenuSelected
-        // TODO add your handling code here:
-        diffWindow.setVisible(true);
-    }//GEN-LAST:event_jMenu1MenuSelected
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+         diffWindow.setVisible(true);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private gui.ClosableTabbedPane closableTabbedPane;
     private javax.swing.JMenuItem closeMenuItem;
     private javax.swing.JMenu filtryMenu;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JFileChooser openFileChooser;
     private javax.swing.JMenuItem openFileMenuItem;
     private javax.swing.JMenu plikMenu;
