@@ -92,29 +92,33 @@ public class RaleighFilter extends AbstractFilter {
         double[][] histogramIlo = new double[4][];
         if (raster.getNumBands() == 3 && !channel[3]) {
             for (int i = 0; i < raster.getNumBands(); i++) {
-                histograms[i] = BufferedImageHelper.getHistogram(image, i);
-                histogramIlo[i] = new double[histograms[i].length];
-                histogramSum[i] = new double[histograms[i].length];
-                for (int j = 0; j < histograms[i].length; j++) {
-                    if (j == 0) {
-                        histogramSum[i][j] = histograms[i][j];
-                    } else {
-                        histogramSum[i][j] += histogramSum[i][j - 1] + histograms[i][j];
+                if (channel[i]) {
+                    histograms[i] = BufferedImageHelper.getHistogram(image, i);
+                    histogramIlo[i] = new double[histograms[i].length];
+                    histogramSum[i] = new double[histograms[i].length];
+                    for (int j = 0; j < histograms[i].length; j++) {
+                        if (j == 0) {
+                            histogramSum[i][j] = histograms[i][j];
+                        } else {
+                            histogramSum[i][j] += histogramSum[i][j - 1] + histograms[i][j];
+                        }
+                        histogramIlo[i][j] = RGBHelper.calmp(gmin + Math.sqrt(a2a * Math.log(((double) dim) / histogramSum[i][j])));
                     }
-                    histogramIlo[i][j] = RGBHelper.calmp(gmin + Math.sqrt(a2a * Math.log(((double) dim) / histogramSum[i][j])));
                 }
             }
         }
-        histograms[3] = BufferedImageHelper.getLuminanceHistogram(image);
-        histogramSum[3] = new double[histograms[3].length];
-        histogramIlo[3] = new double[histograms[3].length];
-        for (int j = 0; j < histograms[3].length; j++) {
-            if (j == 0) {
-                histogramSum[3][j] = histograms[3][j];
-            } else {
-                histogramSum[3][j] += histogramSum[3][j - 1] + histograms[3][j];
+        if (raster.getNumBands() == 1 || channel[3]) {
+            histograms[3] = BufferedImageHelper.getLuminanceHistogram(image);
+            histogramSum[3] = new double[histograms[3].length];
+            histogramIlo[3] = new double[histograms[3].length];
+            for (int j = 0; j < histograms[3].length; j++) {
+                if (j == 0) {
+                    histogramSum[3][j] = histograms[3][j];
+                } else {
+                    histogramSum[3][j] += histogramSum[3][j - 1] + histograms[3][j];
+                }
+                histogramIlo[3][j] = RGBHelper.calmp(gmin + Math.sqrt(a2a * Math.log(((double) dim) / histogramSum[3][j])));
             }
-            histogramIlo[3][j] = RGBHelper.calmp(gmin + Math.sqrt(a2a * Math.log(((double) dim) / histogramSum[3][j])));
         }
 
         out = new int[4];
