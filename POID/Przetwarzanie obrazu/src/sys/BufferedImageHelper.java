@@ -105,6 +105,11 @@ public class BufferedImageHelper {
                 histogram[RGBHelper.calmp((int) (0.299 * RGB[0] + 0.587 * RGB[1] + 0.114 * RGB[2]))]++;
             }
         }
+        
+        
+        
+        
+        
         return histogram;
     }
 }

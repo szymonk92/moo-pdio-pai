@@ -7,6 +7,8 @@ package sys;
 /**
  *
  * @author Lukasz
+ *      &
+ * @author Pawel
  */
 public class Complex {
 
@@ -22,6 +24,10 @@ public class Complex {
     public Complex(float real, float imag) {
         re = real;
         im = imag;
+    }
+        public Complex(double real, double imag) {
+        re = (float) real;
+        im = (float) imag;
     }
 
    
@@ -126,25 +132,35 @@ public class Complex {
         return out;
     }
 
-    /**
-     * Zamień ćwiartki miejscami
-     */
-    static public void revertQuarters(Complex[][] data) {
-        int halfHeight = data.length / 2;
-        int halfWidth = data[0].length / 2;
-
-        for (int i = 0; i < halfHeight; i++) {
-            for (int j = 0; j < halfWidth / 2; j++) {
-                // drua z czwartą
-                Complex tmp = data[i][j];
-                data[i][j] = data[ halfHeight + i][ halfWidth + j];
-                data[ halfHeight + i][ halfWidth + j] = tmp;
-
-                // pierwsza z trzecią
-                tmp = data[ i][ halfWidth + j];
-                data[ i][ halfWidth + j] = data[ halfHeight + i][ j];
-                data[ halfHeight + i][ j] = tmp;
-            }
+    static public float maxMagnitude(Complex[] signal) {
+        float max=Float.MIN_VALUE;
+        for( int i=0; i<signal.length; ++i) {
+            max = Math.max(max,signal[i].abs());
         }
+        return max;
     }
+    static public float minMagnitude(Complex[] signal) {
+        float min=Float.MAX_VALUE;
+        for( int i=0; i<signal.length; ++i) {
+            min = Math.min(min,signal[i].abs());
+        }
+        return min;
+    }
+    
+    static public float maxMagnitude(Complex[][] signal) {
+        float max=Float.MIN_VALUE;
+        for( int i=0; i<signal.length; ++i) {
+                max = Math.max(max,maxMagnitude(signal[i]));
+            }
+        return max;
+    }
+    
+    static public float minMagnitude(Complex[][] signal) {
+        float min=Float.MAX_VALUE;
+        for( int i=0; i<signal.length; ++i) {
+            min = Math.min(min,minMagnitude(signal[i]));
+        }
+        return min;
+    }
+    
 }
