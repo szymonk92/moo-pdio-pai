@@ -5,6 +5,7 @@
 package gui;
 
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -69,7 +70,8 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
     }
 
     protected BufferedImage doInBackground() {
-        BufferedImage tmp = BufferedImageHelper.copy(data.getBaseMiniatureImage());
+
+        BufferedImage tmp = BufferedImageHelper.resize(data.getBaseImage(),64);
         if (!firstTime) {
             int index = this.data.getFilters().indexOf(filtr);
             for (int i = 0; i < data.getFilters().size(); i++) {
@@ -120,11 +122,11 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         previewPanel.setLayout(previewPanelLayout);
         previewPanelLayout.setHorizontalGroup(
             previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 388, Short.MAX_VALUE)
+            .addGap(0, 390, Short.MAX_VALUE)
         );
         previewPanelLayout.setVerticalGroup(
             previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 103, Short.MAX_VALUE)
+            .addGap(0, 105, Short.MAX_VALUE)
         );
 
         getContentPane().add(previewPanel, java.awt.BorderLayout.PAGE_START);
@@ -163,7 +165,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 214, Short.MAX_VALUE)
+                .addGap(0, 202, Short.MAX_VALUE)
                 .addComponent(cancelButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -172,7 +174,7 @@ public class EditWindow extends javax.swing.JFrame implements PropertyChangeList
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(14, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cancelButton))

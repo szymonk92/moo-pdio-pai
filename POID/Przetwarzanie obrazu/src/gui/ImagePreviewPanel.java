@@ -34,6 +34,7 @@ public class ImagePreviewPanel extends JPanel {
             Graphics2D g2d = (Graphics2D) g;
             int x = (this.getWidth() - image.getWidth()) / 2;
             int y = (this.getHeight() - image.getHeight()) / 2;
+            System.out.println("ImagePreviewPanel DIMENSION"+x+" "+y);
             g2d.drawImage(image, x, y, null);
         }
     }
