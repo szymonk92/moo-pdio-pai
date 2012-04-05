@@ -167,73 +167,60 @@ public class FFTTools {
      * @param outType 0 -magnitude , 1- phase
      * @return
      */
-    static public Complex[][] low_passFilter(Complex[][] signal, int outType, double cutoff) {
+    static public Complex[][] low_passFilter(Complex[][] signal, double cutoff) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
-        double max = 0.0f;
-        for (int i = 0; i < signal.length; ++i) {
-            for (int j = 0; j < signal[i].length; ++j) {
-                max = Math.max(max,
-                        (outType == 0 ? signal[i][j].abs() : signal[i][j].phase()));
-            }
-        }
-
-        max -= (max * cutoff);
+        cutoff=Math.min(signal.length, signal[0].length)*cutoff;
+        int ci = signal.length / 2, cj = signal[0].length/2;
 
         for (int i = 0; i < signal.length; ++i) {
             for (int j = 0; j < signal[i].length; ++j) {
-                out[i][j] = (((outType == 0 ? signal[i][j].abs() : signal[i][j].phase()) > max)
-                        ? new Complex(0.0f, 0.0f) : signal[i][j]);
+                
+                out[i][j] = Math.sqrt((i - ci)*(i - ci)+(j - cj)*(j - cj)) >= cutoff?
+                        new Complex(0.0f, 0.0f) : signal[i][j];
+                
             }
         }
+        System.out.println("lowpass passed, cutoff"+cutoff);
 
         return out;
     }
 
-    static public Complex[][] high_passFilter(Complex[][] signal, int outType, double cutoff) {
+    static public Complex[][] high_passFilter(Complex[][] signal, double cutoff) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
-        double max = 0.0f;
-        for (int i = 0; i < signal.length; ++i) {
-            for (int j = 0; j < signal[i].length; ++j) {
-                max = Math.max(max,
-                        (outType == 0 ? signal[i][j].abs() : signal[i][j].phase()));
-            }
-        }
 
-        max -= (max * cutoff);
+        int ci = signal.length / 2, cj = signal[0].length/2;
 
         for (int i = 0; i < signal.length; ++i) {
             for (int j = 0; j < signal[i].length; ++j) {
-                out[i][j] = (((outType == 0 ? signal[i][j].abs() : signal[i][j].phase()) < max)
-                        ? new Complex(0.0f, 0.0f) : signal[i][j]);
+                out[i][j] = Math.hypot(i - ci, j - cj) <= cutoff ?
+                        new Complex(0.0f, 0.0f) : signal[i][j];
             }
         }
-
+        System.out.println("highpass passed, cutoff"+cutoff);
         return out;
     }
 
-    static public Complex[][] band_passFilter(Complex[][] signal, int outType, double bl, double bh) {
+    static public Complex[][] band_passFilter(Complex[][] signal, double bl, double bh) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
-        double max = 0.0f;
+        int ci = signal.length / 2, cj = signal[0].length/2;
 
         for (int i = 0; i < signal.length; ++i) {
             for (int j = 0; j < signal[i].length; ++j) {
-                float val = outType == 0 ? signal[i][j].abs() : signal[i][j].phase();
-                out[i][j] = (val < bh && val > bl)
-                        ? signal[i][j] : new Complex(0.0f, 0.0f);
+                out[i][j] = Math.hypot(i - ci, j - cj) <= bh && Math.hypot(i - ci, j - cj) >= bl ?
+                        signal[i][j] : new Complex(0.0f, 0.0f);
             }
         }
         return out;
     }
 
-    static public Complex[][] band_stopFilter(Complex[][] signal, int outType, double bl, double bh) {
+    static public Complex[][] band_stopFilter(Complex[][] signal, double bl, double bh) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
-        double max = 0.0f;
+        int ci = signal.length / 2, cj = signal[0].length/2;
 
         for (int i = 0; i < signal.length; ++i) {
             for (int j = 0; j < signal[i].length; ++j) {
-                float val = outType == 0 ? signal[i][j].abs() : signal[i][j].phase();
-                out[i][j] = (val < bh && val > bl)
-                        ? new Complex(0.0f, 0.0f) : signal[i][j];
+                out[i][j] = Math.hypot(i - ci, j - cj) >= bh && Math.hypot(i - ci, j - cj) <= bl ?
+                        signal[i][j] : new Complex(0.0f, 0.0f);
             }
         }
         return out;
@@ -280,11 +267,12 @@ public class FFTTools {
      * Zamień ćwiartki miejscami
      */
     public static void revertQuarters(Complex[][] data) {
-        int halfHeight = data.length / 2;
-        int halfWidth = data[0].length / 2;
+        int halfWidth = data.length / 2;
+        int halfHeight = data[0].length / 2;
 
-        for (int i = 0; i < halfHeight; i++) {
-            for (int j = 0; j < halfWidth / 2; j++) {
+        
+            for (int i = 0; i < halfWidth; i++) {
+                for (int j = 0; j < halfHeight; j++) {
                 // drua z czwartą
                 Complex tmp = data[i][j];
                 data[i][j] = data[ halfHeight + i][ halfWidth + j];
