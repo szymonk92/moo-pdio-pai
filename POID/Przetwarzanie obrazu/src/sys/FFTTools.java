@@ -167,17 +167,30 @@ public class FFTTools {
      * @param outType 0 -magnitude , 1- phase
      * @return
      */
-    static public Complex[][] low_passFilter(Complex[][] signal, double cutoff) {
+    static public Complex[][] low_passFilter(Complex[][] signal, double cutoff, double power) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
-        cutoff=Math.min(signal.length, signal[0].length)*cutoff;
-        int ci = signal.length / 2, cj = signal[0].length/2;
+        
+        int ydim = signal.length, xdim = signal[0].length;
+        cutoff=Math.sqrt(ydim*ydim + xdim*xdim)*cutoff;
 
-        for (int i = 0; i < signal.length; ++i) {
-            for (int j = 0; j < signal[i].length; ++j) {
-                
-                out[i][j] = Math.sqrt((i - ci)*(i - ci)+(j - cj)*(j - cj)) >= cutoff?
-                        new Complex(0.0f, 0.0f) : signal[i][j];
-                
+        for (int v = 0; v < ydim; ++v) {
+            for (int u = 0; u < xdim; ++u) {
+                int dv=(v<ydim/2)? v : v-ydim;
+                int du=(u<xdim/2)? u : u-xdim;
+                float dist = (float) Math.sqrt(dv*dv+du*du);
+                if (power > 0) {
+                    out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
+                    double filter = 1.0d/(1.0d+Math.pow(dist/cutoff,2*power));
+//                    double filter = Math.exp(-1*dist*dist/(2.0d*cutoff*cutoff));
+                    out[v][u].re*=1-filter;
+                    out[v][u].im*=1-filter;
+                } else {
+                    if (dist < cutoff) {
+                        out[v][u] = new Complex(0.0, 0.0);
+                    } else {
+                        out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
+                    }
+                }
             }
         }
         System.out.println("lowpass passed, cutoff"+cutoff);
@@ -185,42 +198,94 @@ public class FFTTools {
         return out;
     }
 
-    static public Complex[][] high_passFilter(Complex[][] signal, double cutoff) {
+    static public Complex[][] high_passFilter(Complex[][] signal, double cutoff,double power) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
+        
+       int ydim = signal.length, xdim = signal[0].length;
+        cutoff=Math.sqrt(ydim*ydim + xdim*xdim)*cutoff;
 
-        int ci = signal.length / 2, cj = signal[0].length/2;
-
-        for (int i = 0; i < signal.length; ++i) {
-            for (int j = 0; j < signal[i].length; ++j) {
-                out[i][j] = Math.hypot(i - ci, j - cj) <= cutoff ?
-                        new Complex(0.0f, 0.0f) : signal[i][j];
+        for (int v = 0; v < ydim; ++v) {
+            for (int u = 0; u < xdim; ++u) {
+                int dv=(v<ydim/2)? v : v-ydim;
+                int du=(u<xdim/2)? u : u-xdim;
+                float dist = (float) Math.sqrt(dv*dv+du*du);
+                if (power > 0) {
+                    out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
+                    double filter = 1.0d/(1.0d+Math.pow(dist/cutoff,2*power));
+//                    double filter = Math.exp(-1*dist*dist/(2.0d*cutoff*cutoff));
+                    out[v][u].re*=filter;
+                    out[v][u].im*=filter;
+                } else {
+                    if (dist > cutoff) {
+                        out[v][u] = new Complex(0.0, 0.0);
+                    } else {
+                        out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
+                    }
+                }
             }
         }
         System.out.println("highpass passed, cutoff"+cutoff);
         return out;
     }
 
-    static public Complex[][] band_passFilter(Complex[][] signal, double bl, double bh) {
-        Complex[][] out = new Complex[signal.length][signal[0].length];
-        int ci = signal.length / 2, cj = signal[0].length/2;
-
-        for (int i = 0; i < signal.length; ++i) {
-            for (int j = 0; j < signal[i].length; ++j) {
-                out[i][j] = Math.hypot(i - ci, j - cj) <= bh && Math.hypot(i - ci, j - cj) >= bl ?
-                        signal[i][j] : new Complex(0.0f, 0.0f);
+    static public Complex[][] band_passFilter(Complex[][] signal, double bl, double bh, double power) {
+    Complex[][] out = new Complex[signal.length][signal[0].length];
+        
+       int ydim = signal.length, xdim = signal[0].length;
+        bl=Math.sqrt(ydim*ydim + xdim*xdim)*bl;
+        bh=Math.sqrt(ydim*ydim + xdim*xdim)*bh;
+        
+        for (int v = 0; v < ydim; ++v) {
+            for (int u = 0; u < xdim; ++u) {
+                int dv=(v<ydim/2)? v : v-ydim;
+                int du=(u<xdim/2)? u : u-xdim;
+                float dist = (float) Math.sqrt(dv*dv+du*du);
+                if (power > 0) {
+                    out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
+                    double filterlow = 10.f - 1.0d/(1.0d+Math.pow(dist/bl,2*power));
+                    double filterhigh = 1.0d/(1.0d+Math.pow(dist/bh,2*power));
+//                    double filter = Math.exp(-1*dist*dist/(2.0d*cutoff*cutoff));
+                    out[v][u].re*=filterlow*filterhigh;
+                    out[v][u].im*=filterlow*filterhigh;
+                } else {
+                    if (dist > bl && dist < bh) {
+                        out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
+                    } else {
+                        out[v][u] = new Complex(0.0, 0.0);
+                    }
+                }
             }
         }
         return out;
     }
 
-    static public Complex[][] band_stopFilter(Complex[][] signal, double bl, double bh) {
-        Complex[][] out = new Complex[signal.length][signal[0].length];
-        int ci = signal.length / 2, cj = signal[0].length/2;
-
-        for (int i = 0; i < signal.length; ++i) {
-            for (int j = 0; j < signal[i].length; ++j) {
-                out[i][j] = Math.hypot(i - ci, j - cj) >= bh && Math.hypot(i - ci, j - cj) <= bl ?
-                        signal[i][j] : new Complex(0.0f, 0.0f);
+    static public Complex[][] band_stopFilter(Complex[][] signal, double bl, double bh, double power) {
+    Complex[][] out = new Complex[signal.length][signal[0].length];
+        
+       int ydim = signal.length, xdim = signal[0].length;
+        bl=Math.sqrt((ydim/2)*(ydim/2) + (xdim/2)*(xdim/2))*bl;
+        bh=Math.sqrt((ydim/2)*(ydim/2) + (xdim/2)*(xdim/2))*bh;
+        double width=bh-bl;
+        
+        for (int v = 0; v < ydim; ++v) {
+            for (int u = 0; u < xdim; ++u) {
+                int dv=(v<ydim/2)? v : v-ydim;
+                int du=(u<xdim/2)? u : u-xdim;
+                float dist = (float) Math.sqrt(dv*dv+du*du);
+                if (power > 0) {
+                    out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
+                    double filterlow = 10.f - 1.0d/(1.0d+Math.pow(dist/bh,2*power));
+                    double filterhigh = 1.0d/(1.0d+Math.pow(dist/bl,2*power));
+//                    double filter = Math.exp(-1*dist*dist/(2.0d*cutoff*cutoff));
+                    out[v][u].re*=filterlow*filterhigh;
+                    out[v][u].im*=filterlow*filterhigh;
+                } else {
+                    if (dist > bl && dist < bh ) {
+                        out[v][u] = new Complex(0.0, 0.0);
+                    } else {
+                        out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
+                    }
+                }
             }
         }
         return out;
