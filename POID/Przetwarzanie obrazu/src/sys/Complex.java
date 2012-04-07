@@ -15,11 +15,11 @@ public class Complex {
     /**
      * część rzeczywista
      */
-    private final float re;
+    public float re;
     /**
      * cześć urojona
      */
-    private final float im;
+    public float im;
 
     public Complex(float real, float imag) {
         re = real;
