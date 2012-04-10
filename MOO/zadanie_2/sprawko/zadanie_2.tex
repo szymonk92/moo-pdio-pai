@@ -14,7 +14,7 @@
 
 \usepackage{color}
 
-\usepackage{url}
+\usepackage[hyphens]{url}
 
 \usepackage{hyperref}
 
@@ -23,9 +23,13 @@
 \usepackage{enumitem}
 
 \usepackage{indentfirst}
-
+\usepackage[center,small,bf]{caption}
 \hypersetup{colorlinks=false,pdfborder={0 0 0}}
 
+\renewcommand{\labelitemi}{$\bullet$}
+\renewcommand{\labelitemii}{$\cdot$}
+\renewcommand{\labelitemiii}{$\diamond$}
+\renewcommand{\labelitemiv}{$\ast$}
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
@@ -71,13 +75,11 @@
 }
 
 \title{Zadanie 2: Optymalizacja kierunkowa}
-\svnurl{http://serce.ics.p.lodz.pl/svn/labs/moo/lc_cz1600/lmpm}
+\svnurl{https://serce.ics.p.lodz.pl/svn/labs/moo/lc_cz1600/lmpm}
 
 \begin{document}
 \maketitle
 
-
-%%% FOONOTE COUNTER SET = 1
 \addtocounter{footnote}{1}
 
 \section{Cel}
@@ -91,7 +93,12 @@ Przedstawiany jako rozwiązanie program powinien pozwolić wprowadzić funkcję 
 
 \section{Rozwiązanie zadania}
 \subsection{Metoda najszybszego spadku}
-Metoda najszybszego spadku jest iteracyjnym algorytmem wyszukiwania minimum zadanej funkcji celu $f$. Poszukiwania te odbywają się na podstawie gradientu tej funkcji. Wiadomo, że gradient $\bigtriangledown f=[\frac{\partial f}{\partial x_{1}},...,\frac{\partial f}{\partial x_{n}}]^T$ ma ważną własność mówiącą że poruszając się z dowolnego punktu $x$ ,,w kierunku gradientu'' osiągamy (lokalnie) najszybszy przyrost funkcji. W myśl tej zasady, jeśli $\bigtriangledown f$ wyznacza najszybszy wzrost, to $-\bigtriangledown f$ wyznacza najszybszy spadek. Na tym spostrzeżeniu opiera się metoda najszybszego spadku, którą w skrócie można ja opisać następująco:
+Metoda najszybszego spadku jest iteracyjnym algorytmem wyszukiwania minimum zadanej funkcji celu $f$. Założenia dla metody są następujące:
+\begin{itemize}
+\item $f\in C^1$ (funkcja jest ciągła i różniczkowalna),
+\item $f$ jest ściśle wypukła w badanej dziedzinie.
+\end{itemize}
+Poszukiwania te odbywają się na podstawie gradientu tej funkcji. Wiadomo, że gradient $\bigtriangledown f=[\frac{\partial f}{\partial x_{1}},...,\frac{\partial f}{\partial x_{n}}]^T$ ma ważną własność mówiącą że poruszając się z dowolnego punktu $x$ ,,w kierunku gradientu'' osiągamy (lokalnie) najszybszy przyrost funkcji. W myśl tej zasady, jeśli $\bigtriangledown f$ wyznacza najszybszy wzrost, to $-\bigtriangledown f$ wyznacza najszybszy spadek. Na tym spostrzeżeniu opiera się metoda najszybszego spadku, którą w skrócie można ja opisać następująco:
 \begin{enumerate}
 \item Znajdź najlepszy kierunek (kierunek najszybszego spadku),
 \item Określ jak daleko chcesz ,,zrobić krok'' w tym kierunku,
@@ -101,8 +108,8 @@ Metoda najszybszego spadku jest iteracyjnym algorytmem wyszukiwania minimum zada
 Problemem występującym przy zastosowaniu metody najszybszego spadku jest jej ,,spowolnienie'', gdy zbliża się do minimum (zmiany zmiennych zależna od wielkości gradientu, a gradient dąży do zera w otoczeniu punktu minimum). Alogrytm działania tej metody został przedstawiony na diagramie:
 \begin{figure}[h!]
 \centering
-\includegraphics[width=10cm]{obrazy/metodaNS_algo.png} 
-\caption{Schemat działania metody najszybszego spadku}
+\includegraphics[width=10cm]{obrazy/metodaNS_algo} 
+\caption{Schemat działania metody najszybszego spadku.\\*{\footnotesize Źródło: Wykład 4 Wojciecha Grega: Metody Optymalizacji}}
 \label{fig:metodaNS_algo}
 \end{figure}
 
@@ -112,6 +119,14 @@ Jak można zauważyć ważnym elementem tego algorytmu jest wybór odpowiedniej 
 \item Wolfa
 \item Goldsteina
 \end{itemize}
+
+Na rysunku \ref{fig:metodaNS_przebieg} można zobaczyć przykład działania metody najszybszego spadku dla dwuwymiarowej funkcji celu. W każdym kroku, w zadanym kierunku wyszukiwana jest najmniejsza wartość funkcji celu.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=6cm]{obrazy/metodaNS_przebieg} 
+\caption{Przebieg działania metody najszybszego spadku. \\*{\footnotesize Źródło: \url{http://pl.wikipedia.org/wiki/Plik:Metoda_najszybszego_spadku.svg}}}
+\label{fig:metodaNS_przebieg}
+\end{figure}
 
 \subsection{Kryterium Armijo}
 
