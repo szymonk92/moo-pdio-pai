@@ -83,14 +83,35 @@
 \section{Cel}
 Celem zadania było napisać program, który dla dowolnej funkcji dwóch zmiennych rozwiąże zadanie optymalizacji na odcinku. Optymalizacja kierunkowa musi być przeprowadzona z wykorzystaniem kryteriów:
 \begin{itemize}
-	\item Armijo
-	\item Wolfa
-	\item Goldsteina
+\item Armijo
+\item Wolfa
+\item Goldsteina
 \end{itemize}
 Przedstawiany jako rozwiązanie program powinien pozwolić wprowadzić funkcję oraz odcinek, w którym poszukiwane będzie rozwiązanie.
 
 \section{Rozwiązanie zadania}
 \subsection{Metoda najszybszego spadku}
+Metoda najszybszego spadku jest iteracyjnym algorytmem wyszukiwania minimum zadanej funkcji celu $f$. Poszukiwania te odbywają się na podstawie gradientu tej funkcji. Wiadomo, że gradient $\bigtriangledown f=[\frac{\partial f}{\partial x_{1}},...,\frac{\partial f}{\partial x_{n}}]^T$ ma ważną własność mówiącą że poruszając się z dowolnego punktu $x$ ,,w kierunku gradientu'' osiągamy (lokalnie) najszybszy przyrost funkcji. W myśl tej zasady, jeśli $\bigtriangledown f$ wyznacza najszybszy wzrost, to $-\bigtriangledown f$ wyznacza najszybszy spadek. Na tym spostrzeżeniu opiera się metoda najszybszego spadku, którą w skrócie można ja opisać następująco:
+\begin{enumerate}
+\item Znajdź najlepszy kierunek (kierunek najszybszego spadku),
+\item Określ jak daleko chcesz ,,zrobić krok'' w tym kierunku,
+\item Zrób krok i sprawdź warunek stopu.
+\end{enumerate}
+
+Problemem występującym przy zastosowaniu metody najszybszego spadku jest jej ,,spowolnienie'', gdy zbliża się do minimum (zmiany zmiennych zależna od wielkości gradientu, a gradient dąży do zera w otoczeniu punktu minimum). Alogrytm działania tej metody został przedstawiony na diagramie:
+\begin{figure}[h!]
+\centering
+\includegraphics[width=10cm]{obrazy/metodaNS_algo.png} 
+\caption{Schemat działania metody najszybszego spadku}
+\label{fig:metodaNS_algo}
+\end{figure}
+
+Jak można zauważyć ważnym elementem tego algorytmu jest wybór odpowiedniej długość użytego kroku oraz kryterium stopu. Ma to bowiem wpływ na szybkość i stabilność działania oraz na osiągnięte wyniki. W tym zadaniu skupimy się na trzech kryteriach doboru optymalnego kroku:
+\begin{itemize}
+\item Armijo
+\item Wolfa
+\item Goldsteina
+\end{itemize}
 
 \subsection{Kryterium Armijo}
 
