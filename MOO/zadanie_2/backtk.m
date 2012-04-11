@@ -18,9 +18,9 @@ switch cond
     case 'goldstein'
         check=@(a)goldstein(a,x,p,c,f0,f1);
     case 'wolfe'
-        check=@(a)wolfe(a,x,p,c,f1);
+        check=@(a) wolfe(a,x,p,c(1),f1) && armijo(a,x,p,c(2),f0,f1);
     case 'wolfes'
-        check=@(a)wolfes(a,x,p,c,f1);
+        check=@(a) wolfes(a,x,p,c(1),f1) && armijo(a,x,p,c(2),f0,f1);
 end
 a=a0;
 while check(a)==0  %poszukiwanie d³ugoœci kroku dla której

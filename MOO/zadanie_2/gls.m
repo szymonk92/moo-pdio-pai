@@ -33,8 +33,8 @@ while k<10 %warunek zakoñczenia, liczba iteracji
 end
 %Przyk³ady
 %gls([2;2],'armijo',@(x)x(1)^2+x(2)^2,0.36,0.5,0.2)
-%gls([2;2],'wolfes',@(x)x(1)^2+x(2)^2,0.35,0.5,0.8)
-%gls([2;2],'wolfes',@(x)x(1)^2+x(2)^2,0.35,0.5,0.8)
+%gls([2;2],'wolfes',@(x)x(1)^2+x(2)^2,0.35,0.5,[0.8;0.5])
+%gls([2;2],'wolfes',@(x)x(1)^2+x(2)^2,0.35,0.5,[0.8;0.5])
 %gls([2;2],'goldstein',@(x)x(1)^2+x(2)^2,0.35,0.5,0.2)
      
      
