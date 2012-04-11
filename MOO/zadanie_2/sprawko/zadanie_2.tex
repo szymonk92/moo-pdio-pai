@@ -304,8 +304,61 @@ end
 \end{lstlisting}
 
 \section{Wyniki}
+W sekcji tej zaprezentowano wyniki badań poszczególnych metod.\\
+Zastosowane dostały skróty odnośnie funkcji testowych :
+\begin{itemize}
+\item 1 $x^2+y^2$
+\item 2 $x+10x^3-x^5 +y+10y^3-y^5$
+\item 3 $x-x^3 +y+10y^4$
+\end{itemize}
+
+
+	\begin{table}[H]
+		\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c}
+\hline $f(x,y)$ & kryterium & $x_o$ & $a_0$ & rho & c & $k_{max}$ & wynik\\ 
+\hline 1 & Armijo & (100,100) & 0.41 & 0.5 & 0.5 & 5 &  (0.0189,0.0189) \\ 
+\hline 1 & słabe Wolfe & (100,100) & 0.41 & 0.5 & (0.6;0.1) & 5 & (0.0189,0.0189) \\
+\hline 1 & silne Wolfe & (100,100) & 0.41 & 0.5 & (0.6;0.1) & 5 & (0.0189,0.0189) \\
+\hline 1 & Goldstein & (100,100) & 0.41 & 0.5 & 0.3 & 5 & (0.0189,0.0189) \\
+\hline 2 & Armijo & $(-1,-1)$ & 0.2 & 0.5 & 0.5 & 5 &(-2.4562,-2.4562) \\ 
+\hline 2 & słabe Wolfe & (-1,-1) & 0.2 & 0.5 & (0.8;0.5) & 5 &(-2.4562,-2.4562) \\ 
+\hline 2 & silne Wolfe & (-1,-1) & 0.2 & 0.5 & (0.8;0.5) & 5 &(-2.4562,-2.4562) \\ 
+\hline 2 & Goldstein & (-1,-1) & 0.2 & 0.5 & 0.4 & 5 &(-2.4562,-2.4562) \\ 
+\hline 3 & Armijo & (-2,-2) & 0.3 & 0.5 & 0.4 & 5 & (-0.5578,-0.3006) \\ 
+\hline 3 & słabe Wolfe & (-2,-2) & 0.3 & 0.5 & (0.6;0.4) & 5 & (-0.5578,-0.3006) \\ 
+\hline 3 & silne Wolfe & (-2,-2) & 0.3 & 0.5 & (0.6;0.4) & 5 & (-0.5578,-0.3006) \\ 
+\hline 3 & Goldstein & (-2,-2) & 0.3 & 0.5 & 0.39 & 5 & (-0.5578,-0.3006) \\ 
+\hline 
+\end{tabular} 
+
+			\caption{Zestawienie wyników z badań metod.}
+		\end{center}
+	\end{table}
 	
+	
+	\begin{table}[H]
+		\begin{center}
+\begin{tabular}{|c|c|}
+\hline $f(x,y)$ & wynik \\ 
+\hline $x^2+y^2$ & (0,0) \\ 
+\hline $x+10x^3-x^5 +y+10y^3-y^5$ & (-2.4563,-2.4563) \\ 
+\hline $x-x^3 +y+10y^4$ & (-0.5774,-0.2924) \\ 
+\hline 
+\end{tabular} 
+			\caption{Zestawienie wyników uzyskanych przy pomocy WolframAlpha }.
+		\end{center}
+\end{table}
+
+
 \section{Wnioski}
+Znaczący wpływ przy doborze parametrów dla wszystkich funkcji mają parametry $\lambda$ oraz $c$. Zależność wartości parametru $c$ dla trzech kryteriów można przedstawić jako nierówność :
+\begin{equation}
+C_{Wolfe} >= C_{Armijo} >= C_{Goldstein}
+\end{equation}
+Oba te parametry mają duży wpływ na szybkość zbieżności do wyniku.\\
+Metody Wolfe oraz Goldsteina są metodami bardziej restrykcyjnymi od metody Armijo pod względem doboru wielkości kroku, nie pozwalają na zbyt małe kroki w poszczególnych iteracjach algorytmu, co jednak z drugiej strony może powodować rozbieżność metody poszukiwania optimum. Pod tym względem metoda Armijo wydaje się być wygodniejszą, ponieważ nie jest aż tak mocno zależna od dobranych parametrów, innymi słowy trudno w tym przypadku aby nie dała wyniku. Co praktycznie pozbawia ją pesymistycznych przypadków, jakie możemy napotkać używając metod Wolfe oraz Goldsteina. W przypadku metody Wolfe przy złym doborze parametrów, utkniemy w nieskończonej pętli algorytmu backtrakingu, z powodu niemożliwości zajścia kryterium. Natomiast w przypadku kryterium Goldsteina pomimo spełnienia kryterium, wynik może okazać się rozbieżny w oczekiwaniami, dotyczy to głównie wartości C_{Goldstein} \notin (0,0.5).
+
 
 \begin{thebibliography}{9}
 \bibitem{1}
