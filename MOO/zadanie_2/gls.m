@@ -1,4 +1,4 @@
-function x=gls(x0,sl,f0,a0,rho,c)
+function x=gls(x0,sl,fn,a0,rho,c)
 % Metoda najszybszego spadku
 % INPUT:
 %       x0 - punkt pocz¹tkowy;
@@ -10,9 +10,15 @@ function x=gls(x0,sl,f0,a0,rho,c)
 % OUTPUT:
 %       x - rozwi¹zania;
 
+
 syms x y
+%ugotuj funkcje podstawow¹ z stringa
+f=inline(fn);
+f0=@(x)f(x(1),x(2));
+
+%ugotuj gradien na podstawie przepisu w stringu
 t=[x;y];
-w=x^2+y^2;
+w=fn;
 gfn=matlabFunction(jacobian(w,t).');
 f1=@(x)gfn(x(1),x(2));
 
