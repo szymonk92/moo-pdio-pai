@@ -23,7 +23,7 @@ switch cond
         check=@(a) wolfes(a,x,p,c(1),f1) && armijo(a,x,p,c(2),f0,f1);
 end
 a=a0;
-while check(a)==0  %poszukiwanie d³ugoœci kroku dla której
+while check(a)~=1  %poszukiwanie d³ugoœci kroku dla której
                    %zachodziæ bêdzie dane kryterium
     a=rho*a;
 end

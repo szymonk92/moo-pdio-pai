@@ -22,6 +22,7 @@
 
 \usepackage{enumitem}
 
+
 \usepackage{indentfirst}
 \usepackage[center,small,bf]{caption}
 \hypersetup{colorlinks=false,pdfborder={0 0 0}}
@@ -127,31 +128,179 @@ Na rysunku \ref{fig:metodaNS_przebieg} można zobaczyć przykład działania met
 \caption{Przebieg działania metody najszybszego spadku. \\*{\footnotesize Źródło: \url{http://pl.wikipedia.org/wiki/Plik:Metoda_najszybszego_spadku.svg}}}
 \label{fig:metodaNS_przebieg}
 \end{figure}
-
+\\
+W opisach kryteriów zbieżności posługiwać będziemy się poniższymi oznaczeniami :
+\begin{itemize}
+ \item $x^k$ - kolejne przybliżenia rozwiązania
+ \item $\lambda ^k$ - długość kroku
+ \item $d ^k$ - kierunek zmiany
+ \item $c$ - stałe używane w kryteriach
+ \item $f(x)$ - wartość funkcji podstawowej w punkcie
+ \item $\nabla f(x)$ - wartość gradientu w punkcie
+\end{itemize}
 \subsection{Kryterium Armijo}
+
+\begin{equation}
+f( x^{k} + \lambda ^{k} d^{k} ) \leq f(x^{k}) + c \lambda ^{k} \nabla f^{T} (x ^{k} ) d^{k}
+\end{equation}
+
+Warunek ten oznacza, że redukcja wartości funkcji celu powinna być proporcjonalna do długości kroku jak również do pochodnej kierunkowej. Metoda ta jednak nie zapewnia nam szybkiej zbieżności, ponieważ zawsze może być spełniony dla dostatecznie małej wielkości $\lambda$ 
 
 \subsection{Kryterium Wolfa}
 
+Kryterium Wolfa, jest rozszerzeniem kryterium poprawy Armijo, o kryterium krzywizny :
+\begin{itemize}
+\item Słabe kryterium krzywizny\\
+	\begin{equation}
+	\nabla f^{T} (x^{k} + \lambda ^{k} d^{k} ) d^{k} \geq c \nabla f^{T} (x ^{k} ) d^{k}
+	\end{equation}
+	
+\item Silne kryterium krzywizny\\
+	\begin{equation}
+	\| \nabla f^{T} (x^{k} + \lambda ^{k} d^{k} ) d^{k} \| \leq \| c \nabla f^{T} (x ^{k} ) d^{k} \|
+	\end{equation}
+
+\end{itemize}
+
+Kryterium to zapewnia nam, że gdy w punkcie początkowym jest duży spadek, nie będzie wykonany mały krok.
+
+
+\subsubsection{Słabe kryterium Wolfa}
+
+\begin{equation}
+	\nabla f^{T} (x^{k} + \lambda ^{k} d^{k} ) d^{k} \geq c \nabla f^{T} (x ^{k} ) d^{k}  \ \ \&\& \ \ 
+	f( x^{k} + \lambda ^{k} d^{k} ) \leq f(x^{k}) + c \lambda ^{k} \nabla f^{T} (x ^{k} ) d^{k}
+\end{equation}
+
+Jest to kryterium Armijo z dodatkowym założeniem słabego kryterium krzywizny.
+
+\subsubsection{Silne kryterium Wolfa}
+
+\begin{equation}
+	\| \nabla f^{T} (x^{k} + \lambda ^{k} d^{k} ) d^{k} \| \leq \| c \nabla f^{T} (x ^{k} ) d^{k} \| \ \ \&\& \ \ 
+	f( x^{k} + \lambda ^{k} d^{k} ) \leq f(x^{k}) + c \lambda ^{k} \nabla f^{T} (x ^{k} ) d^{k}
+\end{equation}
+
+Jest to kryterium Armijo z dodatkowym założeniem silnego kryterium krzywizny.
+
 \subsection{Kryterium Goldsteina}
+
+\begin{equation}
+f( x^{k} ) + (1-c) \lambda ^{k} \nabla f(x^{k}) d^{k} \leq f(x^{k}+ \lambda ^{k} d^{k} ) \leq f(x^{k}) + c \lambda ^{k} \nabla f(x^{k} ) d^{k}
+\end{equation}
+
+Kryterium Goldsteina, podobnie jak w przypadku kryterium Wolfa, zabezpiecza nas przed zbyt małym krokiem, który mógłby niepotrzebnie zwiększyć ilość potrzebnych iteracji. Lewa i prawa część nierówności zapewnia nam ograniczenie odpowiednio dolnej i górnej granicy kroku.
+
+\subsection{Algorytm backtrackingu}
+Jest metodą wyznaczania długości kroku na podstawie zadanego kryterium.
+\begin{enumerate}
+\item sprawdź czy zachodzi kryterium dla zadanej długości kroku
+\item jeśli kryterium zachodzi, zwróć długość kroku $\lambda$
+\item jeśli kryterium nie zachodzi, oblicz $\lambda=\lambda \ro$, gdzie $\ro \in (0,1)$ , wróć do 1
+\end{enumerate}
+
 
 
 \section{Opis programu}
-Program składa się z~implementacji trzech kryteriów.
+Program w całości jest implementacja powyżej opisanych metod. 
+Wyjaśnienie znaczenia zmiennych :
+\begin{itemize}
+\item f0 - funkcja podstawowa
+\item f1 - gradient funkcji
+\item p - kierunek zmiany
+\item x - kolejne przybliżenia
+\item a - długość kroku
+\item c - parametr kryterium
+\item rho - parametr backtrackingu
+\end{itemize}
 
 \subsection{Metoda najszybszego spadku}
-\begin{lstlisting}
+
+\begin{lstlisting}{Metoda najszybszego spadku}
+function x=steepest_descent(x0,sl,fn,a0,rho,c)
+f=inline(fn);
+f0=@(x)f(x(1),x(2));
+t=[x;y];
+w=fn;
+gfn=matlabFunction(jacobian(w,t).');
+f1=@(x)gfn(x(1),x(2));
+while k<10 %warunek zakończenia, liczba iteracji
+    %kierunek
+    p=-f1(x);
+    %długość kroku spełniająca kryterium
+    a=kryterium(x,p);
+    %kolejne przybliżenie
+    x=x+a*p
+    %licznik iteracji
+    k=k+1;
+end
 \end{lstlisting}
 
 \subsection{Kryterium Armijo}
-\begin{lstlisting}
+
+\begin{lstlisting}{Kryterium Armijo}
+if f0(x+a*p)<=f0(x)+c*a*f1(x)'*p
+    test=1;
+else 
+    test=0;
+end
 \end{lstlisting}
+
 
 \subsection{Kryterium Wolfa}
-\begin{lstlisting}
+
+\begin{lstlisting}{Słabe kryterium Wolfa}
+if c(1)*f1(x)'*p<=f1(x+a*p)'*p &&
+ f0(x+a*p)<=f0(x)+c(2)*a*f1(x)'*p
+    test=1;
+else 
+    test=0;
+end
 \end{lstlisting}
 
+\begin{lstlisting}{Silne kryterium Wolfa}
+if abs(c(1)*f1(x)'*p)>=abs(f1(x+a*p)'*p) &&
+ f0(x+a*p)<=f0(x)+c(2)*a*f1(x)'*p
+    test=1;
+else 
+    test=0;
+end
+\end{lstlisting}
+
+
 \subsection{Kryterium Goldsteina}
-\begin{lstlisting}
+
+\begin{lstlisting}{Kryterium Goldsteina}
+if f0(x+a*p)<=f0(x)+c*a*f1(x)'*p &&
+ f0(x+a*p)>=f0(x)+(1.0-c)*a*f1(x)'*p
+    test=1;
+else 
+    test=0;
+end
+\end{lstlisting}
+
+
+\subsection{Algorytm backtrackingu}
+
+\begin{lstlisting}{Algorytm backtrackingu}
+switch cond
+    case 'armijo'
+        check=@(a)armijo(a,x,p,c,f0,f1);
+    case 'goldstein'
+        check=@(a)goldstein(a,x,p,c,f0,f1);
+    case 'wolfe'
+        check=@(a) wolfe(a,x,p,c(1),f1) &&
+        			 armijo(a,x,p,c(2),f0,f1);
+    case 'wolfes'
+        check=@(a) wolfes(a,x,p,c(1),f1) &&
+        			 armijo(a,x,p,c(2),f0,f1);
+end
+a=a0;
+while check(a)~=1  %poszukiwanie długości kroku dla której
+                   %zachodzić będzie dane kryterium
+    a=rho*a;
+end
+
 \end{lstlisting}
 
 \section{Wyniki}
