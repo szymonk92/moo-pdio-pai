@@ -243,7 +243,7 @@ public class FFTTools {
                 float dist = (float) Math.sqrt(Math.pow(dv-mydim,2) +  Math.pow(du-mxdim,2));
                 if (power > 0) {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
-                    double filterlow =  1.0d/(1.0d+Math.pow(dist/bl,2*power));
+                    double filterlow = 1.0f- 1.0d/(1.0d+Math.pow(dist/bl,2*power));
                     double filterhigh = 1.0d/(1.0d+Math.pow(dist/bh,2*power));
                     out[v][u].re*=filterlow*filterhigh;
                     out[v][u].im*=filterlow*filterhigh;
@@ -266,7 +266,7 @@ public class FFTTools {
         bl=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bl;
         bh=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bh;
         int mydim=ydim/2, mxdim=xdim/2;
-        double width=bh-bl;
+        double width=Math.abs(bh-bl);
         
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
@@ -275,11 +275,11 @@ public class FFTTools {
                 float dist = (float) Math.sqrt(Math.pow(dv-mydim,2) +  Math.pow(du-mxdim,2));
                 if (power > 0) {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
-                    double filterlow = 10.f - 1.0d/(1.0d+Math.pow(dist/bh,2*power));
-                    double filterhigh = 1.0d/(1.0d+Math.pow(dist/bl,2*power));
-//                    double filter = Math.exp(-1*dist*dist/(2.0d*cutoff*cutoff));
-                    out[v][u].re*=filterlow*filterhigh;
-                    out[v][u].im*=filterlow*filterhigh;
+                    double filterlow = 1.f - 1.0d/(1.0d+Math.pow(dist/bl,2*power));
+                    double filterhigh = 1.0d/(1.0d+Math.pow(dist/bh,2*power));
+                    double filter = 1- (filterhigh*filterlow);
+                    out[v][u].re*=filter;
+                    out[v][u].im*=filter;
                 } else {
                     if (dist > bl && dist < bh ) {
                         out[v][u] = new Complex(0.0, 0.0);
