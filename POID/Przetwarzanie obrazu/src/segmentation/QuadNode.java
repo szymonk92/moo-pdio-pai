@@ -4,8 +4,9 @@
  */
 package segmentation;
 
+import java.awt.Color;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 /**
  *
@@ -13,79 +14,236 @@ import java.awt.image.BufferedImage;
  */
 public class QuadNode {
 
-    static int SW = 0;
-    static int SE = 1;
-    static int NW = 2;
-    static int NE = 3;
-    static int maxDepth;
-    static QuadTree tree;
-    static BufferedImage image;
+    static int SW = 0, W = 0;
+    static int SE = 1, N = 1;
+    static int NW = 2, E = 2;
+    static int NE = 3, S = 3;
+    static int tx = 0;
+    static int ty = 0;
+    static int EN = 1;
+    static int NN = 2;
+    static int WN = 0;
+    static int SN = 0;
+    public QuadTree tree;
     public Rectangle area;
-    public int[] neighboursSizes = new int[4];
+    public int[] neighboursSizes;
     public int position;
     public int depth;
+    public Color avrageColor;
 
-    public static boolean isPowerOf2(int value) {
-        if (((~value) & 1) == 1) {
-            return true;
-        }
-        return false;
-    }
-
-    public QuadNode(BufferedImage image) {
-        QuadNode.tree = new QuadTree();
-        QuadNode.image = image;
-        this.position = 0;
-        this.depth = 0;
-        for (int i = 0; i < 4; i++) {
-            neighboursSizes[i] = Integer.MAX_VALUE;
-        }
-        this.area = new Rectangle(0, 0, image.getWidth(), image.getHeight());
-        process();
-        int value = 0;
-        value += (3 & 0x3) << 4;
-        value += (2 & 0x3) << 2;
-        value += (1 & 0x3);
-        System.out.println((value >> 4) & 0x3);
-        System.out.println((value >> 2) & 0x3);
-        System.out.println((value) & 0x3);
-    }
-
-    public QuadNode(Rectangle area, int position, int depth, int[] neighboursSizes) {
+    public QuadNode(QuadTree tree, Rectangle area, int position, int depth, int[] neighboursSizes) {
+        this.tree = tree;
         this.area = area;
         this.position = position;
         this.neighboursSizes = neighboursSizes;
         this.depth = depth;
-        process();
     }
 
-    private void process() {
-        if (!checkIntegrity()) {
-            split();
+    public HashMap<Integer, QuadNode> split() {
+        int width = area.width / 2;
+        int height = area.height / 2;
+        HashMap<Integer, QuadNode> children = new HashMap<Integer, QuadNode>();
+        int childrenPosition = generatePosition(NW);
+        children.put(childrenPosition, new QuadNode(this.tree, new Rectangle(area.x, area.y, width, height), childrenPosition, this.depth + 1, generateNeighboursSizes(NW)));
+        childrenPosition = generatePosition(SW);
+        children.put(childrenPosition, new QuadNode(this.tree, new Rectangle(area.x, area.y + height, width, height), childrenPosition, this.depth + 1, generateNeighboursSizes(SW)));
+        childrenPosition = generatePosition(NE);
+        children.put(childrenPosition, new QuadNode(this.tree, new Rectangle(area.x + width, area.y, width, height), childrenPosition, this.depth + 1, generateNeighboursSizes(NE)));
+        childrenPosition = generatePosition(SE);
+        children.put(childrenPosition, new QuadNode(this.tree, new Rectangle(area.x + width, area.y + height, width, height), childrenPosition, this.depth + 1, generateNeighboursSizes(SE)));
+        return children;
+    }
+
+    private int generatePosition(int type) {
+        return position | (type << (2 * (tree.maxDepth - (depth + 1))));
+    }
+
+    private int[] generateNeighboursSizes(int type) {
+        int[] tmpNeighboursSizes = new int[4];
+        if (type == NW || type == SW) {
+            if (neighboursSizes[0] == Integer.MAX_VALUE) {
+                tmpNeighboursSizes[0] = Integer.MAX_VALUE;
+            } else {
+                tmpNeighboursSizes[0] = neighboursSizes[0] - 1;
+            }
+        }
+        if (type == NW || type == NE) {
+            if (neighboursSizes[1] == Integer.MAX_VALUE) {
+                tmpNeighboursSizes[1] = Integer.MAX_VALUE;
+            } else {
+                tmpNeighboursSizes[1] = neighboursSizes[1] - 1;
+            }
+        }
+        if (type == NE || type == SE) {
+            if (neighboursSizes[2] == Integer.MAX_VALUE) {
+                tmpNeighboursSizes[2] = Integer.MAX_VALUE;
+            } else {
+                tmpNeighboursSizes[2] = neighboursSizes[2] - 1;
+            }
+        }
+        if (type == SE || type == SW) {
+            if (neighboursSizes[3] == Integer.MAX_VALUE) {
+                tmpNeighboursSizes[3] = Integer.MAX_VALUE;
+            } else {
+                tmpNeighboursSizes[3] = neighboursSizes[3] - 1;
+            }
+        }
+        return tmpNeighboursSizes;
+    }
+
+    public int getNeighbour(int type) {
+        if (neighboursSizes[type] == Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        int n = 0;
+        switch (type) {
+            case 0:
+                n = WN;
+                break;
+            case 1:
+                n = NN;
+                break;
+            case 2:
+                n = EN;
+                break;
+            case 3:
+                n = SN;
+                break;
+        }
+
+        if (neighboursSizes[type] < 0) {
+            int shift = (2 * (tree.maxDepth - depth - neighboursSizes[type]));
+            return add((position >> shift) << shift, n << shift);
         } else {
-            QuadTree.Add(this);
+            return add(position, n << (2 * (tree.maxDepth - depth)));
         }
     }
 
-    private boolean checkIntegrity() {
-        return false;
+    public int getValidNeighbour(int type) {
+        if (neighboursSizes[type] == Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        int n = 0;
+        switch (type) {
+            case 0:
+                n = WN;
+                break;
+            case 1:
+                n = NN;
+                break;
+            case 2:
+                n = EN;
+                break;
+            case 3:
+                n = SN;
+                break;
+        }
+        if (neighboursSizes[type] < 0) {
+
+            int shift = (2 * (tree.maxDepth - depth - neighboursSizes[type]));
+            return add((position >> shift) << shift, n << shift);
+        } else if (neighboursSizes[type] == 0) {
+            return add(position, n << (2 * (tree.maxDepth - depth)));
+        }
+        return Integer.MAX_VALUE;
     }
 
-    private void split() {
-        int width = area.width / 2;
-        int height = area.height / 2;
-        QuadNode[] children = new QuadNode[4];
-        children[0] = new QuadNode(new Rectangle(area.x, area.y, width, height), QuadNode.generatePosition(this.position, this.depth, NW), this.depth + 1, QuadNode.generateNeighboursSizes(this.neighboursSizes, NW));
-        children[1] = new QuadNode(new Rectangle(area.x, area.y + height, width, height), QuadNode.generatePosition(this.position, this.depth, SW), this.depth + 1, QuadNode.generateNeighboursSizes(this.neighboursSizes, SW));
-        children[2] = new QuadNode(new Rectangle(area.x + width, area.y, width, height), QuadNode.generatePosition(this.position, this.depth, NE), this.depth + 1, QuadNode.generateNeighboursSizes(this.neighboursSizes, NE));
-        children[3] = new QuadNode(new Rectangle(area.x + width, area.y + height, width, height), QuadNode.generatePosition(this.position, this.depth, SE), this.depth + 1, QuadNode.generateNeighboursSizes(this.neighboursSizes, SE));
+    public static int add(int a, int b) {
+        return (((a | ty) + (b & tx)) & tx) | (((a | tx) + (b & ty)) & ty);
     }
 
-    private static int generatePosition(int position, int depth, int type) {
-        return 0;
+    public void addToColor(Color color) {
+        avrageColor = new Color((avrageColor.getRed() + color.getRed()) / 2, (avrageColor.getGreen() + color.getGreen()) / 2, (avrageColor.getBlue() + color.getBlue()) / 2);
     }
 
-    private static int[] generateNeighboursSizes(int[] neighboursSizes, int type) {
-        return neighboursSizes;
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("TreeNode position:");
+        sb.append(positionToString());
+        sb.append(" depth:");
+        sb.append(depth);
+        sb.append(" area:");
+        sb.append(area.toString());
+        sb.append(" neighburs size:");
+        sb.append(neighboursSizeToString());
+        sb.append(" neighburs:");
+        sb.append(neighboursToString());
+        return sb.toString();
+    }
+
+    public String positionToString() {
+        return positionToString(position);
+    }
+
+    public String positionToString(int tmpPosition) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = tree.maxDepth - 1; i >= 0; i--) {
+            if (tmpPosition != Integer.MAX_VALUE) {
+                sb.append(((tmpPosition >> (2 * i)) & 0x3));
+            } else {
+                sb.append("#");
+            }
+        }
+        return sb.toString();
+
+    }
+
+    public String neighboursSizeToString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (Integer i : neighboursSizes) {
+            sb.append(i);
+            sb.append(",");
+        }
+        sb.append("]");
+        return sb.toString();
+
+    }
+
+    public String neighboursToString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < 4; i++) {
+            switch (i) {
+                case 0:
+                    sb.append("WN:");
+                    break;
+                case 1:
+                    sb.append("NN:");
+                    break;
+                case 2:
+                    sb.append("EN:");
+                    break;
+                case 3:
+                    sb.append("SN:");
+                    break;
+            }
+            sb.append(positionToString(getNeighbour(i)));
+            sb.append(",");
+        }
+        sb.append("]");
+        return sb.toString();
+
+    }
+
+    @Override
+    public int hashCode() {
+        return position;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final QuadNode other = (QuadNode) obj;
+        if (this.position != other.position && this.depth != other.depth) {
+            return false;
+        }
+        return true;
     }
 }
