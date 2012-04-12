@@ -171,13 +171,13 @@ public class FFTTools {
         Complex[][] out = new Complex[signal.length][signal[0].length];
         
         int ydim = signal.length, xdim = signal[0].length;
-        cutoff=Math.sqrt(ydim*ydim + xdim*xdim)*cutoff;
-
+        cutoff=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*cutoff;
+        int mydim=ydim/2, mxdim=xdim/2;
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
-                int dv=(v<ydim/2)? v : v-ydim;
-                int du=(u<xdim/2)? u : u-xdim;
-                float dist = (float) Math.sqrt(dv*dv+du*du);
+                int dv=(v<ydim/2)? v : ydim-v;
+                int du=(u<xdim/2)? u : xdim-u;
+                float dist = (float) Math.sqrt(Math.pow(dv-mydim,2) +  Math.pow(du-mxdim,2));
                 if (power > 0) {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
                     double filter = 1.0d/(1.0d+Math.pow(dist/cutoff,2*power));
@@ -202,13 +202,13 @@ public class FFTTools {
         Complex[][] out = new Complex[signal.length][signal[0].length];
         
        int ydim = signal.length, xdim = signal[0].length;
-        cutoff=Math.sqrt(ydim*ydim + xdim*xdim)*cutoff;
-
+       cutoff=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*cutoff;
+        int mydim=ydim/2, mxdim=xdim/2;
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
-                int dv=(v<ydim/2)? v : v-ydim;
-                int du=(u<xdim/2)? u : u-xdim;
-                float dist = (float) Math.sqrt(dv*dv+du*du);
+                int dv=(v<ydim/2)? v : ydim-v;
+                int du=(u<xdim/2)? u : xdim-u;
+                float dist = (float) Math.sqrt(Math.pow(dv-mydim,2) +  Math.pow(du-mxdim,2));
                 if (power > 0) {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
                     double filter = 1.0d/(1.0d+Math.pow(dist/cutoff,2*power));

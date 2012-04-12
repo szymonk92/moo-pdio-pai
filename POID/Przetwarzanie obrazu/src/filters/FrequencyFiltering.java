@@ -143,9 +143,32 @@ public class FrequencyFiltering extends AbstractFilter {
         //revert quarters to show image in proper way
 //        FFTTools.revertQuarters(transformedImage);
 
+        
+          System.out.println("Filter no." + filterNo);
+        //apply filter
+        switch (filterNo) {
+            case 0:
+                transformedImage = FFTTools.low_passFilter(transformedImage, params[0],params[1]);
+                break;
+            case 1:
+                transformedImage = FFTTools.high_passFilter(transformedImage, params[0],params[1]);
+                break;
+            case 2:
+                transformedImage = FFTTools.band_passFilter(transformedImage, params[0], params[1], params[2]);
+                break;
+            case 3:
+                transformedImage = FFTTools.band_stopFilter(transformedImage, params[0], params[1],params[2]);
+                break;
+            case 4:
+                break;
+            default:
+                break;
+        }   
+        
+        
         BufferedImage magImg, phaseImg;
         int[][] magnImgData, phaseImgData;
-
+        
 
         if (additionalImages[1]) {
             magImg = new BufferedImage(image.getWidth(), image.getHeight(),  BufferedImage.TYPE_BYTE_GRAY);
@@ -180,26 +203,7 @@ public class FrequencyFiltering extends AbstractFilter {
             phase.setVisible(true);
         }
 
-        System.out.println("Filter no." + filterNo);
-        //apply filter
-        switch (filterNo) {
-            case 0:
-                transformedImage = FFTTools.low_passFilter(transformedImage, params[0],params[1]);
-                break;
-            case 1:
-                transformedImage = FFTTools.high_passFilter(transformedImage, params[0],params[1]);
-                break;
-            case 2:
-                transformedImage = FFTTools.band_passFilter(transformedImage, params[0], params[1], params[2]);
-                break;
-            case 3:
-                transformedImage = FFTTools.band_stopFilter(transformedImage, params[0], params[1],params[2]);
-                break;
-            case 4:
-                break;
-            default:
-                break;
-        }   
+      
                 //REVERT QUARTER SWAP
 //        FFTTools.revertQuarters(transformedImage);
         System.out.println("IFreqFilter REV, print");
