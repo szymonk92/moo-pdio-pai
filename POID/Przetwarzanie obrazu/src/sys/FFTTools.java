@@ -12,7 +12,7 @@ package sys;
  */
 public class FFTTools {
 
-    final static private int pow_2[];
+    final static public int pow_2[];
 
     static {
         pow_2 = new int[31];
@@ -267,6 +267,8 @@ public class FFTTools {
         bh=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bh;
         int mydim=ydim/2, mxdim=xdim/2;
         double width=Math.abs(bh-bl);
+        
+        
         
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
