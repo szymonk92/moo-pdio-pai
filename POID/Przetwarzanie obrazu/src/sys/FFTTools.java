@@ -232,19 +232,19 @@ public class FFTTools {
     Complex[][] out = new Complex[signal.length][signal[0].length];
         
        int ydim = signal.length, xdim = signal[0].length;
-        bl=Math.sqrt(ydim*ydim + xdim*xdim)*bl;
-        bh=Math.sqrt(ydim*ydim + xdim*xdim)*bh;
+        bl=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bl;
+        bh=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bh;
+        int mydim=ydim/2, mxdim=xdim/2;
         
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
-                int dv=(v<ydim/2)? v : v-ydim;
-                int du=(u<xdim/2)? u : u-xdim;
-                float dist = (float) Math.sqrt(dv*dv+du*du);
+                int dv=(v<ydim/2)? v : ydim-v;
+                int du=(u<xdim/2)? u : xdim-u;
+                float dist = (float) Math.sqrt(Math.pow(dv-mydim,2) +  Math.pow(du-mxdim,2));
                 if (power > 0) {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
-                    double filterlow = 10.f - 1.0d/(1.0d+Math.pow(dist/bl,2*power));
+                    double filterlow =  1.0d/(1.0d+Math.pow(dist/bl,2*power));
                     double filterhigh = 1.0d/(1.0d+Math.pow(dist/bh,2*power));
-//                    double filter = Math.exp(-1*dist*dist/(2.0d*cutoff*cutoff));
                     out[v][u].re*=filterlow*filterhigh;
                     out[v][u].im*=filterlow*filterhigh;
                 } else {
@@ -263,15 +263,16 @@ public class FFTTools {
     Complex[][] out = new Complex[signal.length][signal[0].length];
         
        int ydim = signal.length, xdim = signal[0].length;
-        bl=Math.sqrt((ydim/2)*(ydim/2) + (xdim/2)*(xdim/2))*bl;
-        bh=Math.sqrt((ydim/2)*(ydim/2) + (xdim/2)*(xdim/2))*bh;
+        bl=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bl;
+        bh=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bh;
+        int mydim=ydim/2, mxdim=xdim/2;
         double width=bh-bl;
         
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
-                int dv=(v<ydim/2)? v : v-ydim;
-                int du=(u<xdim/2)? u : u-xdim;
-                float dist = (float) Math.sqrt(dv*dv+du*du);
+                int dv=(v<ydim/2)? v : ydim-v;
+                int du=(u<xdim/2)? u : xdim-u;
+                float dist = (float) Math.sqrt(Math.pow(dv-mydim,2) +  Math.pow(du-mxdim,2));
                 if (power > 0) {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
                     double filterlow = 10.f - 1.0d/(1.0d+Math.pow(dist/bh,2*power));
