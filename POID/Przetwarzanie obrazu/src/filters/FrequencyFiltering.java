@@ -112,17 +112,28 @@ public class FrequencyFiltering extends AbstractFilter {
     public BufferedImage processImage(BufferedImage image) {
         BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
         WritableRaster raster = image.getRaster();
-        Complex[][] input = new Complex[out.getWidth()][out.getHeight()];
+        
+        int w=0,h=0 ;
+        for (int i = 0; FFTTools.pow_2[i]< image.getWidth(); ++i) ++w;
+        w=(int) Math.pow(2,w);
+        for (int i = 0; FFTTools.pow_2[i]< image.getHeight(); ++i) ++h;
+        h=(int) Math.pow(2,h);
+        
+        Complex[][] input = new Complex[w][h];
         System.out.println("ColorModel:"+(raster.getNumBands() ==3?"RGB":"Grayscale"));
         
         
-        for (int i = 0; i < image.getWidth(); ++i) {
-            for (int j = 0; j < image.getHeight(); ++j) {
-                int[] RGB = RGBHelper.toRGBA(image.getRGB(i, j));
-                if (raster.getNumBands() == 3) {
-                    input[i][j] = new Complex(0.299 * RGB[0] + 0.587 * RGB[1] + 0.114 * RGB[2], 0);
+        for (int i = 0; i < w; ++i) {
+            for (int j = 0; j < h; ++j) {
+                if (i < image.getWidth() && j < image.getHeight()) {
+                    int[] RGB = RGBHelper.toRGBA(image.getRGB(i, j));
+                    if (raster.getNumBands() == 3) {
+                        input[i][j] = new Complex(0.299 * RGB[0] + 0.587 * RGB[1] + 0.114 * RGB[2], 0);
+                    } else {
+                        input[i][j] = new Complex((double) raster.getSample(i, j, 0), 0.0);
+                    }
                 } else {
-                    input[i][j] = new Complex((double)raster.getSample(i, j, 0), 0.0);
+                    input[i][j] = new Complex(0.0,0.0);
                 }
             }
         }
@@ -171,11 +182,11 @@ public class FrequencyFiltering extends AbstractFilter {
         
 
         if (additionalImages[1]) {
-            magImg = new BufferedImage(image.getWidth(), image.getHeight(),  BufferedImage.TYPE_BYTE_GRAY);
+            magImg = new BufferedImage(input.length,input[0].length,  BufferedImage.TYPE_BYTE_GRAY);
             magnImgData = FFTTools.magnitudeImage(transformedImage);
             WritableRaster ras = magImg.getRaster();
-            for (int i = 0; i < image.getWidth(); ++i) {
-                for (int j = 0; j < image.getHeight(); ++j) {
+            for (int i = 0; i < magImg.getWidth(); ++i) {
+                for (int j = 0; j < magImg.getHeight(); ++j) {
                     ras.setSample(i, j, 0, RGBHelper.calmp(magnImgData[i][j]));
                 }
             }
@@ -186,12 +197,12 @@ public class FrequencyFiltering extends AbstractFilter {
             mag.setVisible(true);
         }
         if (additionalImages[0]) {
-            phaseImg = new BufferedImage(image.getWidth(), image.getHeight(),  BufferedImage.TYPE_BYTE_GRAY);
+            phaseImg = new BufferedImage(input.length,input[0].length,  BufferedImage.TYPE_BYTE_GRAY);
             phaseImgData = FFTTools.phaseImage(transformedImage);
             WritableRaster ras = phaseImg.getRaster();
 
-            for (int i = 0; i < image.getWidth(); ++i) {
-                for (int j = 0; j < image.getHeight(); ++j) {
+            for (int i = 0; i < phaseImg.getWidth(); ++i) {
+                for (int j = 0; j < phaseImg.getHeight(); ++j) {
                     ras.setSample(i, j, 0, RGBHelper.calmp(phaseImgData[i][j]));
                 }
             }
@@ -229,7 +240,7 @@ public class FrequencyFiltering extends AbstractFilter {
                     outc[1] = (int) (ill / (float) (bb + (aa * r) / g + (cc * b) / g));
                     outc[2] = (int) (ill / (float) (cc + (aa * r) / b + (bb * g) / b));
                     out.setRGB(i, j, RGBHelper.toPixel(RGBHelper.calmp(outc[0]),
-                            RGBHelper.calmp(outc[1]), outc[2]));
+                            RGBHelper.calmp(outc[1]), RGBHelper.calmp(outc[2])));
                 } else {
                     //raster
                     outraster.setSample(i, j, 0,RGBHelper.calmp(((int)(input[i][j].re()))));
