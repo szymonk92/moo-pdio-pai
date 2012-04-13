@@ -6,6 +6,7 @@ package filters;
 
 import com.lowagie.text.Image;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -21,6 +22,7 @@ public class FrequencyFiltering extends AbstractFilter {
     float[] params;
     boolean[] additionalImages;
     float minMag, maxMag;
+    Point2D p1, p2;
 
     public class ImageFrame extends JFrame {
 
@@ -41,6 +43,17 @@ public class FrequencyFiltering extends AbstractFilter {
         }
     };
     ImageFrame mag, phase;
+
+    public void setP1(Point2D p1) {
+        this.p1 = p1;
+    }
+
+    public void setP2(Point2D p2) {
+        this.p2 = p2;
+    }
+    
+    
+    
 
     public FrequencyFiltering() {
         super();
@@ -156,6 +169,7 @@ public class FrequencyFiltering extends AbstractFilter {
 
         
           System.out.println("Filter no." + filterNo);
+          
         //apply filter
         switch (filterNo) {
             case 0:
@@ -171,6 +185,9 @@ public class FrequencyFiltering extends AbstractFilter {
                 transformedImage = FFTTools.band_stopFilter(transformedImage, params[0], params[1],params[2]);
                 break;
             case 4:
+                System.out.println("bl:"+params[0]+" bh:"+params[1]+" ang1:"+params[2]+" ang2:"+params[3]+
+                        "p1("+p1.getX()+","+p1.getY()+") p2("+p2.getX()+","+p2.getY()+")");
+                transformedImage = FFTTools.edgeDetecionFilter(transformedImage, params[0], params[1],params[2], params[3],p1,p2);
                 break;
             default:
                 break;

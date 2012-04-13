@@ -4,7 +4,10 @@
  */
 package filters;
 
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.ButtonGroup;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -67,6 +70,8 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
         jTextField3 = new javax.swing.JTextField();
         jTextField4 = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
+        jTextField5 = new javax.swing.JTextField();
+        jTextField6 = new javax.swing.JTextField();
 
         jRadioButton1.setText("low-pass");
 
@@ -113,6 +118,10 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
 
         jLabel3.setText("jLabel3");
 
+        jTextField5.setColumns(4);
+
+        jTextField6.setColumns(4);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -128,6 +137,10 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
                         .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -144,7 +157,7 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
                                     .addComponent(jRadioButton4)
                                     .addComponent(jRadioButton5)
                                     .addComponent(jLabel2))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jCheckBox2)
                                     .addComponent(jLabel1)
@@ -173,7 +186,10 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 5, Short.MAX_VALUE)
                 .addComponent(jRadioButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -207,16 +223,41 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
         float[] params = new float[paramTab.length];
         for(int i =0; i<paramTab.length; ++i) {
             if (! paramTab[i].getText().isEmpty())
-            params[i]=Float.parseFloat(paramTab[i].getText());
+                params[i]=Float.parseFloat(paramTab[i].getText());
+            else 
+                params[i]=0;
         }
         filter.setParams(params);
         
         ///SET FILTER TYPE
-        for( int i=0; i<rbTab.length; ++i)
+        int i=0;
+        for( ; i<rbTab.length; ++i)
             if ( rbTab[i].isSelected()) {
                 filter.setFilter(i);
                 break;
             }
+        
+        
+        //SET POINTS FOR ENDGE DETECT FILTER
+        if(i == 4) {
+            Point2D p1, p2;
+            
+            //parse jTextField5 -> P1
+            
+            String[] pp = jTextField5.getText().split(",");
+            if (pp.length == 2) {
+                System.out.println(pp[0] + " " + pp[1]);
+                p1 = new Point2D.Float(Integer.parseInt(pp[0]), Integer.parseInt(pp[1]));
+                filter.setP1(p1);
+            }
+            //parse jTextField5 -> P2
+            pp = jTextField6.getText().split(",");
+            if (pp.length == 2) {
+                System.out.println(pp[0] + " " + pp[1]);
+                p2 = new Point2D.Float(Integer.parseInt(pp[0]), Integer.parseInt(pp[1]));
+                filter.setP2(p2);
+            }
+        }
         
         //SET FREQUENCY & PHASE IMAGE DISPLAY
         filter.setAdditionalImage(0, jCheckBox1.isSelected());
@@ -246,5 +287,7 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
+    private javax.swing.JTextField jTextField5;
+    private javax.swing.JTextField jTextField6;
     // End of variables declaration//GEN-END:variables
 }
