@@ -4,6 +4,8 @@
  */
 package sys;
 
+import java.awt.geom.Point2D;
+
 /**
  *
  * @author Lukasz &
@@ -169,21 +171,21 @@ public class FFTTools {
      */
     static public Complex[][] low_passFilter(Complex[][] signal, double cutoff, double power) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
-        
+
         int ydim = signal.length, xdim = signal[0].length;
-        cutoff=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*cutoff;
-        int mydim=ydim/2, mxdim=xdim/2;
+        cutoff = Math.sqrt(Math.pow(ydim / 2, 2) + Math.pow(xdim / 2, 2)) * cutoff;
+        int mydim = ydim / 2, mxdim = xdim / 2;
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
-                int dv=(v<ydim/2)? v : ydim-v;
-                int du=(u<xdim/2)? u : xdim-u;
-                float dist = (float) Math.sqrt(Math.pow(dv-mydim,2) +  Math.pow(du-mxdim,2));
+                int dv = (v < ydim / 2) ? v : ydim - v;
+                int du = (u < xdim / 2) ? u : xdim - u;
+                float dist = (float) Math.sqrt(Math.pow(dv - mydim, 2) + Math.pow(du - mxdim, 2));
                 if (power > 0) {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
-                    double filter = 1.0d/(1.0d+Math.pow(dist/cutoff,2*power));
+                    double filter = 1.0d / (1.0d + Math.pow(dist / cutoff, 2 * power));
 //                    double filter = Math.exp(-1*dist*dist/(2.0d*cutoff*cutoff));
-                    out[v][u].re*=1-filter;
-                    out[v][u].im*=1-filter;
+                    out[v][u].re *= 1 - filter;
+                    out[v][u].im *= 1 - filter;
                 } else {
                     if (dist < cutoff) {
                         out[v][u] = new Complex(0.0, 0.0);
@@ -193,28 +195,28 @@ public class FFTTools {
                 }
             }
         }
-        System.out.println("lowpass passed, cutoff"+cutoff);
+        System.out.println("lowpass passed, cutoff" + cutoff);
 
         return out;
     }
 
-    static public Complex[][] high_passFilter(Complex[][] signal, double cutoff,double power) {
+    static public Complex[][] high_passFilter(Complex[][] signal, double cutoff, double power) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
-        
-       int ydim = signal.length, xdim = signal[0].length;
-       cutoff=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*cutoff;
-        int mydim=ydim/2, mxdim=xdim/2;
+
+        int ydim = signal.length, xdim = signal[0].length;
+        cutoff = Math.sqrt(Math.pow(ydim / 2, 2) + Math.pow(xdim / 2, 2)) * cutoff;
+        int mydim = ydim / 2, mxdim = xdim / 2;
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
-                int dv=(v<ydim/2)? v : ydim-v;
-                int du=(u<xdim/2)? u : xdim-u;
-                float dist = (float) Math.sqrt(Math.pow(dv-mydim,2) +  Math.pow(du-mxdim,2));
+                int dv = (v < ydim / 2) ? v : ydim - v;
+                int du = (u < xdim / 2) ? u : xdim - u;
+                float dist = (float) Math.sqrt(Math.pow(dv - mydim, 2) + Math.pow(du - mxdim, 2));
                 if (power > 0) {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
-                    double filter = 1.0d/(1.0d+Math.pow(dist/cutoff,2*power));
+                    double filter = 1.0d / (1.0d + Math.pow(dist / cutoff, 2 * power));
 //                    double filter = Math.exp(-1*dist*dist/(2.0d*cutoff*cutoff));
-                    out[v][u].re*=filter;
-                    out[v][u].im*=filter;
+                    out[v][u].re *= filter;
+                    out[v][u].im *= filter;
                 } else {
                     if (dist > cutoff) {
                         out[v][u] = new Complex(0.0, 0.0);
@@ -224,29 +226,29 @@ public class FFTTools {
                 }
             }
         }
-        System.out.println("highpass passed, cutoff"+cutoff);
+        System.out.println("highpass passed, cutoff" + cutoff);
         return out;
     }
 
     static public Complex[][] band_passFilter(Complex[][] signal, double bl, double bh, double power) {
-    Complex[][] out = new Complex[signal.length][signal[0].length];
-        
-       int ydim = signal.length, xdim = signal[0].length;
-        bl=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bl;
-        bh=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bh;
-        int mydim=ydim/2, mxdim=xdim/2;
-        
+        Complex[][] out = new Complex[signal.length][signal[0].length];
+
+        int ydim = signal.length, xdim = signal[0].length;
+        bl = Math.sqrt(Math.pow(ydim / 2, 2) + Math.pow(xdim / 2, 2)) * bl;
+        bh = Math.sqrt(Math.pow(ydim / 2, 2) + Math.pow(xdim / 2, 2)) * bh;
+        int mydim = ydim / 2, mxdim = xdim / 2;
+
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
-                int dv=(v<ydim/2)? v : ydim-v;
-                int du=(u<xdim/2)? u : xdim-u;
-                float dist = (float) Math.sqrt(Math.pow(dv-mydim,2) +  Math.pow(du-mxdim,2));
+                int dv = (v < ydim / 2) ? v : ydim - v;
+                int du = (u < xdim / 2) ? u : xdim - u;
+                float dist = (float) Math.sqrt(Math.pow(dv - mydim, 2) + Math.pow(du - mxdim, 2));
                 if (power > 0) {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
-                    double filterlow = 1.0f- 1.0d/(1.0d+Math.pow(dist/bl,2*power));
-                    double filterhigh = 1.0d/(1.0d+Math.pow(dist/bh,2*power));
-                    out[v][u].re*=filterlow*filterhigh;
-                    out[v][u].im*=filterlow*filterhigh;
+                    double filterlow = 1.0f - 1.0d / (1.0d + Math.pow(dist / bl, 2 * power));
+                    double filterhigh = 1.0d / (1.0d + Math.pow(dist / bh, 2 * power));
+                    out[v][u].re *= filterlow * filterhigh;
+                    out[v][u].im *= filterlow * filterhigh;
                 } else {
                     if (dist > bl && dist < bh) {
                         out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
@@ -260,30 +262,30 @@ public class FFTTools {
     }
 
     static public Complex[][] band_stopFilter(Complex[][] signal, double bl, double bh, double power) {
-    Complex[][] out = new Complex[signal.length][signal[0].length];
-        
-       int ydim = signal.length, xdim = signal[0].length;
-        bl=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bl;
-        bh=Math.sqrt(Math.pow(ydim/2,2) + Math.pow(xdim/2,2))*bh;
-        int mydim=ydim/2, mxdim=xdim/2;
-        double width=Math.abs(bh-bl);
-        
-        
-        
+        Complex[][] out = new Complex[signal.length][signal[0].length];
+
+        int ydim = signal.length, xdim = signal[0].length;
+        bl = Math.sqrt(Math.pow(ydim / 2, 2) + Math.pow(xdim / 2, 2)) * bl;
+        bh = Math.sqrt(Math.pow(ydim / 2, 2) + Math.pow(xdim / 2, 2)) * bh;
+        int mydim = ydim / 2, mxdim = xdim / 2;
+        double width = Math.abs(bh - bl);
+
+
+
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
-                int dv=(v<ydim/2)? v : ydim-v;
-                int du=(u<xdim/2)? u : xdim-u;
-                float dist = (float) Math.sqrt(Math.pow(dv-mydim,2) +  Math.pow(du-mxdim,2));
+                int dv = (v < ydim / 2) ? v : ydim - v;
+                int du = (u < xdim / 2) ? u : xdim - u;
+                float dist = (float) Math.sqrt(Math.pow(dv - mydim, 2) + Math.pow(du - mxdim, 2));
                 if (power > 0) {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
-                    double filterlow = 1.f - 1.0d/(1.0d+Math.pow(dist/bl,2*power));
-                    double filterhigh = 1.0d/(1.0d+Math.pow(dist/bh,2*power));
-                    double filter = 1- (filterhigh*filterlow);
-                    out[v][u].re*=filter;
-                    out[v][u].im*=filter;
+                    double filterlow = 1.f - 1.0d / (1.0d + Math.pow(dist / bl, 2 * power));
+                    double filterhigh = 1.0d / (1.0d + Math.pow(dist / bh, 2 * power));
+                    double filter = 1 - (filterhigh * filterlow);
+                    out[v][u].re *= filter;
+                    out[v][u].im *= filter;
                 } else {
-                    if (dist > bl && dist < bh ) {
+                    if (dist > bl && dist < bh) {
                         out[v][u] = new Complex(0.0, 0.0);
                     } else {
                         out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
@@ -292,6 +294,79 @@ public class FFTTools {
             }
         }
         return out;
+    }
+
+    /**
+     * @desc Funkcja w swojej podstawie jest filterm passband, jednak wykrajamy
+     * sektory pierścienia za pomocą informacji podanej jako para : kąt i
+     * współrzędne punktu względem początku układu współrzędnych wyznaczającym
+     * ramie kąta
+     *
+     * @param signal - input data
+     * @param bl - lowerbound
+     * @param bh - higherbound
+     * @param angle1 - kąt pierwszego wycinku
+     * @param angle2 - kat drugiego wycinku
+     * @param pt1 punkt zaczepu pierwszego wycinku
+     * @param pt2 punkt zaczepu drugiego wycinku
+     * @return
+     */
+    static public Complex[][] edgeDetecionFilter(Complex[][] signal, double bl, double bh, double angle1, double angle2, Point2D p1, Point2D p2) {
+        Complex[][] out = new Complex[signal.length][signal[0].length];
+        
+        int ydim = signal.length, xdim = signal[0].length;
+        bl = Math.sqrt(Math.pow(ydim / 2, 2) + Math.pow(xdim / 2, 2)) * bl;
+        bh = Math.sqrt(Math.pow(ydim / 2, 2) + Math.pow(xdim / 2, 2)) * bh;
+        int mydim = ydim / 2, mxdim = xdim / 2;
+        Point2D pp1= (Point2D) p1.clone(),pp2=(Point2D) p2.clone();
+        pp1.setLocation(p1.getX()+mxdim, p1.getY()+mydim);
+        pp2.setLocation(p2.getX()+mxdim, p2.getY()+mydim);
+
+        for (int v = 0; v < ydim; ++v) {
+            for (int u = 0; u < xdim; ++u) {
+                int dv = (v < ydim / 2) ? v : ydim - v;
+                int du = (u < xdim / 2) ? u : xdim - u;
+                float dist = (float) Math.sqrt(Math.pow(dv - mydim, 2) + Math.pow(du - mxdim, 2));
+
+                if (dist > bl && dist < bh) {
+                    
+                    out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
+                    Point2D A = new Point2D.Double(mxdim, mydim), B= new Point2D.Double(u, v);
+                    //ANGLE 1 POINT 1
+                    double angle = angleABC(A, B, pp1);
+//                    System.out.print("(" + angle + " " + angle1 + ")");
+                    if (angle < angle1 && angle > -0.0) {
+                        out[v][u] = new Complex(0.0, 0.0);
+//                        continue;
+                    } 
+                    
+                    //ANGLE 2 POINT 2
+                    angle = angleABC(A, B, pp2);
+//                    System.out.print(" (" + angle + " " + angle2 + ")");
+                    if (angle < angle2 && angle > -0.0) {
+                        out[v][u] = new Complex(0.0, 0.0);
+                    } 
+                    
+//                    System.out.println();
+                } else {
+                    out[v][u] = new Complex(0.0, 0.0);
+                }
+
+            }
+        }
+        return out;
+    }
+    /**
+     * @desc return angle <BAC
+     * @return 
+     */
+    static public double angleABC (Point2D a, Point2D b, Point2D c) {
+        Point2D BA = new Point2D.Double(b.getX() - a.getX(), b.getY() - a.getY()),
+                CA = new Point2D.Double(c.getX() - a.getX(), c.getY() - a.getY());
+        double dot = BA.getX() * CA.getX() + BA.getY() * CA.getY();
+        double pcross = BA.getX() * CA.getY() - BA.getY() * CA.getX();
+        double angle = Math.atan2(pcross, dot) * 180.0d / Math.PI; 
+        return angle;
     }
 
     /**
@@ -338,9 +413,9 @@ public class FFTTools {
         int halfWidth = data.length / 2;
         int halfHeight = data[0].length / 2;
 
-        
-            for (int i = 0; i < halfWidth; i++) {
-                for (int j = 0; j < halfHeight; j++) {
+
+        for (int i = 0; i < halfWidth; i++) {
+            for (int j = 0; j < halfHeight; j++) {
                 // drua z czwartą
                 Complex tmp = data[i][j];
                 data[i][j] = data[ halfHeight + i][ halfWidth + j];
