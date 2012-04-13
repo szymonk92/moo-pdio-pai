@@ -303,12 +303,12 @@ public class FFTTools {
      * ramie kąta
      *
      * @param signal - input data
-     * @param bl - lowerbound
-     * @param bh - higherbound
-     * @param angle1 - kąt pierwszego wycinku
-     * @param angle2 - kat drugiego wycinku
-     * @param pt1 punkt zaczepu pierwszego wycinku
-     * @param pt2 punkt zaczepu drugiego wycinku
+     * @param bl - lowerbound (0.02)
+     * @param bh - higherbound (0.4)
+     * @param angle1 - kąt pierwszego wycinku (45)
+     * @param angle2 - kat drugiego wycinku (45)
+     * @param pt1 punkt zaczepu pierwszego wycinku (1,0)
+     * @param pt2 punkt zaczepu drugiego wycinku (-1,)
      * @return
      */
     static public Complex[][] edgeDetecionFilter(Complex[][] signal, double bl, double bh, double angle1, double angle2, Point2D p1, Point2D p2) {
@@ -356,6 +356,28 @@ public class FFTTools {
         }
         return out;
     }
+    
+    
+    
+    static public Complex[][] spectreMod(Complex[][] signal, double l, double k) {
+        Complex[][] out = new Complex[signal.length][signal[0].length];
+        int ydim = signal.length, xdim = signal[0].length;
+        
+        for (int n = 0; n < ydim; ++n) {
+            for (int m = 0; m < xdim; ++m) {
+                out[n][m]=signal[n][m].times(Complex.fromPolar(1,
+                        ((-(double)n*k*2.0d)/(double)ydim + (-(double)m*l*2.0d)/(double)xdim + (double)(k+l))*Math.PI ));
+//                System.out.println(out[n][m].re+"|"+out[n][m].im+") ("+signal[n][m].re+"|"+signal[n][m].im);
+            }
+        }
+        
+        return out;
+    }
+    
+    
+    
+    
+    
     /**
      * @desc return angle <BAC
      * @return 
@@ -368,6 +390,9 @@ public class FFTTools {
         double angle = Math.atan2(pcross, dot) * 180.0d / Math.PI; 
         return angle;
     }
+    
+    
+    
 
     /**
      * @desc http://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm

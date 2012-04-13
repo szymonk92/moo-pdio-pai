@@ -29,6 +29,16 @@ public class Complex {
         re = (float) real;
         im = (float) imag;
     }
+        
+        public static Complex fromPolar(double r, double theta) {
+            Complex ret = new Complex(0,0);
+            
+            ret.re = (float) (r * Math.sin(theta));
+            ret.im = (float) (r * Math.cos(theta));
+
+            
+            return ret;
+        }
 
    
     public Complex(float real) {

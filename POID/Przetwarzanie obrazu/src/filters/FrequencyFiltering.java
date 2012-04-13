@@ -189,6 +189,10 @@ public class FrequencyFiltering extends AbstractFilter {
                         "p1("+p1.getX()+","+p1.getY()+") p2("+p2.getX()+","+p2.getY()+")");
                 transformedImage = FFTTools.edgeDetecionFilter(transformedImage, params[0], params[1],params[2], params[3],p1,p2);
                 break;
+            case 5:
+                transformedImage = FFTTools.spectreMod(transformedImage,params[0],params[1]);
+                break;
+                
             default:
                 break;
         }   
