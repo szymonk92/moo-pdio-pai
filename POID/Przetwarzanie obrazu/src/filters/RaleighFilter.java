@@ -83,7 +83,7 @@ public class RaleighFilter extends AbstractFilter {
         double a2a, r, g, b;
         WritableRaster raster = image.getRaster();
         if (alpha == 0.0f) {
-            alpha = 255.0f / (float) Math.sqrt(2 * Math.log(dim));
+            alpha = (255.0f-gmin) / (float) Math.sqrt(2 * Math.log(dim));
         }
         a2a = alpha * 2 * alpha;
         //System.out.println("" + alpha);
@@ -102,7 +102,11 @@ public class RaleighFilter extends AbstractFilter {
                         } else {
                             histogramSum[i][j] += histogramSum[i][j - 1] + histograms[i][j];
                         }
-                        histogramIlo[i][j] = RGBHelper.calmp(gmin + Math.sqrt(a2a * Math.log(((double) dim) / histogramSum[i][j])));
+                    double logarg = ((double) dim) / (histogramSum[i][j] < 1.0 ? 1.0 : histogramSum[i][j]);
+                    if (logarg < 1.0d) {
+                        logarg = 1.0;
+                    }
+                    histogramIlo[i][j] = RGBHelper.calmp(gmin + Math.sqrt(a2a * Math.log(logarg)));
                     }
                 }
             }
@@ -117,7 +121,9 @@ public class RaleighFilter extends AbstractFilter {
                 } else {
                     histogramSum[3][j] += histogramSum[3][j - 1] + histograms[3][j];
                 }
-                histogramIlo[3][j] = RGBHelper.calmp(gmin + Math.sqrt(a2a * Math.log(((double) dim) / histogramSum[3][j])));
+            double logarg= ((double) dim) / (histogramSum[3][j]<1.0?1.0:histogramSum[3][j]);
+            if ( logarg < 1.0d) logarg=1.0;
+            histogramIlo[3][j] = RGBHelper.calmp(gmin + Math.sqrt(a2a * Math.log(logarg)));
             }
         }
 
@@ -132,10 +138,12 @@ public class RaleighFilter extends AbstractFilter {
                     g = RGBHelper.getGreen(RGBA);
                     b = RGBHelper.getBlue(RGBA);
                     if (channel[3]) {
-                        double ill = histogramIlo[3][RGBHelper.calmp((int) ((aa * r) + (bb * g) + (cc * b)))];
-                        out[0] = (int) ((channel[0] == true) ? (ill / (aa + (bb * g) / r + (cc * b) / r)) : r);
-                        out[1] = (int) ((channel[1] == true) ? (ill / (bb + (aa * r) / g + (cc * b) / g)) : g);
-                        out[2] = (int) ((channel[2] == true) ? (ill / (cc + (aa * r) / b + (bb * g) / b)) : b);
+                        double ill = histogramIlo[3][RGBHelper.calmp((int) (aa*r + bb*g +  cc*b))],
+                                oill=RGBHelper.calmp((int) (aa*r + bb*g +  cc*b));
+                        out[0] = (int) (channel[0] ? ((ill/oill)*(255-r)): r);
+                        out[1] = (int) (channel[1] ? ((ill/oill)*(255-g)): g);
+                        out[2] = (int) (channel[2] ? ((ill/oill)*(255-b)): b);
+                        
                     } else {
                         out[0] = (int) (channel[0] ? histogramIlo[0][(int) (r)] : r);
                         out[1] = (int) (channel[1] ? histogramIlo[1][(int) (g)] : g);
