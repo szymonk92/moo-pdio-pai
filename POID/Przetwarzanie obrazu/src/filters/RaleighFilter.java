@@ -140,9 +140,17 @@ public class RaleighFilter extends AbstractFilter {
                     if (channel[3]) {
                         double ill = histogramIlo[3][RGBHelper.calmp((int) (aa*r + bb*g +  cc*b))],
                                 oill=RGBHelper.calmp((int) (aa*r + bb*g +  cc*b));
-                        out[0] = (int) (channel[0] ? ((ill/oill)*(255-r)): r);
-                        out[1] = (int) (channel[1] ? ((ill/oill)*(255-g)): g);
-                        out[2] = (int) (channel[2] ? ((ill/oill)*(255-b)): b);
+                        out[0] = (int) (channel[0] ? ((ill/oill)*Math.abs(255-r)): r);
+                        out[1] = (int) (channel[1] ? ((ill/oill)*Math.abs(255-g)): g);
+                        out[2] = (int) (channel[2] ? ((ill/oill)*Math.abs(255-b)): b);
+                        double  maxc=0.0;
+                        for ( int i=0; i<out.length; ++i) 
+                            maxc=Math.max(maxc,out[i]);
+                        
+                        if(maxc>255.0d)
+                            for( int i=0; i<out.length; ++i)
+                                out[i]=(int) ((255.0d/maxc)*out[i]);
+                            
                         
                     } else {
                         out[0] = (int) (channel[0] ? histogramIlo[0][(int) (r)] : r);
