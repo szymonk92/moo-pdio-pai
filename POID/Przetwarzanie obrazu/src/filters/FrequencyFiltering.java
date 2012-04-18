@@ -5,14 +5,9 @@
 package filters;
 
 import com.lowagie.text.Image;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.IndexColorModel;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
+import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.image.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import sys.*;
@@ -27,6 +22,7 @@ public class FrequencyFiltering extends AbstractFilter {
     float[] params;
     boolean[] additionalImages;
     float minMag, maxMag;
+    Point2D p1, p2;
 
     public class ImageFrame extends JFrame {
 
@@ -43,10 +39,21 @@ public class FrequencyFiltering extends AbstractFilter {
         @Override
         public void paint(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
-            g2d.drawImage(img, null, img.getWidth(), img.getHeight());
+            g2d.drawImage(img, null, 0, 0);
         }
     };
     ImageFrame mag, phase;
+
+    public void setP1(Point2D p1) {
+        this.p1 = p1;
+    }
+
+    public void setP2(Point2D p2) {
+        this.p2 = p2;
+    }
+    
+    
+    
 
     public FrequencyFiltering() {
         super();
@@ -65,6 +72,8 @@ public class FrequencyFiltering extends AbstractFilter {
     }
 
     public void refresh() {
+        mag.setVisible(false);
+        phase.setVisible(false);
         this.changeSupport.fireIndexedPropertyChange("generic", 0, null, this);
     }
 
@@ -116,110 +125,152 @@ public class FrequencyFiltering extends AbstractFilter {
     public BufferedImage processImage(BufferedImage image) {
         BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
         WritableRaster raster = image.getRaster();
-        Complex[][] input = new Complex[out.getWidth()][out.getHeight()];
-        for (int i = 0; i < image.getWidth(); ++i) {
-            for (int j = 0; j < image.getHeight(); ++j) {
-                int[] RGB = RGBHelper.toRGBA(image.getRGB(i, j));
-//                if (raster.getNumBands() == 3) {
-//                    input[i][j] = new Complex(0.299 * RGB[0] + 0.587 * RGB[1] + 0.114 * RGB[2], 0);
-//                } else {
-                    input[i][j] = new Complex(raster.getSample(i, j, 0), 0);
-//                }
+        
+        int w=0,h=0 ;
+        for (int i = 0; FFTTools.pow_2[i]< image.getWidth(); ++i) ++w;
+        w=(int) Math.pow(2,w);
+        for (int i = 0; FFTTools.pow_2[i]< image.getHeight(); ++i) ++h;
+        h=(int) Math.pow(2,h);
+        
+        Complex[][] input = new Complex[w][h];
+        System.out.println("ColorModel:"+(raster.getNumBands() ==3?"RGB":"Grayscale"));
+        
+        
+        for (int i = 0; i < w; ++i) {
+            for (int j = 0; j < h; ++j) {
+                if (i < image.getWidth() && j < image.getHeight()) {
+                    int[] RGB = RGBHelper.toRGBA(image.getRGB(i, j));
+                    if (raster.getNumBands() == 3) {
+                        input[i][j] = new Complex(0.299 * RGB[0] + 0.587 * RGB[1] + 0.114 * RGB[2], 0);
+                    } else {
+                        input[i][j] = new Complex((double) raster.getSample(i, j, 0), 0.0);
+                    }
+                } else {
+                    input[i][j] = new Complex(0.0,0.0);
+                }
             }
         }
 
         System.out.println("IFreqFilter DIMENSION"+image.getWidth()+" "+image.getHeight());
         
-        
+           for (int i = 0; i < image.getWidth(); ++i) {
+            for (int j = 0; j < image.getHeight(); ++j) {
+                input[i][j].re*=( (i+j)%2 == 0 ? -1 : 1 );
+                input[i][j].im*=( (i+j)%2 == 0 ? -1 : 1 );
+            }
+           }
         Complex[][] transformedImage = FFTTools.fft2(input);
 
-//        minMag = Complex.minMagnitude(transformedImage);
-//        maxMag = Complex.maxMagnitude(transformedImage);
+        minMag = Complex.minMagnitude(transformedImage);
+        maxMag = Complex.maxMagnitude(transformedImage);
 
         //revert quarters to show image in proper way
 //        FFTTools.revertQuarters(transformedImage);
 
+        
+          System.out.println("Filter no." + filterNo);
+          
+        //apply filter
+        switch (filterNo) {
+            case 0:
+                transformedImage = FFTTools.low_passFilter(transformedImage, params[0],params[1]);
+                break;
+            case 1:
+                transformedImage = FFTTools.high_passFilter(transformedImage, params[0],params[1]);
+                break;
+            case 2:
+                transformedImage = FFTTools.band_passFilter(transformedImage, params[0], params[1], params[2]);
+                break;
+            case 3:
+                transformedImage = FFTTools.band_stopFilter(transformedImage, params[0], params[1],params[2]);
+                break;
+            case 4:
+                System.out.println("bl:"+params[0]+" bh:"+params[1]+" ang1:"+params[2]+" ang2:"+params[3]+
+                        "p1("+p1.getX()+","+p1.getY()+") p2("+p2.getX()+","+p2.getY()+")");
+                transformedImage = FFTTools.edgeDetecionFilter(transformedImage, params[0], params[1],params[2], params[3],p1,p2);
+                break;
+            case 5:
+                transformedImage = FFTTools.spectreMod(transformedImage,params[0],params[1]);
+                break;
+                
+            default:
+                break;
+        }   
+        
+        
         BufferedImage magImg, phaseImg;
         int[][] magnImgData, phaseImgData;
+        
 
-
-        if (additionalImages[0]) {
-            magImg = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+        if (additionalImages[1]) {
+            magImg = new BufferedImage(input.length,input[0].length,  BufferedImage.TYPE_BYTE_GRAY);
             magnImgData = FFTTools.magnitudeImage(transformedImage);
-//                    Complex.getAbs(transformedImage);
             WritableRaster ras = magImg.getRaster();
-            for (int i = 0; i < image.getWidth(); ++i) {
-                for (int j = 0; j < image.getHeight(); ++j) {
+            for (int i = 0; i < magImg.getWidth(); ++i) {
+                for (int j = 0; j < magImg.getHeight(); ++j) {
                     ras.setSample(i, j, 0, RGBHelper.calmp(magnImgData[i][j]));
                 }
             }
             mag.setImage(magImg);
-            mag.setSize(image.getWidth(), image.getHeight());
+            mag.setPreferredSize(new Dimension(magImg.getWidth(),magImg.getHeight()));
+            mag.pack();
+            mag.setLocationRelativeTo(null);
             mag.setVisible(true);
         }
-        if (additionalImages[1]) {
-            phaseImg = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
-            phaseImgData = FFTTools.magnitudeImage(transformedImage);
-//                    Complex.getPhase(transformedImage);
+        if (additionalImages[0]) {
+            phaseImg = new BufferedImage(input.length,input[0].length,  BufferedImage.TYPE_BYTE_GRAY);
+            phaseImgData = FFTTools.phaseImage(transformedImage);
             WritableRaster ras = phaseImg.getRaster();
 
-            for (int i = 0; i < image.getWidth(); ++i) {
-                for (int j = 0; j < image.getHeight(); ++j) {
+            for (int i = 0; i < phaseImg.getWidth(); ++i) {
+                for (int j = 0; j < phaseImg.getHeight(); ++j) {
                     ras.setSample(i, j, 0, RGBHelper.calmp(phaseImgData[i][j]));
                 }
             }
 
             phase.setImage(phaseImg);
-            phase.setSize(image.getWidth(), image.getHeight());
+            phase.setPreferredSize(new Dimension(phaseImg.getWidth(),phaseImg.getHeight()));
+            phase.pack();
+            phase.setLocationRelativeTo(null);
             phase.setVisible(true);
         }
 
-        //REVERT QUARTER SWAP
+      
+                //REVERT QUARTER SWAP
 //        FFTTools.revertQuarters(transformedImage);
-        System.out.println("Filter no." + filterNo);
-        //apply filter
-        switch (filterNo) {
-            case 0:
-                transformedImage = FFTTools.low_passFilter(transformedImage, 0, params[0]);
-                break;
-            case 1:
-                transformedImage = FFTTools.high_passFilter(transformedImage, 0, params[0]);
-                break;
-            case 2:
-                transformedImage = FFTTools.band_passFilter(transformedImage, 0, params[0], params[1]);
-                break;
-            case 3:
-                transformedImage = FFTTools.band_stopFilter(transformedImage, 0, params[0], params[1]);
-                break;
-            case 4:
-                break;
-            default:
-                break;
-        }
+        System.out.println("IFreqFilter REV, print");
 
         input = FFTTools.ifft2(transformedImage);
+        for (int i = 0; i < image.getWidth(); ++i) {
+            for (int j = 0; j < image.getHeight(); ++j) {
+                input[i][j].re*=( (i+j)%2 == 0 ? -1 : 1 );
+                input[i][j].im*=( (i+j)%2 == 0 ? -1 : 1 );
+            }
+           }
 
         int[] outc = new int[4];
         final double aa = 0.299, bb = 0.587, cc = 0.114;
         WritableRaster outraster = out.getRaster();
         for (int i = 0; i < image.getWidth(); ++i) {
             for (int j = 0; j < image.getHeight(); ++j) {
-//                if (raster.getNumBands() == 3) {
-//                    int[] RGB = RGBHelper.toRGBA(image.getRGB(i, j));
-//                    float r = RGB[0], g = RGB[1], b = RGB[2];
-//                    float ill = input[i][j].re(); //from transformed data
-//                    outc[0] = (int) (ill / (float) (aa + (bb * g) / r + (cc * b) / r));
-//                    outc[1] = (int) (ill / (float) (bb + (aa * r) / g + (cc * b) / g));
-//                    outc[2] = (int) (ill / (float) (cc + (aa * r) / b + (bb * g) / b));
-//                    out.setRGB(i, j, RGBHelper.toPixel(outc[0], outc[1], outc[2]));
-//                } else {
-//                    //raster
-                    outraster.setSample(i, j, 0, input[i][j].re());
-//                }
+                if (raster.getNumBands() == 3) {
+                    int[] RGB = RGBHelper.toRGBA(image.getRGB(i, j));
+                    float r = RGB[0], g = RGB[1], b = RGB[2];
+                    float ill = input[i][j].re(); //from transformed data
+                    outc[0] = (int) (ill / (float) (aa + (bb * g) / r + (cc * b) / r));
+                    outc[1] = (int) (ill / (float) (bb + (aa * r) / g + (cc * b) / g));
+                    outc[2] = (int) (ill / (float) (cc + (aa * r) / b + (bb * g) / b));
+                    out.setRGB(i, j, RGBHelper.toPixel(RGBHelper.calmp(outc[0]),
+                            RGBHelper.calmp(outc[1]), RGBHelper.calmp(outc[2])));
+                } else {
+                    //raster
+                    outraster.setSample(i, j, 0,RGBHelper.calmp(((int)(input[i][j].re()))));
+                }
             }
         }
 
-
+        
+        
         return out;
 
     }
