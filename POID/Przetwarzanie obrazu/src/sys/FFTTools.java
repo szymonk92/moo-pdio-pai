@@ -358,10 +358,18 @@ public class FFTTools {
     }
     
     
-    
+    /**
+     * 
+     * @param signal
+     * @param l percent like 0.5
+     * @param k percent like 0.5
+     * @return 
+     */
     static public Complex[][] spectreMod(Complex[][] signal, double l, double k) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
         int ydim = signal.length, xdim = signal[0].length;
+        l= l*xdim;
+        k=k*ydim;
         
         for (int n = 0; n < ydim; ++n) {
             for (int m = 0; m < xdim; ++m) {

@@ -33,8 +33,8 @@ public class Complex {
         public static Complex fromPolar(double r, double theta) {
             Complex ret = new Complex(0,0);
             
-            ret.re = (float) (r * Math.sin(theta));
-            ret.im = (float) (r * Math.cos(theta));
+            ret.im = (float) (r * Math.sin(theta));
+            ret.re = (float) (r * Math.cos(theta));
 
             
             return ret;
