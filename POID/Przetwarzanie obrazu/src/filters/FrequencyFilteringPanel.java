@@ -159,9 +159,9 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
 
         jCheckBox1.setText("fazy");
 
-        jCheckBox2.setText("magniute");
+        jCheckBox2.setText("mocy");
 
-        jLabel1.setText("Obraz");
+        jLabel1.setText("Widmo");
 
         jLabel2.setText("Parametry");
 
@@ -179,11 +179,6 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
         jTextField4.setColumns(4);
 
         jRadioButton6.setText("modyfikacja widma");
-        jRadioButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButton6ActionPerformed(evt);
-            }
-        });
 
         param1.setText("jLabel3");
 
@@ -217,7 +212,7 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
                                             .addComponent(jRadioButton3)
                                             .addComponent(jRadioButton4)
                                             .addComponent(jRadioButton5))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 130, Short.MAX_VALUE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 156, Short.MAX_VALUE))
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                         .addGap(62, 62, 62)
                                         .addComponent(param2)
@@ -346,10 +341,6 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
         
 
     }//GEN-LAST:event_jButton1MouseClicked
-
-    private void jRadioButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton6ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jRadioButton6ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

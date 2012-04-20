@@ -1,0 +1,158 @@
+\documentclass{classrep}
+\usepackage[utf8]{inputenc}
+
+\usepackage[pdftex]{color,graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.bmp}
+
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{color}
+\usepackage{tabularx}
+
+\usepackage{listings}
+
+\usepackage{color}
+
+\usepackage{url}
+
+\usepackage{hyperref}
+
+\usepackage[polish]{babel}
+
+\usepackage{enumitem}
+\usepackage{paralist}
+\usepackage{indentfirst}
+
+\hypersetup{colorlinks=false,pdfborder={0 0 0}}
+
+
+\definecolor{javared}{rgb}{0.6,0,0} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
+\definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
+
+\lstset{language=Java,
+basicstyle=\ttfamily,
+keywordstyle=\color{javapurple}\bfseries,
+stringstyle=\color{javared},
+commentstyle=\color{javagreen},
+morecomment=[s][\color{javadocblue}]{/**}{*/},
+numbers=left,
+numberstyle=\tiny\color{black},
+stepnumber=2,
+numbersep=10pt,
+tabsize=4,
+showspaces=false,
+showstringspaces=false}
+
+
+\studycycle{Informatyka, studia dzienne, mgr II st.}
+\coursesemester{I}
+
+\coursename{Przetwarzanie obrazu i dźwięku}
+\courseyear{2011/2012}
+
+\courseteacher{dr inż. Arkadiusz Tomczyk}
+\coursegroup{środa, 8:15}
+
+\author{
+  \studentinfo{Paweł Musiał}{178726} \and
+  \studentinfo{Łukasz Michalski}{178724}
+}
+\title{Zadanie 2:\\  \textbf {Filtracja w dziedzinie częstotliwości i segmentacja obrazu.}}
+\svnurl{http://serce.ics.p.lodz.pl/svn/labs/poid/at_sr0800/lmpm}
+
+\begin{document}
+\maketitle
+
+\addtocounter{footnote}{1}
+
+\tableofcontents
+
+\section{Cel}
+
+Celem zadania było stworzenie aplikacji realizującej poniższe element :
+\begin{itemize}
+\item Zaimplementować proste i odwrotne szybkie przekształcenie Fouriera z decymacją w dziedzinie częstotliwości), a następnie zastosować je do obrazów. Powinna istnieć możliwość obejrzenia zarówno widma mocy, jak i widma fazy.
+\item Zaimplementować następujące metody filtracji:
+	\begin{itemize}
+	\item	(F1) Filtr dolnoprzepustowy (górnozaporowy).
+	\item	(F2) Filtr górnoprzepustowy (dolnozaporowy).
+	\item	(F3) Filtr pasmowoprzepustowy.
+	\item	(F4) Filtr pasmozaporowy.
+	\item	(F5) Filtr z detekcją krawędzi.
+	\end{itemize}
+\item Zaimplementować filtr modyfikujący fazę widma transformaty Fouriera. Modyfikacja ta polega, dla obrazu o wymiarach N ×M , na pomnożeniu każdego elementu widma przez:
+\begin{equation}
+P(n,m) = \exp { \left( j \cdot \left( \frac{-n k 2 \pi}{N} + \frac{-m l 2 \pi }{M} \left( k + l  \right) \pi \right) }
+\end{equation}
+\item Zaimplementować metodę segmentacji - metoda podziału obszarów \footnote{ang. region splitting and merging}  w celu znalezienia spójnych obszarów o jednolitej barwie. Jako wynik należy wygenerować obrazy reprezentujące znaleziony obszary o jednolitej barwie (tyle masek ile znalezionych obszarów), na których kolorem białym oznaczone są te obszary, a czarnym pozostała część obrazu. Powinna istnieć możliwość nałożenia wybranych masek na obraz przy czym sposób wizualizacji tego nałożenia wybrany powinien zostać przez twórców aplikacji.
+
+
+\end{itemize}
+
+
+W sprawozdaniu zamieszczono wyniki działania poszczególnych algorytmów oraz porównanie ich pracy w różnych wariantach ustawień i~dla różnych problemów. Badania przeprowadzono zarówno na obrazach kolorowych (24-bitowych), jak i~w odcieniach szarości (8-bitowych), a~część badań również na obrazach czarno-białych (1-bitowych). 
+
+\section{Wprowadzenie}
+Obrazy przechowywane są w pamięci komputera w postaci bitowej, w której określa się ilość bitów przypadającą na każdy piksel obrazu. Kolorowe zdjęcia zapisywane są w formacie 24-bitowym co odpowiada 8-bitom na każdy~z trzech składowych kanałów formatu RGB. Fotografie w odcieniach szarości wykorzystują tylko jeden kanał dlatego wystarczy tutaj przechowywać 8-bitów na każdy zapisany piksel. Taki zapis umożliwia uzyskanie 256 różnych wartość danego piksela czyli 256 różnych odcieni szarości poczynając od białego na kolorze czarnym kończąc. W przypadku obrazów kolorowych liczba kombinacji jest dużo większa i wynosi 16,777,216, co nie oznacza, że wszystkie uzyskane w ten sposób kolory są między sobą rozróżnialne. W tej pracy wszystkie przygotowane algorytmy operują na poszczególnych wartościach każdego kanału obrazu.
+
+\subsection{Filtracja w dziedzinie częstotliwości}
+
+\subsubsection{Algorytm szybkiej transformaty Fouriera}
+
+\subsubsection{Filtr dolnoprzepustowy}
+
+\subsubsection{Filtr górnoprzepustowy}
+
+\subsubsection{Filtr pasmowoprzepustowy}
+
+\subsubsection{Filtr pasmowozaporowy}
+
+\subsubsection{Filtr z detekcją krawędzi}
+
+\subsubsection{Filtr modyfikujący widmo}
+
+\subsection{Segmentacja}
+
+\section{Opis implementacji}
+
+
+\section{Materiały i metody}
+
+
+
+\section{Wyniki}
+
+
+\subsection{Filtracja w dziedzinie częstotliwości}
+
+\subsubsection{Filtr dolnoprzepustowy}
+
+\subsubsection{Filtr górnoprzepustowy}
+
+\subsubsection{Filtr pasmowoprzepustowy}
+
+\subsubsection{Filtr pasmowozaporowy}
+
+\subsubsection{Filtr z detekcją krawędzi}
+
+\subsubsection{Filtr modyfikujący widmo}
+
+
+\subsection{Segmentacja}
+
+
+
+\section{Dyskusja}
+
+
+
+\section{Wnioski}
+
+
+\begin{thebibliography}{8}
+
+\end{thebibliography}
+
+\end{document}

@@ -39,7 +39,7 @@
                                           <Component id="jRadioButton4" alignment="0" min="-2" max="-2" attributes="0"/>
                                           <Component id="jRadioButton5" alignment="0" min="-2" max="-2" attributes="0"/>
                                       </Group>
-                                      <EmptySpace pref="130" max="32767" attributes="0"/>
+                                      <EmptySpace pref="156" max="32767" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="1" attributes="0">
                                       <EmptySpace min="-2" pref="62" max="-2" attributes="0"/>
@@ -177,12 +177,12 @@
     </Component>
     <Component class="javax.swing.JCheckBox" name="jCheckBox2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="magniute"/>
+        <Property name="text" type="java.lang.String" value="mocy"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Obraz"/>
+        <Property name="text" type="java.lang.String" value="Widmo"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
@@ -217,9 +217,6 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="modyfikacja widma"/>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jRadioButton6ActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="param1">
       <Properties>
