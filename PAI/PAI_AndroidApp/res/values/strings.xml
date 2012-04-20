@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, PAI_AndroidAppActivity!</string>
+    <string name="app_name">PAI_AndroidApp</string>
+    <string name="responseTextEN">response</string>
+    <string name="soapButton">Try SOAP</string>
+
+</resources>
