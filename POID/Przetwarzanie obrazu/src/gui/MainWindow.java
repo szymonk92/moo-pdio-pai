@@ -91,6 +91,7 @@ public class MainWindow extends javax.swing.JFrame {
         filtryMenu = new javax.swing.JMenu();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         openFileChooser.setAcceptAllFileFilterUsed(false);
         openFileChooser.setAccessory(new components.ImagePreview(this.openFileChooser));
@@ -158,6 +159,14 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         jMenu1.add(jMenuItem1);
+
+        jMenuItem2.setText("Segmentation");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem2);
 
         jMenuBar1.add(jMenu1);
 
@@ -228,6 +237,15 @@ public class MainWindow extends javax.swing.JFrame {
          diffWindow.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+     int selectedTabIndex = closableTabbedPane.getSelectedIndex();
+            if (selectedTabIndex != -1) {
+                MainPanel panel = (MainPanel) closableTabbedPane.getComponentAt(selectedTabIndex);
+               SegmentationWindow window = new SegmentationWindow(panel.navigableImagePanel.image);
+               window.setVisible(true);
+            }
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private gui.ClosableTabbedPane closableTabbedPane;
     private javax.swing.JMenuItem closeMenuItem;
@@ -235,6 +253,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JFileChooser openFileChooser;
     private javax.swing.JMenuItem openFileMenuItem;
     private javax.swing.JMenu plikMenu;
