@@ -184,10 +184,10 @@ public class FFTTools {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
                     double filter = 1.0d / (1.0d + Math.pow(dist / cutoff, 2 * power));
 //                    double filter = Math.exp(-1*dist*dist/(2.0d*cutoff*cutoff));
-                    out[v][u].re *= 1 - filter;
-                    out[v][u].im *= 1 - filter;
+                    out[v][u].re *= filter;
+                    out[v][u].im *= filter;
                 } else {
-                    if (dist < cutoff) {
+                    if (dist > cutoff) {
                         out[v][u] = new Complex(0.0, 0.0);
                     } else {
                         out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
@@ -215,10 +215,10 @@ public class FFTTools {
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
                     double filter = 1.0d / (1.0d + Math.pow(dist / cutoff, 2 * power));
 //                    double filter = Math.exp(-1*dist*dist/(2.0d*cutoff*cutoff));
-                    out[v][u].re *= filter;
-                    out[v][u].im *= filter;
+                    out[v][u].re *= 1.0f - filter;
+                    out[v][u].im *= 1.0f - filter;
                 } else {
-                    if (dist > cutoff) {
+                    if (dist < cutoff) {
                         out[v][u] = new Complex(0.0, 0.0);
                     } else {
                         out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
@@ -313,14 +313,14 @@ public class FFTTools {
      */
     static public Complex[][] edgeDetecionFilter(Complex[][] signal, double bl, double bh, double angle1, double angle2, Point2D p1, Point2D p2) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
-        
+
         int ydim = signal.length, xdim = signal[0].length;
         bl = Math.sqrt(Math.pow(ydim / 2, 2) + Math.pow(xdim / 2, 2)) * bl;
         bh = Math.sqrt(Math.pow(ydim / 2, 2) + Math.pow(xdim / 2, 2)) * bh;
         int mydim = ydim / 2, mxdim = xdim / 2;
-        Point2D pp1= (Point2D) p1.clone(),pp2=(Point2D) p2.clone();
-        pp1.setLocation(p1.getX()+mxdim, p1.getY()+mydim);
-        pp2.setLocation(p2.getX()+mxdim, p2.getY()+mydim);
+        Point2D pp1 = (Point2D) p1.clone(), pp2 = (Point2D) p2.clone();
+        pp1.setLocation(p1.getX() + mxdim, p1.getY() + mydim);
+        pp2.setLocation(p2.getX() + mxdim, p2.getY() + mydim);
 
         for (int v = 0; v < ydim; ++v) {
             for (int u = 0; u < xdim; ++u) {
@@ -329,24 +329,24 @@ public class FFTTools {
                 float dist = (float) Math.sqrt(Math.pow(dv - mydim, 2) + Math.pow(du - mxdim, 2));
 
                 if (dist > bl && dist < bh) {
-                    
+
                     out[v][u] = new Complex(signal[v][u].re(), signal[v][u].im());
-                    Point2D A = new Point2D.Double(mxdim, mydim), B= new Point2D.Double(u, v);
+                    Point2D A = new Point2D.Double(mxdim, mydim), B = new Point2D.Double(u, v);
                     //ANGLE 1 POINT 1
                     double angle = angleABC(A, B, pp1);
 //                    System.out.print("(" + angle + " " + angle1 + ")");
                     if (angle < angle1 && angle > -0.0) {
                         out[v][u] = new Complex(0.0, 0.0);
 //                        continue;
-                    } 
-                    
+                    }
+
                     //ANGLE 2 POINT 2
                     angle = angleABC(A, B, pp2);
 //                    System.out.print(" (" + angle + " " + angle2 + ")");
                     if (angle < angle2 && angle > -0.0) {
                         out[v][u] = new Complex(0.0, 0.0);
-                    } 
-                    
+                    }
+
 //                    System.out.println();
                 } else {
                     out[v][u] = new Complex(0.0, 0.0);
@@ -356,51 +356,44 @@ public class FFTTools {
         }
         return out;
     }
-    
-    
+
     /**
-     * 
+     *
      * @param signal
      * @param l percent like 0.5
      * @param k percent like 0.5
-     * @return 
+     * @return
      */
     static public Complex[][] spectreMod(Complex[][] signal, double l, double k) {
         Complex[][] out = new Complex[signal.length][signal[0].length];
         int ydim = signal.length, xdim = signal[0].length;
-        l= l*xdim;
-        k=k*ydim;
-        
+        l = l * xdim;
+        k = k * ydim;
+
         for (int n = 0; n < ydim; ++n) {
             for (int m = 0; m < xdim; ++m) {
-                out[n][m]=signal[n][m].times(Complex.fromPolar(1,
-                        ((-(double)n*k*2.0d)/(double)ydim + (-(double)m*l*2.0d)/(double)xdim + (double)(k+l))*Math.PI ));
+                out[n][m] = signal[n][m].times(Complex.fromPolar(1,
+                        ((-(double) n * k * 2.0d) / (double) ydim + (-(double) m * l * 2.0d) / (double) xdim + (double) (k + l)) * Math.PI));
 //                System.out.println(out[n][m].re+"|"+out[n][m].im+") ("+signal[n][m].re+"|"+signal[n][m].im);
             }
         }
-        
+
         return out;
     }
-    
-    
-    
-    
-    
+
     /**
      * @desc return angle <BAC
-     * @return 
+     *
+     * @return
      */
-    static public double angleABC (Point2D a, Point2D b, Point2D c) {
+    static public double angleABC(Point2D a, Point2D b, Point2D c) {
         Point2D BA = new Point2D.Double(b.getX() - a.getX(), b.getY() - a.getY()),
                 CA = new Point2D.Double(c.getX() - a.getX(), c.getY() - a.getY());
         double dot = BA.getX() * CA.getX() + BA.getY() * CA.getY();
         double pcross = BA.getX() * CA.getY() - BA.getY() * CA.getX();
-        double angle = Math.atan2(pcross, dot) * 180.0d / Math.PI; 
+        double angle = Math.atan2(pcross, dot) * 180.0d / Math.PI;
         return angle;
     }
-    
-    
-    
 
     /**
      * @desc http://homepages.inf.ed.ac.uk/rbf/HIPR2/pixlog.htm

@@ -63,27 +63,28 @@ public class FrequencyFilteringPanel extends javax.swing.JPanel {
                              jTextField3.setVisible(false); param3.setVisible(false);
                              jTextField4.setVisible(false); param4.setVisible(false);
                              
-                            param1.setText("%(0,1)");
-                            param2.setText("k(1,n)");
+                            param1.setText("D0(0,1)");
+                            param2.setText("n (1,n)");
                             
                     } else if (e.getSource().equals(jRadioButton3) || e.getSource().equals(jRadioButton4)) {
                         jTextField1.setVisible(true); param1.setVisible(true);
                         jTextField2.setVisible(true); param2.setVisible(true);
                         jTextField3.setVisible(true); param3.setVisible(true);
+                        jTextField4.setVisible(false); param4.setVisible(false);
                         
-                        param1.setText("Low %(0,1)");
-                        param2.setText("Hi %(0,1)");
-                        param3.setText("k(1,n)");
+                        param1.setText("Dl %(0,1)");
+                        param2.setText("Dh %(0,1)");
+                        param3.setText("n (1,n)");
                     } else if ( e.getSource().equals(jRadioButton5)) {
                         jTextField1.setVisible(true); param1.setVisible(true);
                         jTextField2.setVisible(true); param2.setVisible(true);
                         jTextField3.setVisible(true); param3.setVisible(true);
                         jTextField4.setVisible(true); param4.setVisible(true);
                         
-                        param1.setText("Low %(0,1)");
-                        param2.setText("Hi %(0,1)");
-                        param3.setText("ang(1,180)");
-                        param4.setText("point(ex 1,0)");
+                        param1.setText("Dl %(0,1)");
+                        param2.setText("Dh %(0,1)");
+                        param3.setText("a (1,180)");
+                        param4.setText("point (ex 1,0)");
                         
                     } else if ( e.getSource().equals(jRadioButton6)) {
                         jTextField1.setVisible(true); param1.setVisible(true);
