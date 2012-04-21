@@ -65,8 +65,8 @@ public abstract class AbstractPixelComparer implements IPixelComparer {
         return changeSupport;
     }
     @Override
-    public boolean Compare(Color pixelColor, Color areaColor) {
-        return getCompareValue(pixelColor,areaColor)<=this.value;
+    public boolean Compare(Color pixelColor, Color areaColor, boolean grayScale) {
+        return getCompareValue(pixelColor,areaColor,grayScale)<=this.value;
     }
     
 

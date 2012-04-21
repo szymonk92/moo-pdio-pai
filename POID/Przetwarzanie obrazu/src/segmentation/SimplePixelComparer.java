@@ -19,7 +19,7 @@ public class SimplePixelComparer extends AbstractPixelComparer{
 
 
     @Override
-    public double getCompareValue(Color pixelColor, Color areaColor) {
+    public double getCompareValue(Color pixelColor, Color areaColor, boolean grayScale) {
          int[] pixelA = RGBHelper.toRGBA(pixelColor.getRGB());
         int[] pixelB = RGBHelper.toRGBA(areaColor.getRGB());
         double pixelValue = Math.pow(pixelA[0]-pixelB[0],2);

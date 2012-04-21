@@ -14,8 +14,8 @@ import sys.IPlugin;
  */
 public interface IPixelComparer extends IPlugin{
     public void setImage(BufferedImage image);
-    public boolean Compare(Color pixelColor, Color areaColor);
-     public double getCompareValue(Color pixelColor, Color areaColor);
+    public boolean Compare(Color pixelColor, Color areaColor, boolean grayScale);
+    public double getCompareValue(Color pixelColor, Color areaColor, boolean grayScale);
     @Override
     IPixelComparer getCopy();
 }
