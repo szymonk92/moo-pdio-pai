@@ -11,28 +11,27 @@ import sys.RGBHelper;
  *
  * @author Lukasz
  */
-public class SimplePixelComperer extends AbstractPixelComperer{
+public class SimplePixelComparer extends AbstractPixelComparer{
 
-    private int value;
-    public SimplePixelComperer(int value){
+    public SimplePixelComparer(int value) {
         this.value = value;
     }
+
+
     @Override
-    public boolean Comppere(int x, int y, Color areaColor) {
-        int[] pixelA = RGBHelper.toRGBA(image.getRGB(x, y));
+    public double getCompareValue(Color pixelColor, Color areaColor) {
+         int[] pixelA = RGBHelper.toRGBA(pixelColor.getRGB());
         int[] pixelB = RGBHelper.toRGBA(areaColor.getRGB());
         double pixelValue = Math.pow(pixelA[0]-pixelB[0],2);
         pixelValue += Math.pow(pixelA[1]-pixelB[1],2);
         pixelValue += Math.pow(pixelA[2]-pixelB[2],2);
-        pixelValue/=3;
-        return pixelValue<this.value;
+        pixelValue =  Math.sqrt(pixelValue);
+        return pixelValue;
     }
-
-    @Override
-    public IPixelComperer getCopy() {
-        throw new UnsupportedOperationException("Not supported yet.");
+     @Override
+    public IPixelComparer getCopy() {
+        return null;
     }
-
    
     
 }

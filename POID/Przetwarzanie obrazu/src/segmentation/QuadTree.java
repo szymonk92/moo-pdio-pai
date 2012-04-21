@@ -7,7 +7,9 @@ package segmentation;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -18,9 +20,13 @@ public class QuadTree {
 
     BufferedImage image;
     public HashMap<Integer, QuadNode> QuadeNodeList;
+    public List<Region> regions;
     public int maxDepth;
+    public int depthLimit;
     static Random random = new Random();
-    public IPixelComperer pixelComperer; 
+    public IPixelComparer pixelComperer;
+    public boolean forceSplit;
+public int minimumPixelRegion;
     public static boolean isPowerOf2(int value) {
         if (((~value) & 1) == 1) {
             return true;
@@ -30,16 +36,20 @@ public class QuadTree {
 
     public QuadTree(BufferedImage image) {
         this.image = image;
+        forceSplit = false;
         QuadeNodeList = new HashMap<Integer, QuadNode>();
         maxDepth = Math.min(whichPowOf2(image.getHeight()), whichPowOf2(image.getWidth()));
+        depthLimit = maxDepth;
+        minimumPixelRegion = 0;
         setTx();
         setTy();
     }
 
-    public void setPixelComperer(IPixelComperer comperer){
-       this.pixelComperer = comperer;
-       this.pixelComperer.setImage(image);
+    public void setPixelComperer(IPixelComparer comperer) {
+        this.pixelComperer = comperer;
+        this.pixelComperer.setImage(image);
     }
+
     public int whichPowOf2(int value) {
         if (value == 0) {
             return -1;
@@ -51,7 +61,7 @@ public class QuadTree {
             return -1;
         }
         int count = 0;
-        for (int i = value/2; i > 0; i = i / 2) {
+        for (int i = value / 2; i > 0; i = i / 2) {
             count++;
         }
         return count;
@@ -76,15 +86,21 @@ public class QuadTree {
     }
 
     public void process() {
+        QuadeNodeList = new HashMap<Integer, QuadNode>();
         HashMap<Integer, QuadNode> tmpNodes = new HashMap<Integer, QuadNode>();
         tmpNodes.put(0, new QuadNode(this, new Rectangle(0, 0, image.getWidth(), image.getHeight()), 0, 0, new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE}));
         process(tmpNodes, 0);
+        marge();
+        if(minimumPixelRegion>Math.pow(2,maxDepth-depthLimit)){
+            margeSmallRegions();
+        }
     }
 
     private void process(HashMap<Integer, QuadNode> nodes, int currentDepth) {
         HashMap<Integer, QuadNode> tmpNodes = new HashMap<Integer, QuadNode>();
         for (QuadNode node : nodes.values()) {
-            if (checkIntegrety(node) || currentDepth == maxDepth - 1) {
+            if (checkIntegrety(node, currentDepth) || currentDepth == depthLimit) {
+                node.pixelCount = (int) Math.pow(2,maxDepth-node.depth);
                 QuadeNodeList.put(node.position, node);
             } else {
                 for (int i = 0; i < 4; i++) {
@@ -113,18 +129,21 @@ public class QuadTree {
         if (!tmpNodes.isEmpty()) {
             process(tmpNodes, currentDepth + 1);
         }
+
     }
 
-    private boolean checkIntegrety(QuadNode node) {
-        if(pixelComperer== null) return false;
-        node.avrageColor = new Color(image.getRGB(node.area.x,node.area.y));
+    private boolean checkIntegrety(QuadNode node, int currentDepth) {
+        if (pixelComperer == null|| (forceSplit && (currentDepth!=depthLimit))) {
+            return false;
+        }
+        node.avrageColor = new Color(image.getRGB(node.area.x, node.area.y));
         for (int x = node.area.x; x < node.area.x + node.area.width; x++) {
             for (int y = node.area.y; y < node.area.y + node.area.height; y++) {
-                if (!pixelComperer.Comppere(x, y, node.avrageColor)) {
+                Color pixelColor = new Color(image.getRGB(x, y));
+                if (!pixelComperer.Compare(pixelColor, node.avrageColor) && currentDepth != depthLimit) {
                     return false;
-                }
-                else{
-                     node.addToColor(new Color(image.getRGB(x,y)));
+                } else {
+                    node.addToColor(pixelColor);
                 }
             }
         }
@@ -148,5 +167,102 @@ public class QuadTree {
                 break;
         }
         return n;
+    }
+
+    private void marge() {
+        regions = new ArrayList<Region>();
+        int regionCounter = 0;
+        for (QuadNode node : QuadeNodeList.values()) {
+            for (int i = 0; i < 4; i++) {
+                int value = node.getValidNeighbour(i);
+                if (value != Integer.MAX_VALUE) {
+                    QuadNode neighbour = QuadeNodeList.get(value);
+                    if (neighbour != null) {
+                        neighbour.addNeighbur(node);
+                        node.addNeighbur(neighbour);
+
+                        if (node.region == null && neighbour.region == null) {
+                            if (pixelComperer.Compare(neighbour.avrageColor, node.avrageColor)) {
+                                node.region = new Region(regionCounter);
+                                regionCounter++;
+                                node.region.addNode(node);
+                                node.region.addNode(neighbour);
+                                this.regions.add(node.region);
+                            }
+                        } else if (node.region == null && neighbour.region != null) {
+                            if (pixelComperer.Compare(neighbour.region.avrageColor, node.avrageColor)) {
+                                neighbour.region.addNode(node);
+                            }
+                        } else if (node.region != null && neighbour.region == null) {
+                            if (pixelComperer.Compare(node.region.avrageColor, neighbour.avrageColor)) {
+                                node.region.addNode(neighbour);
+                            }
+                        } else if (node.region != null && neighbour.region != null && !node.region.equals(neighbour.region)) {
+                            if (pixelComperer.Compare(node.region.avrageColor, neighbour.region.avrageColor)) {
+                                if (node.region.QuadeNodeList.size() > neighbour.region.QuadeNodeList.size()) {
+                                    Region region = neighbour.region;
+                                    node.region.addRegion(region);
+                                    this.regions.remove(region);
+                                } else {
+                                    Region region = node.region;
+                                    neighbour.region.addRegion(region);
+                                    this.regions.remove(region);
+                                }
+                            }
+                        }
+                        if (node.region == null) {
+                            node.region = new Region(regionCounter);
+                            regionCounter++;
+                            node.region.addNode(node);
+                            this.regions.add(node.region);
+                        }
+                        if (neighbour.region == null) {
+                            neighbour.region = new Region(regionCounter);
+                            regionCounter++;
+                            neighbour.region.addNode(neighbour);
+                            this.regions.add(neighbour.region);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void margeSmallRegions() {
+         List<Region> tmpRegions = new ArrayList<Region>();
+         List<Region> removedRegions = new ArrayList<Region>();
+        for (Region region : regions) {
+            if(!removedRegions.contains(region)){
+            while(region.pixelCount < this.minimumPixelRegion) {
+                List<Region> neighburs = new ArrayList<Region>();
+                for (QuadNode node : region.QuadeNodeList.values()) {
+                    for (QuadNode neighbur : node.NeighboursList.values()) {
+                        if (!neighbur.region.equals(node.region) && !neighburs.contains(neighbur.region)) {
+                            neighburs.add(neighbur.region);
+                        }
+                    }
+                }
+                if(!neighburs.isEmpty()){
+                Region minimalRegion = neighburs.get(0);
+                double value = Double.MAX_VALUE;
+                for(Region neighbur : neighburs){
+                    double currentValue = pixelComperer.getCompareValue(region.avrageColor, neighbur.avrageColor);
+                    if(currentValue<value){
+                        minimalRegion = neighbur;
+                        value = currentValue;
+                    }
+                }
+                region.addRegion(minimalRegion);
+                removedRegions.add(minimalRegion);
+                tmpRegions.remove(minimalRegion);
+                }
+                else{
+                    break;
+                }
+            }
+            tmpRegions.add(region);
+        }
+        }
+        this.regions = tmpRegions;
     }
 }

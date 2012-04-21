@@ -4,6 +4,7 @@
  */
 package segmentation;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeSupport;
 
@@ -11,18 +12,23 @@ import java.beans.PropertyChangeSupport;
  *
  * @author Lukasz
  */
-public abstract class AbstractPixelComperer implements IPixelComperer {
+public abstract class AbstractPixelComparer implements IPixelComparer {
     protected String name;
     protected String description;
     protected PropertyChangeSupport changeSupport;
     protected BufferedImage image;
-    
-    public AbstractPixelComperer() {
+    protected int value;
+    public AbstractPixelComparer() {
+        changeSupport = new PropertyChangeSupport(this);
+    }
+    public AbstractPixelComparer(int value) {
+        this.value = value;
         changeSupport = new PropertyChangeSupport(this);
     }
 
-    public AbstractPixelComperer(AbstractPixelComperer comperer) {
+    public AbstractPixelComparer(AbstractPixelComparer comperer) {
         this();
+        this.value = comperer.value;
         this.name = comperer.getName();
         this.description = comperer.getDescription();
     }
@@ -58,10 +64,11 @@ public abstract class AbstractPixelComperer implements IPixelComperer {
     public PropertyChangeSupport getChangeSupport() {
         return changeSupport;
     }
-
+    @Override
+    public boolean Compare(Color pixelColor, Color areaColor) {
+        return getCompareValue(pixelColor,areaColor)<=this.value;
+    }
     
 
-   
-    
-    
+
 }

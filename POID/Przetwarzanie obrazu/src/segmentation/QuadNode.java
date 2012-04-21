@@ -30,13 +30,18 @@ public class QuadNode {
     public int position;
     public int depth;
     public Color avrageColor;
-
+    public Region region;
+    public HashMap<Integer, QuadNode> NeighboursList;
+    public int pixelCount;
+    
     public QuadNode(QuadTree tree, Rectangle area, int position, int depth, int[] neighboursSizes) {
         this.tree = tree;
         this.area = area;
         this.position = position;
         this.neighboursSizes = neighboursSizes;
         this.depth = depth;
+        this.pixelCount = 0;
+        this.NeighboursList = new HashMap<Integer, QuadNode>();
     }
 
     public HashMap<Integer, QuadNode> split() {
@@ -155,7 +160,11 @@ public class QuadNode {
     public void addToColor(Color color) {
         avrageColor = new Color((avrageColor.getRed() + color.getRed()) / 2, (avrageColor.getGreen() + color.getGreen()) / 2, (avrageColor.getBlue() + color.getBlue()) / 2);
     }
-
+public void addNeighbur(QuadNode node){
+    if(!this.NeighboursList.containsKey(node.position)){
+        this.NeighboursList.put(node.position, node);
+    }
+}
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -165,10 +174,20 @@ public class QuadNode {
         sb.append(depth);
         sb.append(" area:");
         sb.append(area.toString());
-        sb.append(" neighburs size:");
-        sb.append(neighboursSizeToString());
-        sb.append(" neighburs:");
-        sb.append(neighboursToString());
+       // sb.append(" neighburs size:");
+       // sb.append(neighboursSizeToString());
+        //sb.append(" neighburs:");
+        //sb.append(neighboursToString());
+         //sb.append(" color:");
+         //if(avrageColor!=null){
+        //    sb.append(RGBHelper.toRGBA(avrageColor.getRGB())[0]).append(";").append(RGBHelper.toRGBA(avrageColor.getRGB())[1]).append(";").append(RGBHelper.toRGBA(avrageColor.getRGB())[2]);
+        // }
+        sb.append(" region: ");
+        if (region != null) {
+            sb.append(region.id);
+            sb.append(" size: ");
+            sb.append(region.QuadeNodeList.size());
+        }
         return sb.toString();
     }
 
