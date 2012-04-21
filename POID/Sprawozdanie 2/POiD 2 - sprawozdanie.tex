@@ -7,28 +7,20 @@
 \usepackage{mathtools}
 \usepackage{amsthm}
 \usepackage{amsfonts}
-
 \usepackage{float}
 \usepackage{subfig}
 \usepackage{color}
 \usepackage{tabularx}
-
 \usepackage{listings}
-
+\usepackage{indentfirst}
 \usepackage{color}
-
 \usepackage{url}
-
 \usepackage{hyperref}
-
 \usepackage[polish]{babel}
-
-\usepackage{enumitem}
 \usepackage{paralist}
 \usepackage{indentfirst}
 
 \hypersetup{colorlinks=false,pdfborder={0 0 0}}
-
 
 \definecolor{javared}{rgb}{0.6,0,0} % for strings
 \definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
@@ -48,7 +40,6 @@ numbersep=10pt,
 tabsize=4,
 showspaces=false,
 showstringspaces=false}
-
 
 \studycycle{Informatyka, studia dzienne, mgr II st.}
 \coursesemester{I}
@@ -77,24 +68,22 @@ showstringspaces=false}
 
 Celem zadania było stworzenie aplikacji realizującej poniższe element :
 \begin{itemize}
+\renewcommand{\labelitemi}{$\bullet$}
 \item Zaimplementować proste i odwrotne szybkie przekształcenie Fouriera z decymacją w dziedzinie częstotliwości, a następnie zastosować je do obrazów. Powinna istnieć możliwość obejrzenia zarówno widma mocy, jak i widma fazy.
 \item Zaimplementować następujące metody filtracji:
-	\begin{itemize}
-	\item	(F1) Filtr dolnoprzepustowy (górnozaporowy).
-	\item	(F2) Filtr górnoprzepustowy (dolnozaporowy).
-	\item	(F3) Filtr pasmowoprzepustowy.
-	\item	(F4) Filtr pasmozaporowy.
-	\item	(F5) Filtr z detekcją krawędzi.
-	\end{itemize}
-\item Zaimplementować filtr modyfikujący fazę widma transformaty Fouriera. Modyfikacja ta polega, dla obrazu o wymiarach N ×M , na pomnożeniu każdego elementu widma przez:
-\begin{equation}
-P(n,m) = \exp { \left( j \cdot \left( \frac{-n k 2 \pi}{N} + \frac{-m l 2 \pi }{M} \left( k + l  \right) \pi \right) }
-\end{equation}
-\item Zaimplementować metodę segmentacji - metoda podziału obszarów \footnote{ang. region splitting and merging}  w celu znalezienia spójnych obszarów o jednolitej barwie. Jako wynik należy wygenerować obrazy reprezentujące znaleziony obszary o jednolitej barwie (tyle masek ile znalezionych obszarów), na których kolorem białym oznaczone są te obszary, a czarnym pozostała część obrazu. Powinna istnieć możliwość nałożenia wybranych masek na obraz przy czym sposób wizualizacji tego nałożenia wybrany powinien zostać przez twórców aplikacji.
-
-
+\begin{itemize}
+\item (F1) Filtr dolnoprzepustowy (górnozaporowy).
+\item (F2) Filtr górnoprzepustowy (dolnozaporowy).
+\item (F3) Filtr pasmowoprzepustowy.
+\item (F4) Filtr pasmozaporowy.
+\item (F5) Filtr z detekcją krawędzi.
 \end{itemize}
-
+\item Zaimplementować filtr modyfikujący fazę widma transformaty Fouriera. Modyfikacja ta polega, dla obrazu o wymiarach NxM , na pomnożeniu każdego elementu widma przez:
+\begin{equation*}
+P(n,m) = \exp \left( j \cdot \left( \frac{-n k 2 \pi}{N} + \frac{-m l 2 \pi }{M} \left( k + l  \right) \pi \right)\right)
+\end{equation*}
+\item Zaimplementować metodę segmentacji - metoda podziału obszarów \footnote{ang. region splitting and merging}  w celu znalezienia spójnych obszarów o jednolitej barwie. Jako wynik należy wygenerować obrazy reprezentujące znaleziony obszary o jednolitej barwie (tyle masek ile znalezionych obszarów), na których kolorem białym oznaczone są te obszary, a czarnym pozostała część obrazu. Powinna istnieć możliwość nałożenia wybranych masek na obraz przy czym sposób wizualizacji tego nałożenia wybrany powinien zostać przez twórców aplikacji.
+\end{itemize}
 
 W sprawozdaniu zamieszczono wyniki działania poszczególnych algorytmów oraz porównanie ich pracy w różnych wariantach ustawień i~dla różnych problemów. Badania przeprowadzono zarówno na obrazach kolorowych (24-bitowych), jak i~w odcieniach szarości (8-bitowych), a~część badań również na obrazach czarno-białych (1-bitowych). 
 
@@ -122,8 +111,9 @@ Postać ogólna dyskretnej transformaty Fouriera \ref{DFT} oraz jej odwrotność
 \end{eqnarray}
 gdzie $W _N  = e^{j2 \pi / N}$ .
 
-\indent Złożoność obliczeniowa tego przekształcenia w postaci powyżej przedstawionej jest wyższa od liniowej a zasadniczo kwadratowej ($N^2$), co nie jest zadowalającym wynikiem, gdybyśmy chcieli zastosować to przekształcenie na bardzo dużej ilości próbek zdyskretyzowanego sygnału. Jednakże dzięki właściwościom tego przekształcenia możliwa jest jego optymalizacja. \\
-Poniżej przedstawiony algorytm szybkiej transformaty Fouriera(\emph{FFT)} z decymacją w częstotliwości. W algorytmie tym rozdzielamy przekształcenie na dwa podrzędne operujące na połówkach danych podstawowych uzyskując \ref{FFT_1} . Następnie rozdzielamy operacje dla parzystych i nie parzystych próbek, uzyskując postacie \ref{FFT_1even} , \ref{FFT_2odd}. 
+Złożoność obliczeniowa tego przekształcenia w postaci powyżej przedstawionej jest wyższa od liniowej a zasadniczo kwadratowej ($N^2$), co nie jest zadowalającym wynikiem, gdybyśmy chcieli zastosować to przekształcenie na bardzo dużej ilości próbek zdyskretyzowanego sygnału. Jednakże dzięki właściwościom tego przekształcenia możliwa jest jego optymalizacja.
+
+Poniżej przedstawiony algorytm szybkiej transformaty Fouriera(\emph{FFT)} z decymacją w częstotliwości. W algorytmie tym rozdzielamy przekształcenie na dwa podrzędne operujące na połówkach danych podstawowych uzyskując \ref{FFT_1}. Następnie rozdzielamy operacje dla parzystych i nie parzystych próbek, uzyskując postacie \ref{FFT_1even}, \ref{FFT_2odd}. 
 
 \begin{multline}
 X(k) = \sum \limits ^{N/2-1} _{n=0} x(n) W ^{kn} _{N} + \sum \limits ^{N/2-1} _{n=0} x(n) W ^{kn} _{N} = \\
@@ -137,14 +127,11 @@ X(k) = \sum \limits ^{N/2-1} _{n=0} x(n) W ^{kn} _{N} + \sum \limits ^{N/2-1} _{
 \end{eqnarray}
 gdzie użyto faku, iż $W _N ^2  = W _{N/2}$.
 
-\indent Algorytm ten opiera się na metodzie programowania ,,dziel i zwyciężaj'' w której dzielimy zbiór danych w kolejnych krokach, uzyskując pod problemy łatwiejsze do rozwiązania a sumarycznie dające wynik przekształcenia na zbiorze sprzed podziału.\\
-Po zastosowaniu wyżej opisanej optymalizacji przekształcenia podstawowego \ref{DFT}, algorytm swoją złożoność $N \log _{2} N$.\\
-Dokładniejszy opis algorytmu można znaleźć w \cite{1}.\\
+Algorytm ten opiera się na metodzie programowania ,,dziel i zwyciężaj'' w której dzielimy zbiór danych w kolejnych krokach, uzyskując pod problemy łatwiejsze do rozwiązania a sumarycznie dające wynik przekształcenia na zbiorze sprzed podziału. Po zastosowaniu wyżej opisanej optymalizacji przekształcenia podstawowego \ref{DFT}, algorytm swoją złożoność $N \log _{2} N$.Dokładniejszy opis algorytmu można znaleźć w \cite{1}.
 
-\indent Powyżej opisano jedynie algorytm prostego przekształcenia Fouriera, ponieważ algorytm dla przekształcenia odwrotnego będzie wyglądał analogicznie do opisanego tutaj, zmiany dotyczyć będą widocznych na pierwszy rzut oka różnic pomiędzy \ref{DFT} i \ref{IDFT}.\\
+Powyżej opisano jedynie algorytm prostego przekształcenia Fouriera, ponieważ algorytm dla przekształcenia odwrotnego będzie wyglądał analogicznie do opisanego tutaj, zmiany dotyczyć będą widocznych na pierwszy rzut oka różnic pomiędzy \ref{DFT} i \ref{IDFT}.
 
-\indent W naszym przypadku jednak mamy do czynienia z obrazem dwuwymiarowym, nie wektorem jednowymiarowym. Jednak dzięki własnościom transformaty Fouriera, możemy po prostu obliczyć transformate wektorów wierszowych a następnie kolumnowych, aby uzyskać pożądany wynik.
-Przekształcenie to transformuje dyskretne dane z przestrzeni \mathcal{R} $\rightarrow$ \mathcal{C}, ważniejszym jednak będzie dla nas co przekształcone dane sobą prezentują, czyli przestrzeń częstotliwości danego sygnału wejściowego.
+W naszym przypadku jednak mamy do czynienia z obrazem dwuwymiarowym, nie wektorem jednowymiarowym. Jednak dzięki własnościom transformaty Fouriera, możemy po prostu obliczyć transformate wektorów wierszowych a następnie kolumnowych, aby uzyskać pożądany wynik. Przekształcenie to transformuje dyskretne dane z przestrzeni $\mathcal{R} \rightarrow \mathcal{C}$, ważniejszym jednak będzie dla nas co przekształcone dane sobą prezentują, czyli przestrzeń częstotliwości danego sygnału wejściowego.
 
 \begin{figure}[H]
   \centering
@@ -284,7 +271,7 @@ Filtracja ta jest jakby modyfikacją filtru pasmowoprzepustowego. Ponieważ z pa
 
 \begin{equation}
 \label{eq:modyfikacja}
-H(u,v) = \exp { \left( j \cdot \left( \frac{-u k 2 \pi}{N} + \frac{-v l 2 \pi }{M} \left( k + l  \right) \pi \right) }
+H(u,v) = \exp { \left( j \cdot \left( \frac{-u k 2 \pi}{N} + \frac{-v l 2 \pi }{M} \left( k + l  \right) \pi \right)\right) }
 \end{equation}
 
 \begin{figure}[H]
@@ -312,8 +299,6 @@ H(u,v) = \exp { \left( j \cdot \left( \frac{-u k 2 \pi}{N} + \frac{-v l 2 \pi }{
 
 
 
-
-
 \section{Wyniki}
 
 
@@ -321,7 +306,8 @@ H(u,v) = \exp { \left( j \cdot \left( \frac{-u k 2 \pi}{N} + \frac{-v l 2 \pi }{
 
 \subsection{Filtracja w dziedzinie częstotliwości}
 
-Widma mocy jak i również fazy, nie będą prezentowane przy okazji prezentowania wyników filtracji, zostały one przedstawione przy okazji wyjaśnienia działania poszczególnych filtrów. Powodem tego jest fakt, iż widma obrazów naturalnych są trudne do interpretacji, natomiast dla obrazów sztucznych, np wzorców są one znacznie bardziej przejrzyste dla naszego oka.\\
+Widma mocy jak i również fazy, nie będą prezentowane przy okazji prezentowania wyników filtracji, zostały one przedstawione przy okazji wyjaśnienia działania poszczególnych filtrów. Powodem tego jest fakt, iż widma obrazów naturalnych są trudne do interpretacji, natomiast dla obrazów sztucznych, np wzorców są one znacznie bardziej przejrzyste dla naszego oka.
+
 Dla przykładu, widmo przypadkowego obrazu prezentującego pewien wzorzec \ref{fig_pattern}, i obrazu naturalnego \ref{fig_widmo_lena_orig}.
 
  \begin{figure}[H]
@@ -513,6 +499,7 @@ Dla przykładu, widmo przypadkowego obrazu prezentującego pewien wzorzec \ref{f
 \subsection{Filtracja w dziedzinie częstotliwości}
 
 \subsubsection{Filtr dolnoprzepustowy}
+
 Dzięki temu filtrowi uzyskujemy efekt rozmycia, jak widać na rysunku \ref{fig_wyniki:lp}. Jednak im bardziej rozmyjemy obraz(im niższa wartość parametru $D_0$) tym bardziej widoczne stają się artefakty widoczne na rys \ref{fig_wyniki:lpA}. Jednak stosując filtr Butterwortha, można te niepożądane efekty zniwelować(rys. \ref{fig_wyniki:lpB});
 
 \subsubsection{Filtr górnoprzepustowy}
@@ -522,6 +509,7 @@ Filtr ten jest negacją filtru poprzedniego, więc jak się można spodziewać e
 \subsubsection{Filtr pasmowoprzepustowy}
 
 Filtr ten daje podobny efekt jak w przypadku filtru górnoprzepustowego przy obraniu wysokich wartości parametrów  $D_L$ $D_H$.
+
 Jednak w odróżnieniu od niego pozwala na wybranie interesującego nas pasma częstotliwości branego pod uwagę. Można uzyskać nim lepszy wynik przy wyostrzaniu obrazów  rys. \ref{fig_wyniki:bp_boat}  rys. \ref{fig_wyniki:bp_lena}. Porównując wynik uzyskany za pomocą filtru idealnego i filtru Butterwortha widać, że obcinając ,,zero-jedynkowo'' przedział częstotliwości, w znacznym stopniu zmieniamy obraz wynikowy w stosunku do wejściowego. Przejścia pomiędzy obszarami jasności a obszarami ciemnymi stają się bardziej skokowe, natomiast stosując filtr Butterwortha zachowują więcej odcieni szarości - zachowane jest ciągłe przejście.
 
 
@@ -548,6 +536,7 @@ W odróżnieniu do filtrów opisanych powyżej filtr ten nie polega na odrzuceni
 \section{Wnioski}
 
 \subsection{Filtracja w dziedzinie częstotliwości}
+
 Transformacja obrazu do dziedziny częstotliwości pozwala na wykonanie wielu filtracji obrazu w mniej zachłanny sposób. Najlepszym przykładem tutaj będzie porównanie filtru uśredniającego z filtrem dolnoprzepustowym do zadania rozmycia obrazu. Gdy chcemy uzyskać większe rozmycie w przypadku filtru uśredniającego należałoby zwiększyć maskę co z kolei zwiększałoby ilość potrzebnych obliczeń. Natomiast gdy operujemy filtrem dolnoprzepustowym, nie zwiększy to w żaden sposób ilości obliczeń, dzięki temu uzyskujemy dobrze skalującą się metodę. W zależności od zastosowania, dobrym pomysłem może być zastosowanie filtrów o charakterystykach innych od idealnej, na przykładzie zastosowanego w zadaniu filtru Butterwortha można zauważyć, że przy zastosowaniu filtru idealnego mogą wystąpić niepożądane efekty tj na rys. \ref{fig_wyniki:lpA} , \ref{fig_wyniki:bp_boatA} oraz \ref{fig_wyniki:bsA}. 
 
 
