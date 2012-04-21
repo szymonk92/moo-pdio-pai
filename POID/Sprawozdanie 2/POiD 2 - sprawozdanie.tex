@@ -2,7 +2,11 @@
 \usepackage[utf8]{inputenc}
 
 \usepackage[pdftex]{color,graphicx}
-\DeclareGraphicsExtensions{.pdf,.png,.jpg,.bmp}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.bmp,.gif}
+
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{amsfonts}
 
 \usepackage{float}
 \usepackage{subfig}
@@ -73,7 +77,7 @@ showstringspaces=false}
 
 Celem zadania było stworzenie aplikacji realizującej poniższe element :
 \begin{itemize}
-\item Zaimplementować proste i odwrotne szybkie przekształcenie Fouriera z decymacją w dziedzinie częstotliwości), a następnie zastosować je do obrazów. Powinna istnieć możliwość obejrzenia zarówno widma mocy, jak i widma fazy.
+\item Zaimplementować proste i odwrotne szybkie przekształcenie Fouriera z decymacją w dziedzinie częstotliwości, a następnie zastosować je do obrazów. Powinna istnieć możliwość obejrzenia zarówno widma mocy, jak i widma fazy.
 \item Zaimplementować następujące metody filtracji:
 	\begin{itemize}
 	\item	(F1) Filtr dolnoprzepustowy (górnozaporowy).
@@ -99,59 +103,463 @@ Obrazy przechowywane są w pamięci komputera w postaci bitowej, w której okre�
 
 \subsection{Filtracja w dziedzinie częstotliwości}
 
+Filtracja w dziedzinie częstotliwości analogicznie jak w przypadku analizowanego w poprzednim zadaniu, polega na przemnożeniu danych przez jakiś filtr $H(k)$.  W większości przypadków udało się uzyskać filtrację idealną jak i filtrację z przejściem ciągłym. Co w pewnych przypadkach dawało bardziej zadowalające efekty.\\ Opisując metody filtracji będziemy posługiwać się poniższymi oznaczeniami :
+\begin{itemize}
+\item $D(u,v)$ odległość częstotliwości $(u,v)$ od częstotliwości maksymalnej
+\item $D_0$ częstotliwość progowa
+\item $D_L$ $D_H$ - dolna, górna częstotliwość progowa
+\item $n$ - parametr filtru Butterwortha.
+\end{itemize}
+
+Działanie filtrów demonstrowane będzie na przykładzie obrazu \emph{lena.bmp} \footnote{\url{http://ics.p.lodz.pl/~tomczyk/available/po/images/lena.bmp}}.
+
 \subsubsection{Algorytm szybkiej transformaty Fouriera}
+
+Postać ogólna dyskretnej transformaty Fouriera \ref{DFT} oraz jej odwrotność \ref{IDFT}
+\begin{eqnarray}
+\label{DFT}  X(k) = \sum \limits ^{N-1} _{n=0} x(n) W ^{kn} _{N}\\
+\label{IDFT}  x(k) = \frac{1}{N} \sum \limits ^{N-1} _{n=0} X(n) W ^{-kn} _{N}
+\end{eqnarray}
+gdzie $W _N  = e^{j2 \pi / N}$ .
+
+\indent Złożoność obliczeniowa tego przekształcenia w postaci powyżej przedstawionej jest wyższa od liniowej a zasadniczo kwadratowej ($N^2$), co nie jest zadowalającym wynikiem, gdybyśmy chcieli zastosować to przekształcenie na bardzo dużej ilości próbek zdyskretyzowanego sygnału. Jednakże dzięki właściwościom tego przekształcenia możliwa jest jego optymalizacja. \\
+Poniżej przedstawiony algorytm szybkiej transformaty Fouriera(\emph{FFT)} z decymacją w częstotliwości. W algorytmie tym rozdzielamy przekształcenie na dwa podrzędne operujące na połówkach danych podstawowych uzyskując \ref{FFT_1} . Następnie rozdzielamy operacje dla parzystych i nie parzystych próbek, uzyskując postacie \ref{FFT_1even} , \ref{FFT_2odd}. 
+
+\begin{multline}
+X(k) = \sum \limits ^{N/2-1} _{n=0} x(n) W ^{kn} _{N} + \sum \limits ^{N/2-1} _{n=0} x(n) W ^{kn} _{N} = \\
+= \sum \limits ^{N/2-1} _{n=0} x(n) W ^{kn} _{N} + W ^{N k/2} _{N} \sum \limits ^{N/2-1} _{n=0} x \left( n + \frac{N}{2} \right) W ^{kn} _{N} \\
+\label{FFT_1} X(k) = \sum \limits ^{N/2-1} _{n=0} \left[ x(n) + (-1) ^{k} x(n+\frac{N}{2} ) \right]W ^{kn} _{N}
+\end{multline}
+
+\begin{eqnarray}
+\label{FFT_1even} X(2k) = \sum \limits ^{N/2-1} _{n=0} \left[ x(n) + x \left(  n+\frac{N}{2} \right)  \right]\\
+\label{FFT_2odd} X(2k+1) = \sum \limits ^{N/2-1} _{n=0} \left\{ \left[ x(n) - x \left(  n+\frac{N}{2} \right) \right] \right\}
+\end{eqnarray}
+gdzie użyto faku, iż $W _N ^2  = W _{N/2}$.
+
+\indent Algorytm ten opiera się na metodzie programowania ,,dziel i zwyciężaj'' w której dzielimy zbiór danych w kolejnych krokach, uzyskując pod problemy łatwiejsze do rozwiązania a sumarycznie dające wynik przekształcenia na zbiorze sprzed podziału.\\
+Po zastosowaniu wyżej opisanej optymalizacji przekształcenia podstawowego \ref{DFT}, algorytm swoją złożoność $N \log _{2} N$.\\
+Dokładniejszy opis algorytmu można znaleźć w \cite{1}.\\
+
+\indent Powyżej opisano jedynie algorytm prostego przekształcenia Fouriera, ponieważ algorytm dla przekształcenia odwrotnego będzie wyglądał analogicznie do opisanego tutaj, zmiany dotyczyć będą widocznych na pierwszy rzut oka różnic pomiędzy \ref{DFT} i \ref{IDFT}.\\
+
+\indent W naszym przypadku jednak mamy do czynienia z obrazem dwuwymiarowym, nie wektorem jednowymiarowym. Jednak dzięki własnościom transformaty Fouriera, możemy po prostu obliczyć transformate wektorów wierszowych a następnie kolumnowych, aby uzyskać pożądany wynik.
+Przekształcenie to transformuje dyskretne dane z przestrzeni \mathcal{R} $\rightarrow$ \mathcal{C}, ważniejszym jednak będzie dla nas co przekształcone dane sobą prezentują, czyli przestrzeń częstotliwości danego sygnału wejściowego.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{img/lena_orig}
+  \caption{Widmo mocy obrazu \emph{lena.bmp}.}
+  \label{fig_widmo_lena_orig}
+\end{figure}
+
 
 \subsubsection{Filtr dolnoprzepustowy}
 
+Filtr idealny.
+\begin{equation}
+  H_{lp} (u,v) = \left\{
+  \begin{array}{l l}
+    1 & \quad dla\ D(u,v) \leq D_0 \\
+    0 & \quad dla\ D(u,v) > D_0 \\
+  \end{array} \right.
+\end{equation}
+
+Filtr ciągły - Butterwortha \footnote{Butterworth}.
+\begin{equation}
+H_{lp}(u,v) = \frac{1}{1+ \left[ D(u,v) / D_0\right] ^{2n} }
+\end{equation}
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[filtr idealny]{
+	  \includegraphics[width=0.4\textwidth]{img/lena_lowpass}
+  }
+  \subfloat[filtr Butterwortha]{
+  		\includegraphics[width=0.4\textwidth]{img/lena_lowpassB}
+  	}
+  \caption{Filtr dolnoprzepustowy, widmo mocy.}
+  \label{fig_widmo_lena_lp}
+\end{figure}
+
 \subsubsection{Filtr górnoprzepustowy}
+
+Filtr idealny.
+\begin{equation}
+  H_{hp}(u,v) = \left\{
+  \begin{array}{l l}
+    1 & \quad dla\ D(u,v) \geq D_0 \\
+    0 & \quad dla\ D(u,v) < D_0 \\
+  \end{array} \right.
+\end{equation}
+
+Filtr ciągły - Butterwortha.
+\begin{equation}
+H_{hp}(u,v) = 1 - H_{lp}(u,v)
+\end{equation}
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[filtr idealny]{
+	  \includegraphics[width=0.4\textwidth]{img/lena_highpass}
+  }
+  \subfloat[filtr Butterwortha]{
+  		\includegraphics[width=0.4\textwidth]{img/lena_highpassB}
+  	}
+  \caption{Filtr dolnoprzepustowy, widmo mocy.}
+  \label{fig_widmo_lena_hp}
+\end{figure}
 
 \subsubsection{Filtr pasmowoprzepustowy}
 
+Filtr idealny.
+\begin{equation}
+  H_{hp}(u,v) = \left\{
+  \begin{array}{l l}
+    1 & \quad dla\ D_L \leq D(u,v) \leq D_H \\
+    0 & \quad inny\ przypadek \\
+  \end{array} \right.
+\end{equation}
+
+Filtr ciągły - Butterwortha.
+\begin{eqnarray}
+H_{lp}(u,v) = \frac{1}{1+ \left[ D(u,v) / D_L\right] ^{2n} }\\
+H_{hp}(u,v) =1 - \frac{1}{1+ \left[ D(u,v) / D_H\right] ^{2n} }\\
+H_{bp}(u,v) = H_{lp}(u,v) \cdot H_{hp}(u,v)
+\end{eqnarray}
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[filtr idealny]{
+	  \includegraphics[width=0.4\textwidth]{img/lena_bandpass}
+  }
+  \subfloat[filtr Butterwortha]{
+  		\includegraphics[width=0.4\textwidth]{img/lena_bandpassB}
+  	}
+  \caption{Filtr dolnoprzepustowy, widmo mocy.}
+  \label{fig_widmo_lena_bp}
+\end{figure}
+
 \subsubsection{Filtr pasmowozaporowy}
+
+Filtr idealny.
+\begin{equation}
+  H_{bs}(u,v) = \left\{
+  \begin{array}{l l}
+    0 & \quad dla\ D_L \leq D(u,v) \leq D_H \\
+    1 & \quad inny\ przypadek \\
+  \end{array} \right.
+\end{equation}
+
+Filtr ciągły - Butterwortha.
+\begin{equation}
+H_{bs}(u,v) = 1 - H_{bp}(u,v)
+\end{equation}
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[filtr idealny]{
+	  \includegraphics[width=0.4\textwidth]{img/lena_bandstop}
+  }
+  \subfloat[filtr Butterwortha]{
+  		\includegraphics[width=0.4\textwidth]{img/lena_bandstopB}
+  	}
+  \caption{Filtr dolnoprzepustowy, widmo mocy.}
+  \label{fig_widmo_lena_bs}
+\end{figure}
 
 \subsubsection{Filtr z detekcją krawędzi}
 
+Filtracja ta jest jakby modyfikacją filtru pasmowoprzepustowego. Ponieważ z pasma wydzielonego przez filtr $H_{bp}$ wycinamy symetrycznie względem maksymalnej częstotliwości łuki o pewnym kącie $\alpha$. Dla jasności najlepiej zobrazować widmo mocy sygnału.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{img/lena_edge_detect}
+  \caption{Filtr z detekcją krawędzi, widmo mocy.}
+  \label{fig_widmo_lena_edge_detect}
+\end{figure}
+
+
 \subsubsection{Filtr modyfikujący widmo}
 
+\begin{equation}
+\label{eq:modyfikacja}
+H(u,v) = \exp { \left( j \cdot \left( \frac{-u k 2 \pi}{N} + \frac{-v l 2 \pi }{M} \left( k + l  \right) \pi \right) }
+\end{equation}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{img/lena_spectreMod}
+  \caption{Filtr modyfikujący widmo, widmo mocy.}
+  \label{fig_widmo_lena_spectreMod}
+\end{figure}
+
+
 \subsection{Segmentacja}
+%TUTAJ TWOJE
+
+
+
+
 
 \section{Opis implementacji}
+%MOŻESZ UZUPEŁNIĆ NIECO A PROPOS SZKIELETU APLIKACJI WZGLĘDEM TEGO CO BYŁO W SPRAWOZDANIU DO POPRZEDNIEGO ZADANIA :P
+
 
 
 \section{Materiały i metody}
+%TEGO CHYBA NIE BYŁO
+
+
 
 
 
 \section{Wyniki}
 
 
+
+
 \subsection{Filtracja w dziedzinie częstotliwości}
+
+Widma mocy jak i również fazy, nie będą prezentowane przy okazji prezentowania wyników filtracji, zostały one przedstawione przy okazji wyjaśnienia działania poszczególnych filtrów. Powodem tego jest fakt, iż widma obrazów naturalnych są trudne do interpretacji, natomiast dla obrazów sztucznych, np wzorców są one znacznie bardziej przejrzyste dla naszego oka.\\
+Dla przykładu, widmo przypadkowego obrazu prezentującego pewien wzorzec \ref{fig_pattern}, i obrazu naturalnego \ref{fig_widmo_lena_orig}.
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[obraz]{
+	  \includegraphics[width=0.4\textwidth]{img/pattern}
+  }
+  \subfloat[widmo mocy]{
+  		\includegraphics[width=0.4\textwidth]{img/pattern_widmo}
+  	}
+  \caption{Widmo mocy obrazu sztucznego.}
+  \label{fig_pattern}
+\end{figure}
+
+
+
 
 \subsubsection{Filtr dolnoprzepustowy}
 
+
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[filtr idealny]{
+    \label{fig_wyniki:lpA}
+	  \includegraphics[width=0.42\textwidth]{img/lowpass/lena_N_D0=01}
+  }
+  \subfloat[filtr Butterwortha n=5]{
+    \label{fig_wyniki:lpB}
+  		\includegraphics[width=0.42\textwidth]{img/lowpass/lena_D0=01_K=5}
+  	}
+  \caption{Filtr dolnoprzepustowy, próg $D_0=0.1$.}
+  \label{fig_wyniki:lp}
+\end{figure}
+
+
+
+
 \subsubsection{Filtr górnoprzepustowy}
+
+
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[$D_0=0.1$]{
+    \label{fig_wyniki:hpA}
+	  \includegraphics[width=0.42\textwidth]{img/highpass/mandrilc_D0=01}
+  }
+  \subfloat[$D_0=0.02$, jasność +80]{
+    \label{fig_wyniki:hpB}
+  		\includegraphics[width=0.42\textwidth]{img/highpass/boat_D0=002_brightness=80}
+  	}
+  \caption{Filtr górnoprzepustowy.}
+  \label{fig_wyniki:hp}
+\end{figure}
+
+
+
 
 \subsubsection{Filtr pasmowoprzepustowy}
 
+
+
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[$D_L=0.03$, $D_H=0.6$, +100 jasność, filtr idealny]{
+    \label{fig_wyniki:bp_boatA}
+	  \includegraphics[width=0.42\textwidth]{img/bandpass/boat_DL=003_DH=06_brightness=100}
+  }
+  \subfloat[$D_L=0.03$, $D_H=0.6$, +100 jasność, filtr Butterwortha n=5]{
+    \label{fig_wyniki:bp_boatB}
+  		\includegraphics[width=0.42\textwidth]{img/bandpass/boat_DL=003_DH=06_K=5_brightness=100}
+  	}
+  \caption{Filtr pasmowoprzepustowy.}
+  \label{fig_wyniki:bp_boat}
+\end{figure}
+
+
+
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[$D_L=0.01$, $D_H=0.6$, +80 jasność, filtr idealny]{
+    \label{fig_wyniki:bp_lenaA}
+	  \includegraphics[width=0.42\textwidth]{img/bandpass/lena_DL=001_DH=06_brightness=80}
+  }
+  \subfloat[$D_L=0.01$, $D_H=0.6$, +80 jasność, filtr Butterwortha n=2]{
+    \label{fig_wyniki:bp_lenaB}
+  		\includegraphics[width=0.42\textwidth]{img/bandpass/lena_DL=001_DH=06_K=2_brightness=80}
+  	}
+  \caption{Filtr pasmowoprzepustowy.}
+  \label{fig_wyniki:bp_lena}
+\end{figure}
+
+
+
+
 \subsubsection{Filtr pasmowozaporowy}
 
+
+
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[$D_L=0.02$, $D_H=0.05$,  filtr idealny]{
+    \label{fig_wyniki:bsA}
+	  \includegraphics[width=0.42\textwidth]{img/bandstop/lena_DL=002_DH=005}
+  }
+  \subfloat[$D_L=0.02$, $D_H=0.05$, filtr Butterwortha n=2]{
+    \label{fig_wyniki:bsB}
+  		\includegraphics[width=0.42\textwidth]{img/bandstop/lena_DL=002_DH=005_K=2}
+  	}
+  \caption{Filtr pasmowozaporowy.}
+  \label{fig_wyniki:bs}
+\end{figure}
+
+
+
 \subsubsection{Filtr z detekcją krawędzi}
+
+
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[$D_L=0.15$, $D_H=0.6$, $\alpha = 90 \deg$, $P(0;1)$]{
+    \label{fig_wyniki:edgeA}
+	  \includegraphics[width=0.32\textwidth]{img/edge_detect/camera_DL=015_DH=06_A=90_P=01}
+  }
+  \subfloat[$D_L=0.15$, $D_H=0.6$, $\alpha = 90 \deg$, $P(1;0)$]{
+    \label{fig_wyniki:edgeB}
+  		\includegraphics[width=0.32\textwidth]{img/edge_detect/camera_DL=015_DH=06_A=90_P=10}
+  	}
+  \subfloat[$D_L=0.15$, $D_H=0.6$, $\alpha = 90 \deg$, $P(1;1)$]{
+    \label{fig_wyniki:edgeC1}
+  		\includegraphics[width=0.32\textwidth]{img/edge_detect/camera_DL=015_DH=06_A=90_P=11}
+  	}
+  \caption{Filtr pasmowozaporowy.}
+    \label{fig_wyniki:edge1}
+\end{figure}
+
+
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[$D_L=0.15$, $D_H=0.6$, $\alpha = 30 \deg$, $P(1;1)$]{
+    \label{fig_wyniki:edgeC2}
+	  \includegraphics[width=0.33\textwidth]{img/edge_detect/camera_DL=015_DH=06_A=30_P=11}
+  }
+  \subfloat[$D_L=0.15$, $D_H=0.6$, $\alpha = 120 \deg$, $P(1;1)$]{
+    \label{fig_wyniki:edgeC3}
+  		\includegraphics[width=0.33\textwidth]{img/edge_detect/camera_DL=015_DH=06_A=120_P=11}
+  	}
+  \caption{Filtr pasmowozaporowy, różne kąty dla $P(1;1)$.}
+    \label{fig_wyniki:edge2}
+\end{figure}
+
+
 
 \subsubsection{Filtr modyfikujący widmo}
 
 
+
+ \begin{figure}[H]
+  \centering
+  \subfloat[$l=0.25$, $k=0.25$]{
+    \label{fig_wyniki:modyfikacjaA}
+	  \includegraphics[width=0.33\textwidth]{img/modyfikacja/mandril_l025_k025}
+  }
+  \subfloat[$l=0.25$, $k=0.5$]{
+    \label{fig_wyniki:modyfikacjaB}
+  		\includegraphics[width=0.33\textwidth]{img/modyfikacja/mandril_l025_k05}
+  	}
+  \caption{Filtr modyfikujący widmo.}
+    \label{fig_wyniki:modyfikacja}
+\end{figure}
+
+
+
 \subsection{Segmentacja}
+%TUTAJ TWOJE
+
+
 
 
 
 \section{Dyskusja}
 
+\subsection{Filtracja w dziedzinie częstotliwości}
+
+\subsubsection{Filtr dolnoprzepustowy}
+Dzięki temu filtrowi uzyskujemy efekt rozmycia, jak widać na rysunku \ref{fig_wyniki:lp}. Jednak im bardziej rozmyjemy obraz(im niższa wartość parametru $D_0$) tym bardziej widoczne stają się artefakty widoczne na rys \ref{fig_wyniki:lpA}. Jednak stosując filtr Butterwortha, można te niepożądane efekty zniwelować(rys. \ref{fig_wyniki:lpB});
+
+\subsubsection{Filtr górnoprzepustowy}
+
+Filtr ten jest negacją filtru poprzedniego, więc jak się można spodziewać efekt będzie odwrotny jak w tamtym przypadku czyli wyostrzenie. Parametr $D_0$ w wyższych wartościach powoduje pozostawienie na obrazie jedynie najwyraźniejszych krawędzi obrazu (rys. \ref{fig_wyniki:hpA}), a przy coraz mniejszych wartościach odwrotnie, czyli uwydatnianie krawędzi, obiektów wyróżniających się, kontrastujących z ich tłem (rys. \ref{fig_wyniki:hpB}) .
+
+\subsubsection{Filtr pasmowoprzepustowy}
+
+Filtr ten daje podobny efekt jak w przypadku filtru górnoprzepustowego przy obraniu wysokich wartości parametrów  $D_L$ $D_H$.
+Jednak w odróżnieniu od niego pozwala na wybranie interesującego nas pasma częstotliwości branego pod uwagę. Można uzyskać nim lepszy wynik przy wyostrzaniu obrazów  rys. \ref{fig_wyniki:bp_boat}  rys. \ref{fig_wyniki:bp_lena}. Porównując wynik uzyskany za pomocą filtru idealnego i filtru Butterwortha widać, że obcinając ,,zero-jedynkowo'' przedział częstotliwości, w znacznym stopniu zmieniamy obraz wynikowy w stosunku do wejściowego. Przejścia pomiędzy obszarami jasności a obszarami ciemnymi stają się bardziej skokowe, natomiast stosując filtr Butterwortha zachowują więcej odcieni szarości - zachowane jest ciągłe przejście.
+
+
+\subsubsection{Filtr pasmowozaporowy}
+
+Podobnie jak w przypadku filtru dolnoprzepustowego i górnoprzepustowego, filtr ten jest negacją filtru pasmowoprzepustowego. Ciekawy efekt jaki udało się uzyskać stosując ten filtr jest wygładzenie, rozmycie obrazu z jednoczesnym zachowaniem wyraźnych krawędzi (rys. \ref{fig_wyniki:bs}). Podobnie jak w przypadku filtru dolnoprzepustowego, zastosowanie filtracji Butterwotha pozwala nam uniknąć artefaktów powstałych w przypadku filtracji idealnej.
+
+\subsubsection{Filtr z detekcją krawędzi}
+
+Analogicznie jak w przypadku wykrywania krawędzi zaprezentowanego w zadaniu pierwszym. Filtr ten pozwala na wykrycie linii oraz krzywych, jednak w odróżnieniu do tamtego rozwiązania filtr ten pozwala na zdefiniowane zakresu krzywizny identyfikowanych krzywych poprzez parametry $\alpha$ oraz $P$ (punkt ramienia kąta o wierzchołku w (0,0)). Jak widać na rysunkach \ref{fig_wyniki:edge1} gdzie dla ustalonego kąta zmieniamy ramie kąta, zmieniamy orientacje wykrywanych krzywych. Oraz zmieniając kąt (rys. \ref{fig_wyniki:edge2}) zmieniamy zakres krzywizny.
+
+\subsubsection{Filtr modyfikujący widmo}
+
+W odróżnieniu do filtrów opisanych powyżej filtr ten nie polega na odrzuceniu pewnego pasma częstotliwości, lecz przemnaża cały obraz przez filtr $H$ \ref{eq:modyfikacja}. W wyniku otrzymujemy przesunięty cyklicznie obraz względem obu osi, przesunięcie to jest zdefiniowane za pomocą parametrów \emph{l}, \emph{k}.
+
+
+
+\subsection{Segmentacja}
+
+%TUTAJ TWOJE
+
 
 
 \section{Wnioski}
 
+\subsection{Filtracja w dziedzinie częstotliwości}
+Transformacja obrazu do dziedziny częstotliwości pozwala na wykonanie wielu filtracji obrazu w mniej zachłanny sposób. Najlepszym przykładem tutaj będzie porównanie filtru uśredniającego z filtrem dolnoprzepustowym do zadania rozmycia obrazu. Gdy chcemy uzyskać większe rozmycie w przypadku filtru uśredniającego należałoby zwiększyć maskę co z kolei zwiększałoby ilość potrzebnych obliczeń. Natomiast gdy operujemy filtrem dolnoprzepustowym, nie zwiększy to w żaden sposób ilości obliczeń, dzięki temu uzyskujemy dobrze skalującą się metodę. W zależności od zastosowania, dobrym pomysłem może być zastosowanie filtrów o charakterystykach innych od idealnej, na przykładzie zastosowanego w zadaniu filtru Butterwortha można zauważyć, że przy zastosowaniu filtru idealnego mogą wystąpić niepożądane efekty tj na rys. \ref{fig_wyniki:lpA} , \ref{fig_wyniki:bp_boatA} oraz \ref{fig_wyniki:bsA}. 
+
+
+\subsection{Segmentacja}
+%TUTAJ TWOJE
+
+
 
 \begin{thebibliography}{8}
+
+\bibitem{1} Fast Fourier Transform (FFT) \url{http://www.cmlab.csie.ntu.edu.tw/cml/dsp/training/coding/transform/fft.html}
+\bibitem{2} The Radix 2 Decimation In Frequency (DIF) Algorithm.   \url{http://www.engineeringproductivitytools.com/stuff/T0001/PT03.HTM}
 
 \end{thebibliography}
 

@@ -160,9 +160,7 @@ public class FrequencyFiltering extends AbstractFilter {
     public BufferedImage processImage(BufferedImage image) {
         BufferedImage out = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
         WritableRaster raster = image.getRaster();
-        
-        if ( filterNo > 5)
-            return image;
+ 
 
         int w = 0, h = 0;
         for (int i = 0; FFTTools.pow_2[i] < image.getWidth(); ++i) {
@@ -205,7 +203,7 @@ public class FrequencyFiltering extends AbstractFilter {
         }
 
         System.out.println("IFreqFilter DIMENSION" + image.getWidth() + " " + image.getHeight());
-        if (filterNo < 5) {
+        if (filterNo < 5|| filterNo==6) {
             for (int i = 0; i < image.getWidth(); ++i) {
                 for (int j = 0; j < image.getHeight(); ++j) {
                     input[0][i][j].re *= ((i + j) % 2 == 0 ? -1 : 1);
@@ -216,7 +214,7 @@ public class FrequencyFiltering extends AbstractFilter {
         
         Complex[][][] transformedImage = new Complex[3][][];
         transformedImage[0] = FFTTools.fft2(input[0]);
-        if (filterNo > 4) {
+        if (filterNo > 4 && raster.getNumBands() == 3  ) {
             transformedImage[1] = FFTTools.fft2(input[1]);
             transformedImage[2] = FFTTools.fft2(input[2]);
         }
@@ -271,13 +269,16 @@ public class FrequencyFiltering extends AbstractFilter {
                 break;
             case 5:
                 transformedImage[0] = FFTTools.spectreMod(transformedImage[0], params[0], params[1]);
-                transformedImage[1] = FFTTools.spectreMod(transformedImage[1], params[0], params[1]);
-                transformedImage[2] = FFTTools.spectreMod(transformedImage[2], params[0], params[1]);
+                if ( raster.getNumBands() == 3 ) {
+                    transformedImage[1] = FFTTools.spectreMod(transformedImage[1], params[0], params[1]);
+                    transformedImage[2] = FFTTools.spectreMod(transformedImage[2], params[0], params[1]);
+                }
                 if (additionalImages[0] || additionalImages[1])
                     adImg=FFTTools.spectreMod(adImg, params[0], params[1]);
                 break;
 
             default:
+                adImg=transformedImage[0];
                 break;
         }
 
@@ -326,12 +327,12 @@ public class FrequencyFiltering extends AbstractFilter {
 //        System.out.println("IFreqFilter REV, print");
 
         input[0] = FFTTools.ifft2(transformedImage[0]);
-        if (filterNo > 4) {
+        if (filterNo > 4 && raster.getNumBands() == 3 ) {
             input[1] = FFTTools.ifft2(transformedImage[1]);
             input[2] = FFTTools.ifft2(transformedImage[2]);
         }
 
-        if (filterNo < 5) {
+        if (filterNo < 5 || filterNo==6) {
             for (int i = 0; i < image.getWidth(); ++i) {
                 for (int j = 0; j < image.getHeight(); ++j) {
                     input[0][i][j].re *= ((i + j) % 2 == 0 ? -1 : 1);
@@ -345,14 +346,18 @@ public class FrequencyFiltering extends AbstractFilter {
         for (int i = 0; i < image.getWidth(); ++i) {
             for (int j = 0; j < image.getHeight(); ++j) {
                 if (raster.getNumBands() == 3) {
-
-                    if (filterNo < 4) {
-                        int[] RGB = RGBHelper.toRGBA(image.getRGB(i, j));
+                    int[] RGB = RGBHelper.toRGBA(image.getRGB(i, j));
                         float r = RGB[0], g = RGB[1], b = RGB[2];
+                        outc[0]=(int) r;outc[1]=(int) g; outc[2]=(int) b;
+                    if (filterNo < 4) {
+                        float oldill=(float) (0.299f * RGB[0] + 0.587f * RGB[1] + 0.114f * RGB[2]);
                         float ill = input[0][i][j].re(); //from transformed data
-                        outc[0] = (int) (ill / (float) (aa + (bb * g) / r + (cc * b) / r));
-                        outc[1] = (int) (ill / (float) (bb + (aa * r) / g + (cc * b) / g));
-                        outc[2] = (int) (ill / (float) (cc + (aa * r) / b + (bb * g) / b));
+                        outc[0] = (int) ((ill / oldill) * r);
+                        outc[1] = (int) ((ill / oldill) * g);
+                        outc[2] = (int) ((ill / oldill) * b);
+//                        outc[0] = (int) (ill / (float) (aa + (bb * g) / r + (cc * b) / r));
+//                        outc[1] = (int) (ill / (float) (bb + (aa * r) / g + (cc * b) / g));
+//                        outc[2] = (int) (ill / (float) (cc + (aa * r) / b + (bb * g) / b));
                     } else if (filterNo==5) {
                         outc[0] = (int) input[0][i][j].re();
                         outc[1] = (int) input[1][i][j].re();
@@ -371,7 +376,6 @@ public class FrequencyFiltering extends AbstractFilter {
                 }
             }
         }
-
 
 
         return out;
