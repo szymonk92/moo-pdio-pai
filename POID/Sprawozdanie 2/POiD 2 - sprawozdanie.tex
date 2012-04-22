@@ -372,9 +372,12 @@ n_{3} = t_{x}& \mbox{południowy sąsiad}\\
 \end{array}
 \end{equation*}
 Stałe $n_{1}$ i $n_{1}$ są uzupełniane zerami tak aby łączna ich długość bitów wynosiła $2r$.
+
+Analizując równanie \ref{eq:seg_nei} łatwo można dojść do wniosku, że czas potrzebny na wyznaczenie sąsiada danego obszaru jest słały bez względu na wielkość i złożoność drzewa. Za każdym bowiem razem ilość operacji jakie należy wykonać jest taka sama. 
+
+Jedynym ograniczeniem przyjętego rozwiązania jest fakt, że znajduje ono sąsiadów o takim samym rozmiarze co obszar bazowy lub większych. Nie stanowi to jednak problemu w naszym zadaniu gdyż nawet ta informacja pozwala z powodzeniem na sprawdzenie wszystkich obszarów wygenerowanego drzewa.
 \section{Opis implementacji}
 %MOŻESZ UZUPEŁNIĆ NIECO A PROPOS SZKIELETU APLIKACJI WZGLĘDEM TEGO CO BYŁO W SPRAWOZDANIU DO POPRZEDNIEGO ZADANIA :P
-
 
 
 \section{Materiały i metody}
