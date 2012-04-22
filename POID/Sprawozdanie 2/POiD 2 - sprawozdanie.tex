@@ -283,12 +283,95 @@ H(u,v) = \exp { \left( j \cdot \left( \frac{-u k 2 \pi}{N} + \frac{-v l 2 \pi }{
 
 
 \subsection{Segmentacja}
-%TUTAJ TWOJE
+Nasza grupa miała zadanie zrealizować segmentacje opartą o podział obrazu na rejony a następnie ich łączenie. Wykorzystaliśmy w tym celu drzewa czwórkowe do przechowywania danych. Sam algorytm segmentacji jest dość prosty i składa się z kilku kroków:
+\begin{enumerate}
+\item Należy sprawdzić czy podany obszar obrazu jest jednolity przy pomocy wcześniej zdefiniowanej fukcji porównującej wartości poszczególnych piksli.
+\item Jeśli warunek z punktu pierwszego nie zachodzi należy ten obszar podzielić na cztery równe obszary i powtórzyć całą operację dla każdego z nich.
+\item Jeżeli podany obszar jest jednolity jest on zapisywany do listy i jego przetwarzanie jest zakończone.
+\item Dla tak uzyskanych obszarów wyliczany jest średni kolor, który reprezentuje każdy z nich.
+\item Na podstawie średniego koloru następuje łączenie obszarów, które są podobne do siebie wykorzystując funkcję sprawdzającą spójność z punktu 1.
+\end{enumerate}
 
+W punkcie pierwszym algorytmu wykorzystuje się do testowania spójności obszarów dowolnie zdefiniowaną funkcję porównującą wartości dwóch podanych pikseli. Dzięki dodaniu pewnej tolerancji tej różnicy można uzyskać obszary o podobnej charakterystyce. Sam algorytm rozpoczyna swoje działanie sprawdzając czy cały obszar obrazu jest spójny i kontynuując swoją pracę dzieli go na mniejsze części.
 
+Po uzyskaniu już wszystkich jednolitych obszarów następuje ich łączenie w większe rejony zawierające w sobie obszary o podobnej charakterystyce. Dzięki temu zmniejsza się ilość poszczególnych pojedynczych komórek. Ten etap jest ważny z punktu widzenia tego algorytmu segmentacji. Jednak problem optymalnego znajdowania sąsiadów w drzewach czwórkowych nie jest trywialny. W tym celu wykorzystaliśmy algorytm QTLCLD \cite{3} umożliwiający poprzez specjalną architekturę poszczególnych węzłów tego drzewa na znajdowanie sąsiadów w stałym czasie.
 
+Algorytm QTLCLD opisany w \cite{3} stanowi podobne podejście jak czwórkowe drzewa liniowe, dzięki temu czas znajdowania sąsiadów poszczególnych liści takiego drzewa jest znacznie krótszy niż w przypadku algorytmów przeglądając całą jego strukturę. 
 
+Główną zasadą jaką się tutaj stosuje jest przypisywanie odpowiednim komórką takiego drzewa specjalnych kodów dzięki którym można określić ich pozycję w całej strukturze. Zostało to przedstawione na rysunku \ref{fig_seg_kody}.
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/seg/kody}
+  \caption{Kody poszczególnych obszarów dla maksymalnego zagłębienia wynoszącego 3. Źródło \cite{3}.}
+  \label{fig_seg_kody}
+\end{figure}
+
+Schemat przypisywania poszczególnych numerów z zakresu [0,3] został przedstawiony na pierwszej części rysunku \ref{fig_seg_kody} i jest on ustalony w trakcie podziału obszaru rodzica. Każde z dzieci dziedziczy po swoim rodzicu jego kod dodając na kolejnej pozycji określonej przez głębokość w drzewie na jakiej się znajduje swój własny indeks. Dzięki takie systemowi można łatwo zlokalizować położenie danego obszaru w całym drzewie oraz określić na jakiej głębokości się on znajduje. 
+
+Jednak by umożliwić sprawne i szybkie odnajdowanie sąsiadów danego obszaru należało dodać kolejny zestaw wartości tym razem określający różnice wielkości między danym obszarem a czterema jego sąsiadami. Wartości te są wyliczane w trakcie budowania drzewa, który to proces party jest o algorytm BFS. Na rysunku \ref{fig_seg_kody2} przedstawiono powstałe w ten sposób drzewo reprezentujące cały obraz.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{img/seg/kody2}
+  \caption{Kody poszczególnych obszarów wraz z różnicą wielkości do sąsiadów. Źródło \cite{3}.}
+  \label{fig_seg_kody2}
+\end{figure}
+
+Wykorzystując tak przygotowaną strukturę łatwo można uzyskać kod sąsiada danego obszaru w danym kierunku przy pomocy wzoru:
+\begin{equation}
+\label{eq:seg_nei}
+m_{q}=\left\{
+\begin{array}{lcc}
+((n_{q}>>2(r-l-dd))<<2(r-l-dd))\oplus_{q}(\Delta n_{d}<<(2(r-l-dd)))&\mbox{dla}&dd<0\\
+n_{q}\oplus_{q}(\Delta n_{d}<<(2(r-l)))&\mbox{dla}&dd\ge 0
+\end{array}
+\right.
+\end{equation}
+gdzie:
+\begin{itemize}
+\item $m_{q}$ - poszukiwany kod obszaru sąsiedniego
+\item $n_{q}$ - kod obszaru bazowego
+\item $r$ - maksymalna głębokość drzewa
+\item $dd$ - różnica wielkości między obszarem bazowym a sąsiadem w zadanym kierunku
+\item $l$ - poziom zagłębienia na jakim znajduje się bazowy obszar
+\item $d$ - kierunek poszukiwań sąsiada z przedziału $[0,3]$
+\item $n_{d}$ - stała wartość dla odpowiedniego kierunku $d$ i maksymalnego poziomu drzewa
+\end{itemize}
+
+Algorytm ten opiera się w dużej mierze na algorytmie Scharcka skąd wywodzi się użyty operator $\oplus_{q}$ zdefiniowany jak poniżej:
+\begin{equation}
+n_{q}\oplus_{q}k_{q} = (((n_{q}|t_{y})+(k_{q}\wedge t_{x}))\wedge t_{x})|(((n_{q}|t_{x})+(k_{q}\wedge t_{y}))\wedge t{y})
+\end{equation}
+gdzie:
+\begin{itemize}
+\item $|$ - oznacza operację bitową OR
+\item $\wedge$ - oznacza operację bitową AND
+\item $+$ - jest normalny dodawaniem dwóch liczby
+\end{itemize}
+
+Dodatkowo we wzorze pojawiają się dwie stałe $t_{x}$ i $t_{y}$,które są zdefiniowane następująco:
+\begin{equation*}
+\begin{array}{cc}
+t_{x} = 01..0101& \mbox{,,01'' powtórzone $r$ razy}\\
+t_{x} = 10..1010& \mbox{,,10'' powtórzone $r$ razy}
+\end{array}
+\end{equation*}
+gdzie:
+\begin{itemize}
+\item $r$ - maksymalna głębokość drzewa
+\end{itemize}
+
+Stałe $n_{d}$ dla czterech kierunków poszukiwań użyte w równaniu \ref{eq:seg_nei} określone są następująco:
+\begin{equation*}
+\begin{array}{lc}
+n_{1} = 00..01& \mbox{wschodni sąsiad}\\
+n_{1} = 00..10& \mbox{północy sąsiad}\\
+n_{2} = t_{y}& \mbox{zachodni sąsiad}\\
+n_{3} = t_{x}& \mbox{południowy sąsiad}\\
+\end{array}
+\end{equation*}
+Stałe $n_{1}$ i $n_{1}$ są uzupełniane zerami tak aby łączna ich długość bitów wynosiła $2r$.
 \section{Opis implementacji}
 %MOŻESZ UZUPEŁNIĆ NIECO A PROPOS SZKIELETU APLIKACJI WZGLĘDEM TEGO CO BYŁO W SPRAWOZDANIU DO POPRZEDNIEGO ZADANIA :P
 
@@ -548,8 +631,8 @@ Transformacja obrazu do dziedziny częstotliwości pozwala na wykonanie wielu fi
 \begin{thebibliography}{8}
 
 \bibitem{1} Fast Fourier Transform (FFT) \url{http://www.cmlab.csie.ntu.edu.tw/cml/dsp/training/coding/transform/fft.html}
-\bibitem{2} The Radix 2 Decimation In Frequency (DIF) Algorithm.   \url{http://www.engineeringproductivitytools.com/stuff/T0001/PT03.HTM}
-
+\bibitem{2} The Radix 2 Decimation In Frequency (DIF) Algorithm.  \url{http://www.engineeringproductivitytools.com/stuff/T0001/PT03.HTM}
+\bibitem{3} Constant Time Neighbor Finding in Quadtrees: An Experimental Result, Kunio Aizawa, Koyo Motomura, Shintaro Kimura, Ryosuke Kadowaki, and Jia Fan
 \end{thebibliography}
 
 \end{document}
