@@ -307,7 +307,7 @@ Główną zasadą jaką się tutaj stosuje jest przypisywanie odpowiednim komór
   \label{fig_seg_kody}
 \end{figure}
 
-Schemat przypisywania poszczególnych numerów z zakresu [0,3] został przedstawiony na pierwszej części rysunku \ref{fig_seg_kody} i jest on ustalony w trakcie podziału obszaru rodzica. Każde z dzieci dziedziczy po swoim rodzicu jego kod dodając na kolejnej pozycji określonej przez głębokość w drzewie na jakiej się znajduje swój własny indeks. Dzięki takie systemowi można łatwo zlokalizować położenie danego obszaru w całym drzewie oraz określić na jakiej głębokości się on znajduje. 
+Schemat przypisywania poszczególnych numerów z zakresu [0,3] został przedstawiony na pierwszej części rysunku \ref{fig_seg_kody} i jest on ustalony w trakcie podziału obszaru rodzica. Każde z dzieci dziedziczy po swoim rodzicu jego kod dodając na kolejnej pozycji określonej przez głębokość w drzewie na jakiej się znajduje swój własny indeks. Dzięki takiemu systemowi można łatwo zlokalizować położenie danego obszaru w całym drzewie oraz określić na jakiej głębokości się on znajduje. 
 
 Jednak by umożliwić sprawne i szybkie odnajdowanie sąsiadów danego obszaru należało dodać kolejny zestaw wartości tym razem określający różnice wielkości między danym obszarem a czterema jego sąsiadami. Wartości te są wyliczane w trakcie budowania drzewa, który to proces party jest o algorytm BFS. Na rysunku \ref{fig_seg_kody2} przedstawiono powstałe w ten sposób drzewo reprezentujące cały obraz.
 
@@ -354,7 +354,7 @@ Dodatkowo we wzorze pojawiają się dwie stałe $t_{x}$ i $t_{y}$,które są zde
 \begin{equation*}
 \begin{array}{cc}
 t_{x} = 01..0101& \mbox{,,01'' powtórzone $r$ razy}\\
-t_{x} = 10..1010& \mbox{,,10'' powtórzone $r$ razy}
+t_{y} = 10..1010& \mbox{,,10'' powtórzone $r$ razy}
 \end{array}
 \end{equation*}
 gdzie:
@@ -377,18 +377,31 @@ Analizując równanie \ref{eq:seg_nei} łatwo można dojść do wniosku, że cza
 
 Jedynym ograniczeniem przyjętego rozwiązania jest fakt, że znajduje ono sąsiadów o takim samym rozmiarze co obszar bazowy lub większych. Nie stanowi to jednak problemu w naszym zadaniu gdyż nawet ta informacja pozwala z powodzeniem na sprawdzenie wszystkich obszarów wygenerowanego drzewa.
 \section{Opis implementacji}
-%MOŻESZ UZUPEŁNIĆ NIECO A PROPOS SZKIELETU APLIKACJI WZGLĘDEM TEGO CO BYŁO W SPRAWOZDANIU DO POPRZEDNIEGO ZADANIA :P
+W samej implementacji aplikacji nie zaszły znaczące zmiany w porównaniu do zadania pierwszego. Wykorzystaliśmy ten sam szkielet dodając nowe funkcję i opcję w menu. 
 
+Implementacja filtracji i wszystkich rodzajów filtrów została przeprowadzona poprzez wcześniej dostępny interfejs \textit{IFilter} i nie różni się znacząco od tej opisanej w zadaniu pierwszym. Dodana została przez to nowa opcja w głównym menu programu umożliwiająca zaaplikowanie wybranego rodzaju filtracji do zadanego obrazu. Dodatkowo zostało przygotowane zostało osobne okno służące do wyświetlenia obrazów widma mocy uzyskanych poprzez FFT. Stanowi ono pomoc przy doborze parametrów filtrów oraz obrazuje ich pracę.
 
-\section{Materiały i metody}
+Poszczególne metody i funkcję wykorzystane przy procesie filtracji zostały umieszczone w klasie pomocniczej \textit{FFTTools }. Umożliwia to ich ponowne wykorzystanie w innym projekcie oraz stosunkowo prostą rozbudowę lub wprowadzenie zmian.
+
+W przypadku drugiej części zadania dotyczącej segmentacji obrazu uznaliśmy, że wcześniej przygotowane narzędzia nie umożliwią jej poprawnej realizacji. Dlatego zostało dodane nowe okno dostępne w menu \textit{Other} w głównym oknie programu. 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{img/seg/segWindow}
+  \caption{Okno segmentacji obrazu.}
+  \label{fig_seg_window}
+\end{figure}
+
+Okno to zawiera z prawej strony szereg opcji, dzięki którym możemy określić parametry procesu segmentacji jak i już wizualizacji osiągniętych wyników. Możemy wybrać różne metody porównywania pikseli oraz ustawić tolerancję różnicy wartości między nimi. Obecnie dostępne są dwa wariant: metryka Euklidesowa i porównanie jasności. 
+
+Można również ustawić maksymalną głębokość drzewa. Wtedy podział następuje nie głębiej niż podany limit. Jeśli chcę się uzyskać równą siatkę z obszarami o takim samym poziomie zagłębienia można zaznaczyć opcję \textit{force}. Kolejnym etap algorytmu realizuje łączenie obszarów w rejony. W naszej aplikacji istnieje możliwość określenia w pikselach minimalnej wielkość tak uzyskanego rejonu. Dzięki temu można ograniczyć ilość powstałych masek.
+
+Okno segmentacji wspiera również różne metody podglądu osiągniętego rezultatu oraz możliwość eksportu powstałych masek do plików graficznych w formacie binarnym. 
+%\section{Materiały i metody}
 %TEGO CHYBA NIE BYŁO
-
+% Nie wiem czy wiem co mogę tu napisać:P wszystko chyba było wcześniej :P
 
 
 \section{Wyniki}
-
-
-
 
 \subsection{Filtracja w dziedzinie częstotliwości}
 
