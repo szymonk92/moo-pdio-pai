@@ -53,7 +53,7 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
         this.valueLabel.setText(String.valueOf(this.jSlider1.getValue()));
     }
 
-    public void setQuadTree(QuadTree tree) {
+   synchronized public void setQuadTree(QuadTree tree) {
         quadTree = tree;
         int count = 1;
         this.regionsComboBox.removeAllItems();
@@ -215,7 +215,7 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
             }
         });
 
-        comparerTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Simple", "Luminance" }));
+        comparerTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Simple", "Luminance", "Euclidean" }));
 
         jLabel4.setText("Type:");
 
@@ -438,11 +438,25 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
     }// </editor-fold>//GEN-END:initComponents
 
     private void processButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processButtonActionPerformed
+       if(processor!=null){
+           processor.cancel(true);
+       }
         this.segmentationDrawPanel.quadTree = null;
         int comparerValue = this.jSlider1.getValue();
-        IPixelComparer comparer = new SimplePixelComparer(comparerValue);
-        if (this.comparerTypeComboBox.getSelectedIndex() == 1) {
-            comparer = new LuminancePixelComparer(comparerValue);
+        IPixelComparer comparer;
+        switch (this.comparerTypeComboBox.getSelectedIndex()) {
+            case 0:
+                comparer = new SimplePixelComparer(comparerValue);
+                break;
+            case 1:
+                comparer = new LuminancePixelComparer(comparerValue);
+                break;
+            case 2:
+                comparer = new EuclideanPixelComparer(comparerValue);
+                break;
+            default:
+                comparer = new SimplePixelComparer(comparerValue);
+                break;
         }
         quadTree.setPixelComperer(comparer);
         try {

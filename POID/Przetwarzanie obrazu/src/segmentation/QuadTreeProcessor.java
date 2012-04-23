@@ -34,7 +34,7 @@ public class QuadTreeProcessor extends SwingWorker<QuadTree, Object> {
 
     @Override
     protected void done() {
-        if (window != null) {
+        if (window != null && !this.isCancelled()) {
             window.setQuadTree(tree);
         }
         setProgress(100);

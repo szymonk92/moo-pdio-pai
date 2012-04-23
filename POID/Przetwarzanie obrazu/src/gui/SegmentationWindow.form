@@ -279,9 +279,10 @@
             <Component class="javax.swing.JComboBox" name="comparerTypeComboBox">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="2">
+                  <StringArray count="3">
                     <StringItem index="0" value="Simple"/>
                     <StringItem index="1" value="Luminance"/>
+                    <StringItem index="2" value="Euclidean"/>
                   </StringArray>
                 </Property>
               </Properties>
