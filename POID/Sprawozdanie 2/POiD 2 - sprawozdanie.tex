@@ -587,7 +587,19 @@ Dla przykładu, widmo przypadkowego obrazu prezentującego pewien wzorzec \ref{f
 
 
 \subsection{Segmentacja}
-%TUTAJ TWOJE
+ \begin{figure}[H]
+  \centering
+  \subfloat[Metoda Euklidesowa. Maski:11]{
+    \label{fig_wyniki:seg_bird1}
+	  \includegraphics[width=0.42\textwidth]{img/seg/mask/bird/Simple21_2000_11}
+  }
+  \subfloat[Porównanie jasności. Maski:4]{
+    \label{fig_wyniki:seg_bird2}
+  		\includegraphics[width=0.42\textwidth]{img/seg/mask/bird/Luminace21_2000_4}
+  	}
+  \caption{Segmentacja obrazu bird.bmp tolerancja = 21, minimalna wielkość maski 2000 pikseli.}
+  \label{fig_wyniki:seg_bird}
+\end{figure}
 
 
 

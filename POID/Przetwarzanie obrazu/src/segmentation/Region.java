@@ -60,4 +60,10 @@ public class Region {
     public int hashCode() {
         return id;
     }
+    
+    public void Clear(){
+        QuadeNodeList = null;
+        avrageColor = null;
+        pixelCount = 0;
+    }
 }

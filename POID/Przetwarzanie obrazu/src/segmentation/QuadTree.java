@@ -220,10 +220,12 @@ public class QuadTree {
                                     Region region = neighbour.region;
                                     node.region.addRegion(region);
                                     this.regions.remove(region);
+                                    region.Clear();
                                 } else {
                                     Region region = node.region;
                                     neighbour.region.addRegion(region);
                                     this.regions.remove(region);
+                                    region.Clear();
                                 }
                             }
                         }
@@ -254,7 +256,6 @@ public class QuadTree {
                 while (region.pixelCount < this.minimumPixelRegion) {
                     Region minimalRegion = null;
                     double value = Double.MAX_VALUE;
-
                     for (QuadNode node : region.QuadeNodeList.values()) {
                         for (QuadNode neighbur : node.NeighboursList.values()) {
                             if (!neighbur.region.equals(node.region)) {
@@ -270,6 +271,7 @@ public class QuadTree {
                         region.addRegion(minimalRegion);
                         removedRegions.add(minimalRegion);
                         tmpRegions.remove(minimalRegion);
+                        minimalRegion.Clear();
                     } else {
                         break;
                     }

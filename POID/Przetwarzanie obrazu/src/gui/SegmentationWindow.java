@@ -27,7 +27,7 @@ import sys.Messages;
  * @author Lukasz
  */
 public class SegmentationWindow extends javax.swing.JFrame implements PropertyChangeListener {
-    
+
     BufferedImage image;
     private QuadTree quadTree;
     private QuadTreeProcessor processor;
@@ -38,7 +38,7 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
     public SegmentationWindow() {
         initComponents();
     }
-    
+
     SegmentationWindow(BufferedImage image) {
         this();
         this.image = image;
@@ -52,7 +52,7 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
         this.depthLimitSlider.setValue(quadTree.maxDepth);
         this.valueLabel.setText(String.valueOf(this.jSlider1.getValue()));
     }
-    
+
     public void setQuadTree(QuadTree tree) {
         quadTree = tree;
         int count = 1;
@@ -61,8 +61,8 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
             this.regionsComboBox.addItem("Region " + count);
             count++;
         }
-        if(!quadTree.regions.isEmpty()){
-        this.regionsComboBox.setSelectedIndex(0);
+        if (!quadTree.regions.isEmpty()) {
+            this.regionsComboBox.setSelectedIndex(0);
         }
         this.segmentationDrawPanel.quadTree = quadTree;
         this.segmentationDrawPanel.repaint();
@@ -257,7 +257,7 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
             }
         });
 
-        masksComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "All", "Selected" }));
+        masksComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "All", "Selected", "Present" }));
 
         formatComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "PNG", "BMP", "JPG" }));
 
@@ -440,8 +440,8 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
     private void processButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processButtonActionPerformed
         this.segmentationDrawPanel.quadTree = null;
         int comparerValue = this.jSlider1.getValue();
-        IPixelComparer comparer =new SimplePixelComparer(comparerValue);
-        if(this.comparerTypeComboBox.getSelectedIndex()==1){
+        IPixelComparer comparer = new SimplePixelComparer(comparerValue);
+        if (this.comparerTypeComboBox.getSelectedIndex() == 1) {
             comparer = new LuminancePixelComparer(comparerValue);
         }
         quadTree.setPixelComperer(comparer);
@@ -455,93 +455,106 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
         processor = new QuadTreeProcessor(quadTree, this);
         processor.execute();
     }//GEN-LAST:event_processButtonActionPerformed
-    
+
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
         this.dispose();
     }//GEN-LAST:event_exitButtonActionPerformed
-    
+
     private void gridCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gridCheckBoxActionPerformed
         this.segmentationDrawPanel.showGrid = this.gridCheckBox.isSelected();
         this.segmentationDrawPanel.repaint();
     }//GEN-LAST:event_gridCheckBoxActionPerformed
-    
+
     private void colorFillCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorFillCheckBoxActionPerformed
         this.segmentationDrawPanel.areaColor = this.colorFillCheckBox.isSelected();
         this.segmentationDrawPanel.repaint();
     }//GEN-LAST:event_colorFillCheckBoxActionPerformed
-    
+
     private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
         this.valueLabel.setText(String.valueOf(this.jSlider1.getValue()));
     }//GEN-LAST:event_jSlider1StateChanged
-    
+
     private void depthLimitSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_depthLimitSliderStateChanged
         quadTree.depthLimit = this.depthLimitSlider.getValue();
     }//GEN-LAST:event_depthLimitSliderStateChanged
-    
+
     private void showSelectedCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSelectedCheckBoxActionPerformed
         this.segmentationDrawPanel.showSelected = this.showSelectedCheckBox.isSelected();
         this.segmentationDrawPanel.repaint();
     }//GEN-LAST:event_showSelectedCheckBoxActionPerformed
-    
+
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         int returnVal = this.saveFileChooser.showDialog(this, "Save file");
 
         //Process the results.
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = this.saveFileChooser.getSelectedFile().getAbsoluteFile();
-            if(!file.isDirectory()){
+            if (!file.isDirectory()) {
                 file = file.getParentFile();
             }
-            File dir = new File(file.getPath()+File.separator+"Masks");
+
+            File dir = new File(file.getPath() + File.separator + "Masks");
             dir.mkdir();
             String format = (String) this.formatComboBox.getSelectedItem();
-            this.saveFileChooser.setSelectedFile(null);            
+            this.saveFileChooser.setSelectedFile(null);
             int index = this.regionsComboBox.getSelectedIndex();
-            List<Region> regions = new ArrayList<Region>();
-            if (this.masksComboBox.getSelectedIndex() == 1) {
-                regions.add(quadTree.regions.get(index));
-            }
-            if (this.masksComboBox.getSelectedIndex() == 0) {
-                regions.addAll(quadTree.regions);
-            }
-            int count = 1;
-            for (Region region : regions) {
-                BufferedImage mask = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
+            if (this.masksComboBox.getSelectedIndex() == 2) {
+                BufferedImage mask = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
                 Graphics g = mask.getGraphics();
                 Graphics2D graphics = (Graphics2D) g;
-                Color one = !this.inverseCheckBox.isSelected() ? Color.WHITE : Color.BLACK;
-                Color two = this.inverseCheckBox.isSelected() ? Color.WHITE : Color.BLACK;
-                for (int i = 0; i < quadTree.regions.size(); i++) {
-                    Region current = quadTree.regions.get(i);
-                    segmentationDrawPanel.paintTreeRegion(graphics, current, current.equals(region) ? one : two, false, true);
-                }
+                segmentationDrawPanel.paint(graphics);
                 try {
-                    ImageIO.write(mask, format, new File(dir.getPath()+File.separator+"Mask"+count+"."+format));
+                    ImageIO.write(mask, format, new File(dir.getPath() + File.separator + "Mask." + format));
                 } catch (IOException ex) {
                     Messages.error("Błąd zapisu pliku. " + ex.getMessage());
-                    break;
                 }
-                count++;
+            } else {
+                List<Region> regions = new ArrayList<Region>();
+                if (this.masksComboBox.getSelectedIndex() == 1) {
+                    regions.add(quadTree.regions.get(index));
+                }
+                if (this.masksComboBox.getSelectedIndex() == 0) {
+                    regions.addAll(quadTree.regions);
+                }
+                int count = 1;
+                for (Region region : regions) {
+                    BufferedImage mask = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
+                    Graphics g = mask.getGraphics();
+                    Graphics2D graphics = (Graphics2D) g;
+                    Color one = !this.inverseCheckBox.isSelected() ? Color.WHITE : Color.BLACK;
+                    Color two = this.inverseCheckBox.isSelected() ? Color.WHITE : Color.BLACK;
+                    for (int i = 0; i < quadTree.regions.size(); i++) {
+                        Region current = quadTree.regions.get(i);
+                        segmentationDrawPanel.paintTreeRegion(graphics, current, current.equals(region) ? one : two, false, true);
+                    }
+                    try {
+                        ImageIO.write(mask, format, new File(dir.getPath() + File.separator + "Mask" + count + "." + format));
+                    } catch (IOException ex) {
+                        Messages.error("Błąd zapisu pliku. " + ex.getMessage());
+                        break;
+                    }
+                    count++;
+                }
             }
         }
-        
-        
+
+
     }//GEN-LAST:event_jButton1ActionPerformed
-    
+
     private void forceSplitCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forceSplitCheckBoxActionPerformed
         this.quadTree.forceSplit = this.forceSplitCheckBox.isSelected();
     }//GEN-LAST:event_forceSplitCheckBoxActionPerformed
-    
+
     private void fillComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fillComboBoxActionPerformed
         this.segmentationDrawPanel.fillOption = this.fillComboBox.getSelectedIndex();
         this.segmentationDrawPanel.repaint();
     }//GEN-LAST:event_fillComboBoxActionPerformed
-    
+
     private void inverseCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inverseCheckBoxActionPerformed
         this.segmentationDrawPanel.inverseMask = this.inverseCheckBox.isSelected();
         this.segmentationDrawPanel.repaint();
     }//GEN-LAST:event_inverseCheckBoxActionPerformed
-    
+
     private void regionsComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_regionsComboBoxActionPerformed
         int index = regionsComboBox.getSelectedIndex();
         if (!this.quadTree.regions.isEmpty() && index >= 0 && index < this.quadTree.regions.size()) {
