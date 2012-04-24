@@ -153,17 +153,22 @@ public class QuadTree {
         if (pixelComperer == null || (forceSplit && (currentDepth != depthLimit))) {
             return false;
         }
-        node.avrageColor = getImagePixelColor(node.area.x, node.area.y);
+        Color firstColor = getImagePixelColor(node.area.x, node.area.y);
+        node.resetTmpAvrageColor();
+        node.addToColor(firstColor);
         for (int x = node.area.x; x < node.area.x + node.area.width; x++) {
             for (int y = node.area.y; y < node.area.y + node.area.height; y++) {
+                if(x!=node.area.x && y != node.area.y){
                 Color pixelColor = getImagePixelColor(x, y);
-                if (!pixelComperer.Compare(pixelColor, node.avrageColor, imageGrayScale) && currentDepth != depthLimit) {
+                if (!pixelComperer.Compare(pixelColor, firstColor, imageGrayScale) && currentDepth != depthLimit) {
                     return false;
                 } else {
                     node.addToColor(pixelColor);
                 }
+                }
             }
         }
+        node.calculateAvrageColor();
         return true;
     }
 

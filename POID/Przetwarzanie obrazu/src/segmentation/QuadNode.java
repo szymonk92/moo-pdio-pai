@@ -33,7 +33,10 @@ public class QuadNode {
     public Region region;
     public HashMap<Integer, QuadNode> NeighboursList;
     public int pixelCount;
-    
+    private int addedColors =0;
+    private int avrageColorR =0;
+    private int avrageColorG =0;
+    private int avrageColorB =0;
     public QuadNode(QuadTree tree, Rectangle area, int position, int depth, int[] neighboursSizes) {
         this.tree = tree;
         this.area = area;
@@ -158,7 +161,21 @@ public class QuadNode {
     }
 
     public void addToColor(Color color) {
-        avrageColor = new Color((avrageColor.getRed() + color.getRed()) / 2, (avrageColor.getGreen() + color.getGreen()) / 2, (avrageColor.getBlue() + color.getBlue()) / 2);
+        avrageColorR+=color.getRed();
+        avrageColorG+=color.getGreen();
+        avrageColorB+=color.getBlue();
+        //avrageColor = new Color((avrageColor.getRed() + color.getRed()), (avrageColor.getGreen() + color.getGreen()), (avrageColor.getBlue() + color.getBlue()));
+        addedColors++;
+    }
+    public void resetTmpAvrageColor(){
+        avrageColorR=0;
+        avrageColorG=0;
+        avrageColorB=0;
+        addedColors = 0;
+    }
+    public void calculateAvrageColor(){
+        avrageColor = new Color((avrageColorR/addedColors), (avrageColorG /addedColors), (avrageColorB/addedColors)); 
+        resetTmpAvrageColor();
     }
 public void addNeighbur(QuadNode node){
     if(!this.NeighboursList.containsKey(node.position)){

@@ -64,6 +64,7 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
         if (!quadTree.regions.isEmpty()) {
             this.regionsComboBox.setSelectedIndex(0);
         }
+        this.segmentationDrawPanel.processing = false;
         this.segmentationDrawPanel.quadTree = quadTree;
         this.segmentationDrawPanel.repaint();
         if (processor != null) {
@@ -441,7 +442,9 @@ public class SegmentationWindow extends javax.swing.JFrame implements PropertyCh
        if(processor!=null){
            processor.cancel(true);
        }
+        this.segmentationDrawPanel.processing = true;
         this.segmentationDrawPanel.quadTree = null;
+        this.segmentationDrawPanel.repaint();
         int comparerValue = this.jSlider1.getValue();
         IPixelComparer comparer;
         switch (this.comparerTypeComboBox.getSelectedIndex()) {

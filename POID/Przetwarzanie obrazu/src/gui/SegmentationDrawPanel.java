@@ -5,7 +5,6 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -41,7 +40,8 @@ public class SegmentationDrawPanel extends javax.swing.JPanel {
     public Region selectedRegion;
     public PropertyChangeSupport changeSupport;
     public int fillOption = 0;
-
+    public boolean processing = false;
+    private static Color transparent = new Color(1f,1f,1f,0.6f);
     /**
      * Creates new form SegmentationDrawPanel
      */
@@ -96,7 +96,15 @@ public class SegmentationDrawPanel extends javax.swing.JPanel {
         if (image != null) {
             g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
         }
-        paintTree(g, quadTree);
+        if(!processing){
+            paintTree(g, quadTree);
+        }
+        else{
+            g.setColor(transparent);
+            g.fillRect((image.getWidth()/2)-30, (image.getHeight()/2)-10, 100, 20);
+            g.setColor(Color.BLACK);
+            g.drawString("Processing...", (image.getWidth()/2)-20, (image.getHeight()/2)+5);
+        }
     }
 
     public void paintTreeRegion(Graphics g, Region region, Color color, boolean grid, boolean fill) {

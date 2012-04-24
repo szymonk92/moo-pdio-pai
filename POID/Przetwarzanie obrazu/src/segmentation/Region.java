@@ -24,14 +24,35 @@ public class Region {
     public void addNode(QuadNode node){
         pixelCount+=node.pixelCount;
         node.region = this;
-        addToColor(node.avrageColor);
+        //addToColor(node.avrageColor);
+        QuadeNodeList.put(node.position, node);
+        calculateAvrageColor();
+    }
+    private void paddNode(QuadNode node){
+        pixelCount+=node.pixelCount;
+        node.region = this;
         QuadeNodeList.put(node.position, node);
     }
     public void addRegion(Region region){
         pixelCount +=region.pixelCount;
         for(QuadNode node : region.QuadeNodeList.values()){
-            this.addNode(node);
+            this.paddNode(node);
         }
+        calculateAvrageColor();
+    }
+    
+    public void calculateAvrageColor(){
+        int avrageColorR = 0;
+        int avrageColorG = 0;
+        int avrageColorB = 0;
+        for(QuadNode node : QuadeNodeList.values())
+        {
+            avrageColorR+=node.avrageColor.getRed();
+        avrageColorG+=node.avrageColor.getGreen();
+        avrageColorB+=node.avrageColor.getBlue();
+        }
+        int size = this.QuadeNodeList.size();
+        avrageColor = new Color((avrageColorR/size), (avrageColorG /size), (avrageColorB/size)); 
     }
     
      public void addToColor(Color color) {
