@@ -78,9 +78,10 @@ public class HelloWeka {
 	public static Instances readInstances(File[] files) {
 		Instances ret = null;
 		// Declare the class attribute along with its values
-		FastVector fvClassVal = new FastVector(2);
-		fvClassVal.addElement("positive");
-		fvClassVal.addElement("negative");
+		FastVector fvClassVal = new FastVector(3);
+		fvClassVal.addElement("positive0"); //zakaz
+		fvClassVal.addElement("positive1"); //odwo³anie ograniczenia
+		fvClassVal.addElement("negative"); //ka¿dy inny
 		Attribute ClassAttribute = new Attribute("theClass", fvClassVal);
 
 		try {
@@ -108,8 +109,10 @@ public class HelloWeka {
 					}
 				}
 				
-				if (files[i].getName().contains("zakaz"))
-					ince.setValue((Attribute) vec.elementAt(val), "positive");
+				if (files[i].getName().contains("ozakaz")) //
+					ince.setValue((Attribute) vec.elementAt(val), "positive1");
+				else if (files[i].getName().contains("zakaz")) //
+					ince.setValue((Attribute) vec.elementAt(val), "positive0");
 				else
 					ince.setValue((Attribute) vec.elementAt(val), "negative");
 
@@ -168,7 +171,7 @@ public class HelloWeka {
 		} else if (method == 2) {
 			// tutaj RBFN
 			classify = new RBFNetwork();
-			((RBFNetwork) classify).setNumClusters(4);
+			((RBFNetwork) classify).setNumClusters(5);
 		} else {
 			
 			try {
