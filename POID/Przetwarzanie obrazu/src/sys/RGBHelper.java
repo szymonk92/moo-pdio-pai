@@ -4,6 +4,8 @@
  */
 package sys;
 
+import java.awt.Color;
+
 /**
  *
  * @author Lukasz
@@ -121,5 +123,10 @@ public class RGBHelper {
 
     public static double calmp(double value) {
         return Math.max(Math.min(value, 255), 0);
+    }
+
+    public static float[] getHSV(int rgB) {
+        int[] rgb = toRGBA(rgB);
+        return  Color.RGBtoHSB(rgb[0],rgb[1],rgb[2],null);
     }
 }

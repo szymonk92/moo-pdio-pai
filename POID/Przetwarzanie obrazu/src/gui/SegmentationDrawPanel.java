@@ -18,6 +18,8 @@ import javax.swing.SwingUtilities;
 import segmentation.QuadNode;
 import segmentation.QuadTree;
 import segmentation.Region;
+import sys.Messages;
+import sys.RGBHelper;
 
 /**
  *
@@ -47,6 +49,7 @@ public class SegmentationDrawPanel extends javax.swing.JPanel {
      */
     public SegmentationDrawPanel() {
         initComponents();
+        
         changeSupport = new PropertyChangeSupport(this);
         this.addMouseListener(new MouseAdapter() {
 
@@ -55,7 +58,12 @@ public class SegmentationDrawPanel extends javax.swing.JPanel {
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     selectNodeAt(e.getPoint());
                 }
+                else{
+                      float[] hsv = RGBHelper.getHSV(image.getRGB(e.getPoint().x, e.getPoint().y));
+                      Messages.info("H:"+hsv[0]+",S:"+hsv[0]+",B:"+hsv[0]);
+                }
             }
+            
 
             private void selectNodeAt(Point p) {
                 selectedNode = null;

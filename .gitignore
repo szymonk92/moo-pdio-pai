@@ -1,3 +1,5 @@
-/POID/Przetwarzanie obrazu/nbproject/private/
-/POID/Przetwarzanie obrazu/build/
-/POID/Przetwarzanie obrazu/dist/
+POID/
+PAI/
+MOO/
+*class
+*.prefs
