@@ -3,3 +3,9 @@ PAI/
 MOO/
 *class
 *.prefs
+*.pdf
+*.log
+*.aux
+*.bbl
+*.blg
+*.gz
