@@ -1,4 +1,4 @@
-function x=gls(x0,sl,fn,a0,rho,c,kMax, eps)
+function x=gls(x0,fn,a0,rho,c,kMax, eps)
 % Metoda najszybszego spadku
 % INPUT:
 %       x0 - punkt pocz¹tkowy;
@@ -23,6 +23,7 @@ w=fn;
 gfn=matlabFunction(jacobian(w,t).');
 f1=@(x)gfn(x(1),x(2)); %gradient funkcji w punkcie
 
+sl='wolfe';
 %wybor kryterium
 sl=@(x,d)backtk(sl,a0,x,d,c,f0,f1,rho);
 x=x0;
@@ -30,8 +31,10 @@ k=0;
 
 Sk = eye(length(x0), length(x0));
 err = 1.0;
-
-while (k<kMax) && (eps < err) %warunek zakoñczenia, liczba iteracji lub d³ugoœæ kroku
+X=x(1);
+Y=x(2);
+fk=0;
+while (k<kMax) %&& (eps < err) %warunek zakoñczenia, liczba iteracji lub d³ugoœæ kroku
     %kierunek
     %p=-f1(x);
     g = f1(x);
@@ -40,7 +43,10 @@ while (k<kMax) && (eps < err) %warunek zakoñczenia, liczba iteracji lub d³ugoœæ 
     a=sl(x,d);
     %kolejne przybli¿enie
     fk = f0(x);
-    x=x+a*d
+    x=x+a*d;
+    fprintf('f(%.3f,%.3f)=%.3f\n',x(1),x(2),fk);
+    X=horzcat(X, x(1));
+    Y=horzcat(Y, x(2));
     fk_new = f0(x);
     p = a*d;
     q= f1(x) - g;
@@ -53,6 +59,9 @@ while (k<kMax) && (eps < err) %warunek zakoñczenia, liczba iteracji lub d³ugoœæ 
     %b³¹d
     err = max( abs(fk - fk_new),norm(p));
 end
+
+
+fplot (fn,X, Y)
 %Przyk³ady
 %gls([2;2],'wolfes','x^2+y^2',0.5,0.3,[0.8;0.5],10,0.001)
 
