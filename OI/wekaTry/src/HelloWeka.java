@@ -1,43 +1,18 @@
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Arrays;
-import java.util.List;
+import java.io.*;
 import java.util.Random;
-
 import javax.imageio.ImageIO;
-
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
-import weka.attributeSelection.GreedyStepwise;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.functions.RBFNetwork;
 import weka.classifiers.meta.AdaBoostM1;
-import weka.classifiers.meta.Bagging;
-import weka.core.Attribute;
-import weka.core.FastVector;
-import weka.core.Instance;
-import weka.core.Instances;
-import weka.core.SelectedTag;
-import weka.core.SerializationHelper;
-import weka.core.converters.ConverterUtils.DataSink;
+import weka.core.*;
 import weka.filters.Filter;
-import weka.filters.supervised.attribute.AddClassification;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.unsupervised.attribute.Remove;
-import weka.filters.unsupervised.instance.RemovePercentage;
 
 public class HelloWeka {
 
@@ -78,9 +53,10 @@ public class HelloWeka {
 	public static Instances readInstances(File[] files) {
 		Instances ret = null;
 		// Declare the class attribute along with its values
-		FastVector fvClassVal = new FastVector(2);
-		fvClassVal.addElement("positive");
-		fvClassVal.addElement("negative");
+		FastVector fvClassVal = new FastVector(3);
+		fvClassVal.addElement("positive0"); //zakaz
+		fvClassVal.addElement("positive1"); //odwo�anie ograniczenia
+		fvClassVal.addElement("negative"); //ka�dy inny
 		Attribute ClassAttribute = new Attribute("theClass", fvClassVal);
 
 		try {
@@ -108,8 +84,10 @@ public class HelloWeka {
 					}
 				}
 				
-				if (files[i].getName().contains("zakaz"))
-					ince.setValue((Attribute) vec.elementAt(val), "positive");
+				if (files[i].getName().contains("ozakaz")) //
+					ince.setValue((Attribute) vec.elementAt(val), "positive1");
+				else if (files[i].getName().contains("zakaz")) //
+					ince.setValue((Attribute) vec.elementAt(val), "positive0");
 				else
 					ince.setValue((Attribute) vec.elementAt(val), "negative");
 
@@ -168,7 +146,7 @@ public class HelloWeka {
 		} else if (method == 2) {
 			// tutaj RBFN
 			classify = new RBFNetwork();
-			((RBFNetwork) classify).setNumClusters(4);
+			((RBFNetwork) classify).setNumClusters(5);
 		} else {
 			
 			try {

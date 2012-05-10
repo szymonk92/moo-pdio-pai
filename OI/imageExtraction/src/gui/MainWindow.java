@@ -4,11 +4,21 @@
  */
 package gui;
 
-import filters.ExtractionFilter;
-import java.io.File;
-import java.io.IOException;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import sys.SignWrapper;
+import sys.ThreadProcesor;
 
 /**
  *
@@ -16,11 +26,32 @@ import javax.swing.JFileChooser;
  */
 public class MainWindow extends javax.swing.JFrame {
 
+    public JPanel columnpanel;
+    FilenameFilter pngfilter;
+    List<ViewPanel> panels;
+    File wekaModel;
+Thread processor;
     /**
      * Creates new form MainWindow
      */
     public MainWindow() {
         initComponents();
+
+        JPanel borderlaoutpanel = new JPanel();
+        this.jScrollPane.setViewportView(borderlaoutpanel);
+        borderlaoutpanel.setLayout(new BorderLayout(0, 0));
+        columnpanel = new JPanel();
+        borderlaoutpanel.add(columnpanel, BorderLayout.NORTH);
+        columnpanel.setLayout(new GridLayout(0, 1, 0, 1));
+        columnpanel.setBackground(Color.gray);
+        pngfilter = new FilenameFilter() {
+
+            @Override
+            public boolean accept(File dir, String name) {
+                String[] namesplit = name.split("\\.");
+                return namesplit[namesplit.length - 1].equalsIgnoreCase("png");
+            }
+        };
     }
 
     /**
@@ -33,26 +64,130 @@ public class MainWindow extends javax.swing.JFrame {
     private void initComponents() {
 
         openFileChooser = new javax.swing.JFileChooser();
-        drawPanel = new gui.DrawPanel();
+        openFileChooser2 = new javax.swing.JFileChooser();
+        folderPanel = new javax.swing.JPanel();
+        folderLabel = new javax.swing.JLabel();
+        folderNameLabel = new javax.swing.JLabel();
+        pngFileLabel = new javax.swing.JLabel();
+        pngCountLabel = new javax.swing.JLabel();
+        xmlFileLabel = new javax.swing.JLabel();
+        xmlFileCountLabel = new javax.swing.JLabel();
+        networkPanel = new javax.swing.JPanel();
+        loadWekaButton = new javax.swing.JButton();
+        wekaModelLabel = new javax.swing.JLabel();
+        jScrollPane = new javax.swing.JScrollPane();
+        jPanel1 = new javax.swing.JPanel();
+        startButton = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         openFileMenuItem = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
+
+        openFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        javax.swing.GroupLayout drawPanelLayout = new javax.swing.GroupLayout(drawPanel);
-        drawPanel.setLayout(drawPanelLayout);
-        drawPanelLayout.setHorizontalGroup(
-            drawPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 607, Short.MAX_VALUE)
+        folderPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Folder i pliki"));
+
+        folderLabel.setText("Wybrany folder:");
+
+        folderNameLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+
+        pngFileLabel.setText("Ilość plików PNG:");
+
+        pngCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+
+        xmlFileLabel.setText("Ilość plików XML:");
+
+        xmlFileCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+
+        javax.swing.GroupLayout folderPanelLayout = new javax.swing.GroupLayout(folderPanel);
+        folderPanel.setLayout(folderPanelLayout);
+        folderPanelLayout.setHorizontalGroup(
+            folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(folderPanelLayout.createSequentialGroup()
+                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(pngFileLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 87, Short.MAX_VALUE)
+                    .addComponent(folderLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(folderNameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(folderPanelLayout.createSequentialGroup()
+                        .addComponent(pngCountLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(xmlFileLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(xmlFileCountLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)))
+                .addContainerGap())
         );
-        drawPanelLayout.setVerticalGroup(
-            drawPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 512, Short.MAX_VALUE)
+        folderPanelLayout.setVerticalGroup(
+            folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(folderPanelLayout.createSequentialGroup()
+                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(folderLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(folderNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pngCountLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pngFileLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(xmlFileLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(xmlFileCountLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(37, 37, 37))
         );
 
-        getContentPane().add(drawPanel, java.awt.BorderLayout.CENTER);
+        networkPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Sieć/klasyfikator"));
+
+        loadWekaButton.setText("Load...");
+        loadWekaButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadWekaButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout networkPanelLayout = new javax.swing.GroupLayout(networkPanel);
+        networkPanel.setLayout(networkPanelLayout);
+        networkPanelLayout.setHorizontalGroup(
+            networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(networkPanelLayout.createSequentialGroup()
+                .addGroup(networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(loadWekaButton)
+                    .addComponent(wekaModelLabel))
+                .addGap(0, 356, Short.MAX_VALUE))
+        );
+        networkPanelLayout.setVerticalGroup(
+            networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(networkPanelLayout.createSequentialGroup()
+                .addComponent(loadWekaButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(wekaModelLabel))
+        );
+
+        jScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Wyniki"));
+
+        startButton.setText("Start");
+        startButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(startButton)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(startButton)
+                .addGap(0, 19, Short.MAX_VALUE))
+        );
 
         jMenu1.setText("File");
 
@@ -66,37 +201,118 @@ public class MainWindow extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Edit");
-        jMenuBar1.add(jMenu2);
-
         setJMenuBar(jMenuBar1);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(folderPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(networkPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(folderPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(networkPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void openFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileMenuItemActionPerformed
- int returnVal = this.openFileChooser.showDialog(this, "Open file");
+        int returnVal = this.openFileChooser.showDialog(this, "Open file");
 
         //Process the results.
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = this.openFileChooser.getSelectedFile();
-            try {
-                this.drawPanel.image=new filters.ExtractionFilter().processImage(ImageIO.read(file));
-                this.drawPanel.repaint();
-                        
-            } catch (IOException ex) {
-               
+
+            if (file.isDirectory()) {
+                String folderPath = file.getAbsolutePath();
+                this.folderNameLabel.setText(folderPath);
+                panels = new ArrayList<ViewPanel>();
+                this.columnpanel.removeAll();
+                int xmlCount = 0;
+                File[] pngFiles = file.listFiles(pngfilter);
+                for (File pngFile : pngFiles) {
+                    File xml = new File(pngFile.getAbsolutePath() + ".con.xml");
+                    String xmlFile = null;
+                    if (xml.exists()) {
+                        xmlFile = xml.getName();
+                        xmlCount++;
+                    }
+                    ViewPanel panel = new ViewPanel(folderPath,pngFile.getName(), xmlFile);
+
+                    panels.add(panel);
+                    this.columnpanel.add(panel);
+
+                }
+                this.pngCountLabel.setText(String.valueOf(panels.size()));
+                this.xmlFileCountLabel.setText(String.valueOf(xmlCount));
+                this.columnpanel.revalidate();
+
             }
+            //this.drawPanel.image=new filters.ExtractionFilter().processImage(ImageIO.read(file));
+            //this.drawPanel.repaint();
+
+
         }
         this.openFileChooser.setSelectedFile(null);        // TODO add your handling code here:
     }//GEN-LAST:event_openFileMenuItemActionPerformed
 
+    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
+        if(processor!=null && processor.isAlive()){
+            processor.interrupt();
+        }
+        if(wekaModel==null){
+            return;
+        }
+        processor = new ThreadProcesor(panels,this.folderNameLabel.getText(),wekaModel);
+        processor.start();
+    }//GEN-LAST:event_startButtonActionPerformed
+
+    private void loadWekaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadWekaButtonActionPerformed
+        int returnVal = this.openFileChooser2.showDialog(this, "Open file");
+
+        //Process the results.
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            wekaModel = this.openFileChooser2.getSelectedFile();
+            this.wekaModelLabel.setText(wekaModel.getAbsolutePath());
+        }
+    }//GEN-LAST:event_loadWekaButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private gui.DrawPanel drawPanel;
+    private javax.swing.JLabel folderLabel;
+    private javax.swing.JLabel folderNameLabel;
+    private javax.swing.JPanel folderPanel;
     private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane;
+    private javax.swing.JButton loadWekaButton;
+    private javax.swing.JPanel networkPanel;
     private javax.swing.JFileChooser openFileChooser;
+    private javax.swing.JFileChooser openFileChooser2;
     private javax.swing.JMenuItem openFileMenuItem;
+    private javax.swing.JLabel pngCountLabel;
+    private javax.swing.JLabel pngFileLabel;
+    private javax.swing.JButton startButton;
+    private javax.swing.JLabel wekaModelLabel;
+    private javax.swing.JLabel xmlFileCountLabel;
+    private javax.swing.JLabel xmlFileLabel;
     // End of variables declaration//GEN-END:variables
 }

@@ -4,19 +4,10 @@
  */
 package gui;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import javax.swing.SwingUtilities;
-import sys.RGBHelper;
 
 /**
  *
@@ -26,41 +17,38 @@ public class DrawPanel extends javax.swing.JPanel {
 
     public BufferedImage image;
     public PropertyChangeSupport changeSupport;
-    public boolean processing = false;
-    private static Color transparent = new Color(1f,1f,1f,0.6f);
+    private static Color transparent = new Color(0f, 1f, 0f, 0.6f);
+
     /**
      * Creates new form DrawPanel
      */
     public DrawPanel() {
         initComponents();
-        
         changeSupport = new PropertyChangeSupport(this);
-        this.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e)) {
-                    selectNodeAt(e.getPoint());
-                }
-                else{
-                      float[] hsv = RGBHelper.getHSV(image.getRGB(e.getPoint().x, e.getPoint().y));
-                      //Messages.info("H:"+hsv[0]+",S:"+hsv[0]+",B:"+hsv[0]);
-                }
-            }
-            
-
-            private void selectNodeAt(Point p) {
-                
-                    repaint();
-                
-            }
-        });
     }
 
     public DrawPanel(BufferedImage image) {
         this();
         this.image = image;
+    }
 
+    public void setImage(BufferedImage image) {
+        this.image = image;
+        this.revalidate();
+        this.repaint();
+    }
+
+    public void setRectangleList(List<Rectangle> rectangles) {
+        if (image != null) {
+            Graphics g = this.image.getGraphics();
+            g.setColor(transparent);
+            for (Rectangle rect : rectangles) {
+                g.fillRect(rect.x, rect.y, rect.width, rect.height);
+            }
+           
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     @Override
@@ -69,23 +57,14 @@ public class DrawPanel extends javax.swing.JPanel {
         Graphics2D g2d = (Graphics2D) g;
         float width = this.getWidth();
         float height = this.getHeight();
-        Point orgin = new Point();
+        Point orgin;
         if (image != null) {
             float imgWidth = image.getWidth();
             float imgHeight = image.getHeight();
-            float scale = Math.min(Math.min(width/imgWidth, height/imgHeight),1);
-            g2d.scale(scale,scale);
-            orgin = new Point((int)Math.max((width-imgWidth*scale), 0),(int)Math.max((height-imgHeight*scale), 0));
-            g2d.drawImage(image, orgin.x, orgin.y, (int)imgWidth, (int)imgHeight, null);
-        }
-        if(!processing){
-           
-        }
-        else{
-            g2d.setColor(transparent);
-            g2d.fillRect((image.getWidth()/2)-30, (image.getHeight()/2)-10, 100, 20);
-            g2d.setColor(Color.BLACK);
-            g2d.drawString("Processing...", (image.getWidth()/2)-20, (image.getHeight()/2)+5);
+            float scale = Math.min(Math.min(width / imgWidth, height / imgHeight), 1);
+            g2d.scale(scale, scale);
+            orgin = new Point((int) Math.max((width - imgWidth * scale), 0), (int) Math.max((height - imgHeight * scale), 0));
+            g2d.drawImage(image, orgin.x, orgin.y, (int) imgWidth, (int) imgHeight, null);
         }
     }
 
