@@ -7,7 +7,7 @@
 
 \LoadClass[12pt,a4paper,authortitle]{mwart}
 \usepackage[OT4]{polski}
-\usepackage{url}
+\usepackage[hyphens]{url}
 
 \makeatletter
 
