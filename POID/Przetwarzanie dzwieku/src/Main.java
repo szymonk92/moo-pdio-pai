@@ -1,9 +1,13 @@
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Vector;
@@ -83,7 +87,7 @@ public class Main {
 	public static void main(String[] args) {
 		args = new String[1];
 
-		args[0] = "natural/viola/130Hz.wav"; 
+		args[0] = "natural/viola/698Hz.wav"; 
 		//"seq/DWK_violin.wav"
 		//"artificial/diff/1366Hz.wav"
 		//"artificial/med/202Hz.wav"
@@ -146,27 +150,146 @@ public class Main {
 			double[][] d = new double[][]{signal};
 			Main m = new Main();
 			PlotWave pw = new PlotWave();
-			pw.plot(d, "sygnał wejściowy", 0);
+//			pw.plot(d, "sygnał wejściowy", 0);
 
 			// AMDF
-			d = new double[1][signal.length];
+			d = new double[2][signal.length];
 
-			BoundedQueue mins = new BoundedQueue((int)(WINDOW_WIDTH+WINDOW_WIDTH*0.2),new MinDataComp(d[0]));
+//			BoundedQueue mins = new BoundedQueue((int)(WINDOW_WIDTH+WINDOW_WIDTH*0.2),new MinDataComp(d[0]));
 			
 			for (int i = 1; i < signal.length; ++i) {
 				for (int j = i; j < signal.length; ++j) {
 					d[0][i] += Math.abs(signal[j] - signal[j - i]);
 				}
 			}
+						
+			double dd[] = d[0];
+			LinkedList<Integer> pperiod = new LinkedList<Integer>();
+			//RANGE
 			
+			int range =12;
 			
-			for (int i = (int)(WINDOW_WIDTH*0.1); i < (signal.length-signal.length*0.9); ++i) {
-				mins.add(i);
+			System.out.println("RANGE"+range);
+			for (int i = range; i < signal.length-range; ++i) {
+				int bigger=0;
+				for (int j = i-range; j < i+range; ++j) {
+					if ( dd[j] > dd[i] && i!=j)
+						bigger++;
+				}
+				if ( bigger == (range*2)-1) {
+//					System.out.println(i);
+					pperiod.add(i);
+					i+=(range*2)-1;
+				}
 			}
 			
-			int min_ind= 44100;
+			HashMap<Integer, Integer> period = new HashMap<Integer,Integer>();
+			int[] periodicity = new int[pperiod.size()];
+			
+			System.out.println("periods"+pperiod.size());
+			
+			for( int i=0; i< pperiod.size(); ++i) {
+					for( int j=i+1; j< pperiod.size(); ++j) {
+						
+						int p = pperiod.get(j) - pperiod.get(i);
+						if ( p < 2000) {
+							Integer now = period.get(p);
+							if ( now == null)
+								period.put(p, 1);
+							else 
+								period.put(p, now+1);
+						}
+					}
+			}
+			
+			
+			List<Integer> sortedKeys=new ArrayList<Integer>(period.keySet());
+			Collections.sort(sortedKeys);
+			
+			
 
-			Object[] arr = mins.toArray();
+			Integer prev = sortedKeys.get(0);
+			for ( int j=1; j<sortedKeys.size(); ++j) {
+				Integer i = sortedKeys.get(j);
+				
+				if (  Math.abs(i-prev)<= 5 ) {
+					int new_key = (prev+i)/2, new_val = period.get(prev)+period.get(i);
+					period.remove(i);
+					period.remove(prev);
+					period.put(new_key, new_val);
+					
+					sortedKeys=new ArrayList<Integer>(period.keySet());
+					Collections.sort(sortedKeys);
+					j=0;
+					prev= sortedKeys.get(0);
+				}
+				else 
+					prev= i;
+			}
+			
+			sortedKeys=new ArrayList<Integer>(period.keySet());
+			Collections.sort(sortedKeys);
+			
+			for ( int l=0; l<sortedKeys.size(); ++l) {
+				Integer i = sortedKeys.get(l);
+				for (int k=l+1; k<sortedKeys.size(); ++k) {
+					Integer j = sortedKeys.get(k);
+					for( int a=-2; a <= 2; ++a) {
+						
+					if ( ((j+a) % i) == 0 ) 
+					{
+						//j jest wielokrotnoscia k
+						//przypisz ilosc wystapien j do k
+						int new_val = period.get(j)+period.get(i);
+						period.remove(j);
+						period.put(i, new_val);
+						
+						sortedKeys=new ArrayList<Integer>(period.keySet());
+						Collections.sort(sortedKeys);
+						l=-1;
+						k=sortedKeys.size();
+						break;
+					}
+				}
+				}	
+			}
+			
+			
+			
+			sortedKeys=new ArrayList<Integer>(period.keySet());
+			Collections.sort(sortedKeys);
+			
+			
+			int max_val=0;
+			int min_ind= 44100;
+			
+			for( Integer i : sortedKeys) {
+				System.out.println(i+" "+period.get(i));
+				if ( period.get(i)>max_val){
+					max_val =period.get(i);
+					min_ind=i;
+				}
+			}
+						
+			
+//			for( int i=0; i< pperiod.size(); ++i) {
+//				if( pperiod.get(i)>0)
+//					System.out.println(pperiod.get(i)+":"+periodicity[i]);
+//			}
+//			for( ListIterator<Integer> it = pperiod.listIterator(); it.hasNext(); ) {
+//				if ((Integer)it.next() < 0)
+//					it.remove();
+//			}
+			
+			
+			
+						
+			
+//			for (int i = (int)(WINDOW_WIDTH*0.1); i < (signal.length-signal.length*0.9); ++i) {
+//				mins.add(i);
+//			}
+			
+//			Object[] arr = mins.toArray();
 //			HashMap<Integer, Double> map = new HashMap<Integer,Double>();
 //			while ( mins.size() > 0) {
 //				map.put(mins.peek(), d[0][mins.peek()]);
@@ -179,19 +302,19 @@ public class Main {
 //				System.out.println( e.getKey() + " " + e.getValue());
 //			}
 			
-			Arrays.sort(arr, new Comparator<Object>() {
-				@Override
-				public int compare(Object o1, Object o2) {
-					
-					return ((Integer)o1).compareTo((Integer)o2);
-				}
-			});
-			min_ind=(Integer)arr[0];
-			for( int i=1; i<arr.length; ++i) {
-				if ( d[0][(Integer)arr[i]] < d[0][(Integer)arr[i-1]]) {
-					min_ind = (Integer)arr[i];
-				} else break;
-			}
+//			Arrays.sort(arr, new Comparator<Object>() {
+//				@Override
+//				public int compare(Object o1, Object o2) {
+//					
+//					return ((Integer)o1).compareTo((Integer)o2);
+//				}
+//			});
+//			min_ind=(Integer)arr[0];
+//			for( int i=1; i<arr.length; ++i) {
+//				if ( d[0][(Integer)arr[i]] < d[0][(Integer)arr[i-1]]) {
+//					min_ind = (Integer)arr[i];
+//				} else break;
+//			}
 			
 
 			System.out.println("MIN:"+min_ind + "Freq ~= "+
@@ -260,7 +383,7 @@ public class Main {
 			
 			
 			pw = new PlotWave();
-			pw.plot(d, "Cepstrum", 0);
+//			pw.plot(d, "Cepstrum", 0);
 			
 
 		} catch (Exception e) {
