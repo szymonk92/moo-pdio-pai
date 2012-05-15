@@ -309,7 +309,7 @@ public class Main {
 			it = pperiod.listIterator();
 			while (it.hasNext()) {
 				Integer num = (Integer)it.next();
-				if ( dd[num] > dd[max_ind]*0.4) {
+				if ( dd[num] > dd[max_ind]*0.1) {
 					System.out.println(num+" "+dd[num]);
 					d[1][num]=dd[num];
 				}
