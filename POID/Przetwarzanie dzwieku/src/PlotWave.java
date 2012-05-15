@@ -21,6 +21,11 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.chart.renderer.category.StatisticalBarRenderer;
+import org.jfree.chart.renderer.category.WaterfallBarRenderer;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.time.DateRange;
 import org.jfree.data.xy.XYBarDataset;
@@ -39,6 +44,7 @@ public class PlotWave {
 	public JPanel panel;
 	public JSlider slider;
 	
+	
 	public PlotWave() {
 		frame = new JFrame();
 		panel = new JPanel();
@@ -48,21 +54,24 @@ public class PlotWave {
 	}
 	
 	
-	public void plot(double[] signal,String  name,long samplerate) {
+	public void plot(double[][] signal,String  name,long samplerate) {
 		
 		frame.setTitle(name);
 
-		XYSeries soundWave = new XYSeries("sygnał");
-		
-		for( int i=0; i<signal.length; ++i) {
-			double index =  (samplerate ==0 ) ? i : 1000.0*(double)i/(double)samplerate;
-			soundWave.add(index,signal[i]);
+		XYSeries[] soundWave = new XYSeries[signal.length];
+		for(int j=0; j<signal.length; ++j) {
+			soundWave[j]= new XYSeries("sygnal"+j);
+			for( int i=0; i<signal[0].length; ++i) {
+				double index =  (samplerate ==0 ) ? i : 1000.0*(double)i/(double)samplerate;
+				soundWave[j].add(index,signal[j][i]);
+			}
 		}
 		
 		
 		
 		XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(soundWave);
+		for( int j=0; j<signal.length; ++j)
+		dataset.addSeries(soundWave[j]);
 		
 		
 		
@@ -74,7 +83,7 @@ public class PlotWave {
 //				"próbka",
 //				false,
 //				"wartość",
-//				new XYBarDataset(dataset,2),
+//				new XYBarDataset(dataset,0.0625),
 //				PlotOrientation.VERTICAL,
 //				true,false,false)
 //				:
@@ -100,7 +109,7 @@ public class PlotWave {
 		            int value = slider.getValue();
 		            double minimum = domainAxis.getRange().getLowerBound();
 		            double maximum = domainAxis.getRange().getUpperBound();
-		            double delta = (0.05f*(domainAxis.getRange().getLength()));
+		            double delta = (0.1f*(domainAxis.getRange().getLength()));
 					if (value<lastValue) { // left
 		                minimum = minimum - delta;
 		                maximum = maximum - delta;
@@ -111,7 +120,9 @@ public class PlotWave {
 		            DateRange range = new DateRange(minimum,maximum);
 		            domainAxis.setRange(range);
 		            lastValue = value;
-		        }
+		            if ( lastValue == slider.getMinimum() || lastValue == slider.getMaximum())
+		            	slider.setValue(SLIDER_DEFAULT_VALUE);
+		            }
 
 		});
 	
@@ -176,7 +187,5 @@ public class PlotWave {
 		    }
 		};
 	}
-	
-	
 	
 }
