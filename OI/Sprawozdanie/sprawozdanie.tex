@@ -6,20 +6,21 @@
 \usepackage[sort]{natbib}
 
 \usepackage[pdftex]{graphicx}
-\DeclareGraphicsExtensions{.pdf,.png,.jpg,.bmp,.gif}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.bmp,.gif,.jpg}
 
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{mathtools}
 \usepackage{indentfirst}
 \usepackage[hyphens]{url}
+
 \usepackage[stable]{footmisc}
 \usepackage{hyperref}
-
+\usepackage{gensymb}
 \usepackage[polish]{babel}
 \usepackage[center,small,bf]{caption}
 \hypersetup{colorlinks=false,pdfborder={0 0 0}}
-
+\usepackage{subfig}
 \studycycle{Informatyka, studia dzienne, mgr II st.}
 \coursesemester{I}
 
@@ -47,15 +48,74 @@
 Zaprojektowanie aplikacji udostępniającej interfejs do identyfikacji obszarów na zdjęciach w których występują znaki zakazu. Na wyjściu interfejs ma za zadanie podać maski wykrytych znaków.
 
 \section{Wprowadzenie}
-\textbf{DO POPRAWY!!!!!}
-Projekt został podzielony na dwie zasadniczo oddzielne fazy. Pierwszą z nich jest zidentyfikowanie potencjalnych obszarów na których występują poszukiwane znaki. Zadanie to zostało zrealizowane przy pomocy ,,...czegoś takiego co działa...bo Hough Transform nie umiemy używać :]...''. Dzięki której mamy wyznaczone obszary gdzie potencjalnie możemy szukać interesujących nas znaków. Kolejnym etapem jest stwierdzenie czy na znalezionym obszarze znajduje się znak zakazu, etap ten w swojej rdzennej części realizowany jest za pomocą sieci neuronowych, w zadaniu porównano działanie sieci wielowarstwowego perceptronu \footnote{ang. Multilayer Perceptron (MLP)} oraz sieci o radialnej funkcji bazowej \footnote{ang. Radial Basis Function Network (RBF)}.
+Projekt został podzielony na dwie zasadniczo oddzielne fazy. Pierwszą z nich jest zidentyfikowanie potencjalnych obszarów, na których występują poszukiwane znaki. Zadanie to zostało zrealizowane przy pomocy segmentacji obrazu na bazie koloru oraz wyboru jednolitych obszarów tak powstałej maski spełniających odpowiednie warunki. Dzięki której mamy wyznaczone obszary gdzie potencjalnie możemy szukać interesujących nas znaków. Kolejnym etapem jest stwierdzenie czy na znalezionym obszarze znajduje się znak zakazu, etap ten w swojej rdzennej części realizowany jest za pomocą sieci neuronowych, w zadaniu porównano działanie sieci wielowarstwowego perceptronu \footnote{ang. Multilayer Perceptron (MLP)} oraz sieci o radialnej funkcji bazowej \footnote{ang. Radial Basis Function Network (RBF)}.
 
 \subsection{Wyznaczanie obszarów ,,zainteresowania''}
+Jako, że nasza grupa miała za zadanie poprawnie rozpoznać na zdjęciach znaki zakazu, które są dość charakterystyczne ze względu na swoją czerwoną barwę, postanowiliśmy zastosować wstępną filtrację na bazie koloru. Proces ten ma posłużyć przy wybieraniu ze zdjęcia odpowiednich obszarów zainteresowań w celu poddania ich dalszej analizie. 
+
+Podstawowym założeniem na tym etapie jest jego nadmiarowość. Zaproponowane rozwiązanie powinno zwracać więcej bądź tyle samo obszarów co interesujących nas znaków na zdjęciu. Jest to dość ważne gdyż dzięki temu minimalizuje się już na tym etapie szansę przeoczenia znaku na fotografii. 
+
+Po przejrzeniu licznych prac dotyczących segmentacji \cite{Karla} opartych na kolorze postawiliśmy zastosować tą metodę na modelu barw HSV. Jest on bowiem bardziej naturalnym modelem kolorów dla człowieka niż standardowo używany w zapisie obrazów model RGB. Dzięki swoim trzem składowym opisującym w kolejności H - Hue (odcień światła podana w stopniach na kole barw), S- Saturation (nasycenie koloru z przedziału [0-1]) oraz V - Value (wartość z przedziału [0-1]) łatwiej można wybrać tylko interesujący nas kolor. W modelu RGB czasem dwa dość mocno różniące się między sobą zbiory wartości kolejnych składowych mogą bowiem reprezentować bardzo podobny kolor.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{HSV_cone}
+  \caption{Stożek przestrzeni barw HSV.}
+  \label{HSVcone}
+\end{figure}
+
+Interesujący nas kolor czerwony występuje w modelu barw HSV w okolicy wartości H =0\degree . Oznacza to, że znajduje się on w skrajnych końcach jego przedziału zarówno H=0\degree jak i H=360\degree reprezentują bowiem tą samą odcień światła na kole barw. Można jednak zauważyć, że na początku skali kolor czerwony występuje jedynie w przedziale około [0\degree -12\degree] natomiast na jego końcu przedział ten jest znacznie większy i wynosi około [320\degree -360\degree]. 
+
+Głównym więc czynnikiem odpowiadającym za selekcję odpowiedniego koloru jest jego wartość składowej H w modelu barw HSV. Jednak żeby nie wybierać zbyt ciemnych lub jasnych jego odcieni nałożyliśmy też specjalne obostrzenia na pozostałe składowe. Wybrany przez nas zakres HSV przedstawia tabelka \ref{wprow:hsv} poniżej. 
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline 
+Składowa &  Min & Max \\
+\hline
+H  &   0\degree  &   12\degree  \\
+\hline 
+S  &   0.20  &   1.00  \\
+\hline 
+V  &   0.20  &   1.00  \\
+\hline 
+\end{tabular} 
+\begin{tabular}{|c|c|c|}
+\hline 
+Składowa &  Min & Max \\
+\hline
+H  &   320\degree  &   360\degree  \\
+\hline 
+S  &   0.25  &   1.00  \\
+\hline 
+V  &   0.40  &   1.00  \\
+\hline 
+\end{tabular} 
+\caption{Przyjęte zakresy modelu HSV.}
+\label{wprow:hsv}
+\end{table}
+
+Po wstępnej filtracji obrazu na bazie koloru otrzymujemy biało-czarną maskę przedstawiająca obszary o barwie czerwonej. Kolejnym etapem jest połączenie tych obszarów w jednolite, spójne rejony, które w założeniu mają reprezentować osobne obiekty. Wiadomo jednak, że może się zażyć tak że dwa osobne przedmioty o kolorze czerwonym na zdjęciu znajdą się blisko siebie. Może dojść wtedy do ich połączenie i utworzenia z nich jednego takiego obszaru.
+
+Mając już spójne rejony na zdjęciu następuje kolejny etap ich filtracji. Znaki zakazu mają przeważnie okrągły kształt a co za tym idzie można je wpisać w pole pewnego kwadratu. Wyliczamy więc dla każdego rejonu z poprzedniego etapu opisujący go prostokąt, a następnie badamy stosunek jego wysokości do szerokości. Jeśli mieści się on w pewnym przedziale wartości [0.7-1.3] uznajemy dany rejon za zgodny i trafia on do puli rejonów przeznaczonych do dalszego przetwarzania przez sieć. takie założenie pozwala nam odrzuć obiekty które są za wysokie lub zbyt szerokie aby mogły być znakami. 
+
+W trakcie testów okazało się jednak, że czasem poprawnie wykryty rejon był odrzucany przez ten warunek. Spowodowane to było tym że znaki w Polsce mogą być umieszczane jeden pod drugim. Cześć odpowiedzialna za wybór spójnych rejonów łączyła przeważnie taką grupę znaków w jeden rejon. Dlatego też dodaliśmy warunek gdzie dzielimy takie bardzo wysokie obszary jeśli ich wysokość jest dwu lub trzykrotnie większa od szerokości na odpowiednio dwa lub trzy osobne rejony. Poprawiło to skuteczność wykrywania niektórych znaków dodając niewielki dodatkowy narzut w ilości rejonów przesłanych do dalszej klasyfikacji.
+ \begin{figure}[H]
+  \centering
+  \subfloat[Obraz początkowy]{
+	  \includegraphics[width=0.3\textwidth]{image0126}
+  }
+  \subfloat[Maska dla koloru czerwonego]{
+  		\includegraphics[width=0.3\textwidth]{mask}
+  	}
+  	 \subfloat[Wybrane rejony]{
+  		\includegraphics[width=0.3\textwidth]{regions}
+  	}
+  \caption{Kolejne etapy wyboru obszarów zainteresowania.}
+  \label{fig:proc}
+\end{figure}
 
 \subsection{Rozstrzyganie czy na obszarze znajduje się znak}
-
-
-
 
 \subsubsection{Ekstrakcja Cech} 
 \label{cfseval}
@@ -154,7 +214,7 @@ Sygnał w sieci propagowany jest w warstwy $k$ na $k+1$ gdzie wejściem warstwy 
 Z iteracji na iteracje jeśli sieć będzie miała dobrą architekturę, błąd na wyjściu sieci będzie się minimalizował, w najlepszym przypadku błąd może wynieść 0 czyli bezbłędnie nauczony zbiór uczący, lecz taki wynik tylko powierzchownie może wydać się dobrym. Ponieważ oznaczać to może, że sieć dopasowała się dokładnie do danych uczących i jedynie do danych uczących tym samym nie posiada zdolności generalizacji co w przypadku zadania rozpoznawania wzorców jest efektem niepożądanym gdyż sieć będzie bardzo wrażliwa na zaszumione dane.
 
 
-\subsubsection{sieć o radialnej funkcji bazowej \footnote{ang. RBF - Radial basis function}}
+\subsubsection{Sieć o radialnej funkcji bazowej \footnote{ang. RBF - Radial basis function}}
 \label{RBF}
 
 Odmienną koncepcję do uprzednio zaprezentowanej sieci jest zastosowanie nieliniowego przekształcenia przestrzeni danych wejściowych przez wprowadzenie warstwy neuronów ukrytych realizujących funkcję zmieniającą się radialnie wokół wybranego centrum. Neuron radialny jest naturalnym uzupełnieniem neuronu sigmoidalnego, ponieważ umożliwia w przypadku wystąpienia symetrii kołowej danych znaczne uproszczenie sieci, zmniejszenie liczby potrzebnych neuronów w warstwie ukrytej do realizacji zadania klasyfikacji. Neuron sigmoidalny w przestrzeni wielowymiarowej rozdzielał dwie klasy za pomocą hiperpłaszczyzny, w przypadku neuronu radialnego podział dokonywany jest za pomocą podziału kołowego wokół punktu centralnego.
@@ -272,6 +332,36 @@ W implementacji tej części głównie posiłkowano się biblioteką przeznaczon
 Do nauki klasyfikatorów należało zebrać odpowiedni zbiór uczący zawierający dane będące wzorcami umożliwiającymi poprawną klasyfikacje obszarów zawierających znaki zakazu. Zbiór ten powstał na podstawie posiadanych naturalnych zdjęć robionych z drogi, następnie wycinano obszary zdjęć gdzie znajdowały się znaki zakazu, ostrzegawcze, informacyjne, nakazu, aby zebrać odpowiednio duże zbiory przykładów pozytywnych i negatywnych do nauki. Z powodu małej ilości zarejestrowanych znaków odwołania ograniczeń - przypadek znaków zakazu, stworzono zbiór sztuczny na podstawie szkiców tych znaków, które następnie zostały zaszumione różnymi rodzajami szumów oraz rozmyte przy pomocy rozmycia gaussa lub rozmycia ,,w ruchu''. Przekształcenia danych zostały wykonane przy pomocy biblioteki graficznej ImageMagick++ \footnote{\url{www.imagemagick.org}}.
 
 \section{Wyniki}
+\subsection{Selekcja obszarów zainteresowania}
+Test klasyfikacji przeprowadzono na zbiorze składającym się z 30 zdjęć. W śród nich znajdowały się zdjęcia, na których nie było żadnych znaków zakazu. Wszystkie zdjęcia zostały wcześniej odpowiednio otagowane w celu automatyczej oceny jakość klasyfikacji. W wybranym zbiorze znalazło się 21 znaków zakazów umieszczonych na 18 zdjęciach. Pozostałe nie zawierały żadnego znaku zakazu. Zbiór ten nie zawierał znaków odwołania.
+
+Wyniki przedstawia tabela poniżej:
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline 
+Ilość rejonów &  Otagowanych znaków & Zgodnych rejonów &  Poprawność \\
+\hline
+351   &   21   &   16   &  76\% \\
+\hline 
+\end{tabular} 
+\caption{Wyniki wstępnej selekcji obszarów ,,zainteresowania''.}
+\label{wyniki:preproc}
+\end{table}
+
+Dla drugiego zestawu zdjęć składającego się z 59 otagowanych fotografii osiągnięto następujące wyniki:
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline 
+Ilość rejonów &  Otagowanych znaków & Zgodnych rejonów &  Poprawność \\
+\hline
+400   &   66   &   39   &  59\% \\
+\hline 
+\end{tabular} 
+\caption{Wyniki wstępnej selekcji obszarów ,,zainteresowanie''.}
+\label{wyniki:preproc2}
+\end{table}
 
 \subsection{Rozstrzyganie czy na obszarze znajduje się znak}
 
@@ -289,7 +379,7 @@ Precision - stosunek prawidłowo rozpoznanych obiektów klasy do wszystkich obie
 Recall - stosunek prawidłowo rozpoznanych obiektów klasy do obiektów należących do klasy.
 
 
-\subsubsection{sieć Wielowarstwowy perceptron}
+\subsubsection{Sieć Wielowarstwowy perceptron}
 
 \begin{table}[H]
 \centering
@@ -324,7 +414,7 @@ TP Rate &  FP Rate & Precision &  Recall &  Klasa \\
 \end{table}
 
 
-\subsubsection{sieć o radialnej funkcji bazowej}
+\subsubsection{Sieć o radialnej funkcji bazowej}
 
 
 \begin{table}[H]
@@ -360,22 +450,126 @@ TP Rate &  FP Rate &  Precision &  Recall &  Klasa\\
 \label{wyniki:rbfclass}
 \end{table}
 
+\subsection{Wynik na zbiorze testowym}
+Badanie zostało przeprowadzone na tym samym zbiorze 30 zdjęć co w przypadku badania poprawności selekcji obszarów zainteresowania. Do każdego klasyfikatora trafiło 351 fragmentów zdjęć wybranych przy pomocy pierwszego etapu przetwarzania. Wśród tych fragmentów 16 zawierało znaki zakazu. Dodatkowo sprawdzaliśmy ile zdjęć zostało w jaki sposób zaklasyfikowanych. Wydzieliliśmy trzy kategorie:
+\begin{itemize}
+\item \textbf{Poprawnie} - ilość poprawnych rejonów odpowiada ilości otagowanych znaków na zdjęciu oraz nie ma rejonów błędnych.
+\item \textbf{Źle} - nie wykryto żadnego znaku otagowanego na zdjęciu, mogą być wykryte same niepoprawne rejony.
+\item \textbf{Częściowo} - wykryto część otagowanych znaków ale nie wszystkie, mogą występować błędnie zidentyfikowane rejony.
+\end{itemize}
 
+\subsubsection{Sieć Wielowarstwowy perceptron}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline 
+Poprawnie zaklasyfikowanych & 5 & 31.25\% \\ 
+\hline 
+Niepoprawnie zaklasyfikowanych & 11 & 68.75\% \\ 
+\hline 
+\end{tabular} 
+\caption{Dokładność metody MLP.}
+\label{wyniki:mlptest}
+\end{table}
+
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline 
+True Positive  &  False Positive & Precision &  Recall &  Klasa \\
+\hline
+5    &   6   &   0.45  &    0.3125  &  positive \\
+\hline
+329    &  11  &    0.97  &   0.98  & negative \\
+\hline 
+\end{tabular} 
+\caption{Wyniki klasyfikacja dla poszczególnych klas, metodą MLP.}
+\label{wyniki:mlptestclass}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline 
+Poprawnie & 14 & 47\% \\ 
+\hline 
+Źle & 15 & 50\% \\
+\hline 
+Częściowo & 1 & 3\% \\ 
+\hline 
+\end{tabular} 
+\caption{Jakoś identyfikacji poszczególnych zdjęć, metodą MLP.}
+\label{wyniki:mlpImagetest}
+\end{table}
+\subsubsection{Sieć o radialnej funkcji bazowej}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline 
+Poprawnie zaklasyfikowanych & 8 & 50\% \\ 
+\hline 
+Niepoprawnie zaklasyfikowanych & 8 & 50\% \\
+\hline 
+\end{tabular} 
+\caption{Dokładność metody RBFN.}
+\label{wyniki:rbftest}
+\end{table}
+
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline 
+True Positive &  False Positive &  Precision &  Recall &  Klasa\\
+\hline
+8    &   3  &    0.73  &   0.38 &    positive\\
+\hline
+332  &   8   &   0.98  &   0.99  & negative\\
+\hline 
+\end{tabular} 
+\caption{Wyniki klasyfikacja dla poszczególnych klas, metodą RBFN.}
+\label{wyniki:rbftestclass}
+\end{table}
+ 
+ \begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline 
+Poprawnie &19 & 63\% \\ 
+\hline 
+Źle & 11 & 27\% \\
+\hline 
+Częściowo & 0 & 0\% \\ 
+\hline 
+\end{tabular} 
+\caption{Jakoś identyfikacji poszczególnych zdjęć, metodą RBFN.}
+\label{wyniki:rbftImagetest}
+\end{table}
 \section{Dyskusja}
 
-
-\subsection{Rozstrzyganie czy na obszarze znajduje się znak}
 Jak widać już na ogólnym zestawieniu procentowym udanych klasyfikacji \ref{wyniki:mlpproc} \ref{wyniki:rbfproc}, zgodnie z oczekiwaniami sieć o radialnej funkcji bazowej poradziła sobie znacznie lepiej od sieci wielowarstwowego perceptronu. Oraz, czego tutaj nie zestawiono, klasyfikator o radialnej funkcji bazowej był znacznie bardziej złożony od odpowiednika perceptronu. Jednak jak widać w zestawieniach trafności poszczególnych klas \ref{wyniki:mlpclass}, \ref{wyniki:rbfclass} klasyfikator zbudowany na neuronach o radialnej funkcji bazowej znacznie lepiej potrafi klasyfikować znaki zakazu mówią nam o tym dokładnie zestawione wskaźniki. Chociażby bardzo ważny \emph{FP} który w przypadku MLP miał wartość 0.136 a dla RBF zaledwie 0.015.
 
+W trakcie testów na przykładowym zbiorze fotografii podobnie jak przy wstępnych wynikach testów klasyfikacji o wiele lepiej poradziła sobie sieć o radialnej funkcji bazowej osiągając skuteczność na poziomie około 50\%. Sieć ta dała lepszy rezultat chociażby porównując same wyniki klasyfikacji poszczególnych zdjęć zawartych w tabelach \ref{wyniki:mlpImagetest} i \ref{wyniki:rbftImagetest}. Dodatkowo sieć oparta o RBF miała niższy współczynnik FP od sieci MLP.  
 
 \section{Wnioski}
 
 \subsection{Rozstrzyganie czy na obszarze znajduje się znak}
 W części tej udało się stworzyć klasyfikator którego zdolności klasyfikacji są zadowalające, wynik powyżej 90\% wydaje się być akceptowalnym, z tym rodzaju zadania przy tak małym przetworzeniu danych - działamy praktycznie na danych naturalnych. Jednak z drugiej strony zbiór testowy był bardzo mały aby stwierdzić, czy sprawność zbudowanego modelu utrzymała by się na zaobserwowanym przez nas poziomie należałoby by zebrać wystarczająco zróżnicowany zbiór modelujący nam w pewnym stopniu prawdopodobne różnicowanie obrazów wejściowych na których mielibyśmy za zadanie zidentyfikowanie znaków. 
 
+\subsection{Wynik na zbiorze testowym}
 
-\bibliographystyle{plainnat}
+Osiągnięty ostateczny wynik na zbiorze testowym jest dość słaby. Maksymalnie sieć RBFN była wstanie poprawnie zaklasyfikować 50\% podanych do niej znaków osiągając przy tym 63\% poprawnej klasyfikacji całego zdjęcia. Wynik ten jest mimo wszystko lepszy od sieci opartej o wielowarstwowy perceptron, który osiągnął zaledwie około 32\% skuteczności.
+
+Należałoby więc przyjrzeć się dokładnie poszczególnym etapom przetwarzania w celu znalezienia kolejnych metod ich optymalizacji i poprawy skuteczności. Ważnym zagadnieniem pozostaje poprawa zdjęcia przed jego przetworzeniem. Mogło by to się przyczynić do zwiększenia ilości wykrytych rejonów zainteresowania na zdjęciu. Kolejnym punktem, w którym należy szukać sposób na poprawę skuteczności klasyfikacji jest etap przesyłania fragmentów zdjęcia do klasyfikatora. Możliwe że zastosowanie np. ujednolicania kolorów albo poziomów w tych fragmentach zwiększyło by skuteczność.
+
+%\bibliographystyle{plainnat}
+\bibliographystyle{plplain}
 \bibliography{bibliografia}
-
 
 \end{document}
