@@ -99,6 +99,12 @@ public class SignWrapper {
         }
         return result;
     }
+     public BufferedImage getSubImageFit(Rectangle rect) {
+        if (img != null) {
+                return resize(img.getSubimage(rect.x, rect.y, rect.width, rect.height), 30,30);
+        }
+        return null;
+    }
     //DOM walking function
 
     public NodeList getNodesByXPath(String xpaths) {
@@ -156,14 +162,19 @@ public class SignWrapper {
 
     public static boolean isTheSame(Rectangle first, Rectangle second) {
         if (first.intersects(second)) {
-            int firstArea = first.height * first.width;
-            int secondArea = second.height * second.width;
-            Rectangle rect = first.intersection(second);
-            int rectArea = rect.height * rect.width;
-            int maxRectArea = (int) (rectArea * 1.1);
-            int miniRectArea = (int) (rectArea * 0.9);
-            if ((miniRectArea <= firstArea && maxRectArea >= firstArea) && (miniRectArea <= secondArea && maxRectArea >= secondArea)) {
-                return true;
+            double firstArea = first.height * first.width;
+            double secondArea = second.height * second.width;
+            double maxArea = Math.max(firstArea, secondArea);
+            double minArea = Math.min(firstArea, secondArea);
+            double result = minArea/maxArea;
+            if(result>0.5 &&result<1.3){
+                Rectangle rect = first.intersection(second);
+                double rectArea = rect.height * rect.width;
+                double distance = Point.distance(first.getCenterX(), first.getCenterY(), second.getCenterX(), second.getCenterY());
+                double  maxRectArea = Math.max(rectArea/firstArea, rectArea/secondArea);
+                if (distance<first.height/0.5 && maxRectArea>0.6) {
+                    return true;
+                }
             }
         }
         return false;

@@ -75,7 +75,7 @@
                   <Component id="networkPanel" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane" pref="370" max="32767" attributes="0"/>
+              <Component id="jScrollPane" pref="337" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
           </Group>
@@ -243,15 +243,60 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="startButton" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="Green" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="Red" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="Orange" alignment="0" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" pref="89" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Component id="Found" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="Regions" min="-2" max="-2" attributes="0"/>
+                              <Component id="Tags" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace pref="370" max="32767" attributes="0"/>
+                          <Component id="startLerningTestButton" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="71" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
-                  <Component id="startButton" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="0" pref="19" max="32767" attributes="0"/>
+              <Group type="102" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="startButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="startLerningTestButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="Green" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="Tags" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="Red" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                          <Component id="Orange" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="Regions" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="Found" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -264,6 +309,44 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startButtonActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="startLerningTestButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Build lerning set"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startLerningTestButtonActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="Green">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Green:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="Red">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Red:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="Orange">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Orange:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="Tags">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Tags:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="Regions">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Regions:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="Found">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Found:"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>

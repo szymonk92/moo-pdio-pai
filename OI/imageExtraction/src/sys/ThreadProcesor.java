@@ -4,9 +4,13 @@
  */
 package sys;
 
+import com.googlecode.javacv.cpp.opencv_core;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import filters.ExtractionFilter;
+import filters.ExtractionFilter2;
 import gui.MainWindow;
 import gui.ViewPanel;
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -16,8 +20,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
 import weka.core.*;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Remove;
 
 /**
  *
@@ -42,8 +47,10 @@ public class ThreadProcesor extends Thread {
             BufferedImage image;
             SignWrapper sw;
             for (ViewPanel panel : panels) {
-
+                panel.Clear();
                 panel.Start();
+                
+                panel.setProcessName("Ładowanie zdjęcia");
                 File imageFile = new File(folder + File.separator + panel.image);
 
                 File xmlFile = null;
@@ -52,16 +59,19 @@ public class ThreadProcesor extends Thread {
                 }
                 try {
                     image = ImageIO.read(imageFile);
-                    panel.SetImage(SignWrapper.resize(image, 64, 64));
+                    if(!panel.imageSet){
+                        panel.SetImage(SignWrapper.resize(image, 64, 64));
+                    }
                     sw = new SignWrapper(image);
                 } catch (IOException ex) {
 
                     Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
                     break;
                 }
-
-                if (xmlFile != null) {
+                panel.addProgress(10);
+                if (xmlFile != null && panel.tags==null) {
                     try {
+                        panel.setProcessName("Ładowanie tagów");
                         sw.setXmlFile(new FileInputStream(xmlFile.getAbsolutePath()));
                         panel.setTags(sw.getSigns("znak zakazu"));
                     } catch (FileNotFoundException ex) {
@@ -69,10 +79,18 @@ public class ThreadProcesor extends Thread {
                         break;
                     }
                 }
-                panel.setRegions(filter.processImage(image));
-                if (panel.tags != null) {
-                    panel.setRegionsResult(SignWrapper.isTheSame(panel.tags, panel.regions));
+                panel.addProgress(10);
+                if(panel.regions==null){
+                    panel.setProcessName("Tworzenie regionów");
+                    panel.setRegions(filter.processImage(image));
+                    if (panel.tags != null) {
+                        panel.setRegionsResult(SignWrapper.isTheSame(panel.tags, panel.regions));
+                    }
                 }
+                else{
+                    panel.sendInfo();
+                }
+                panel.addProgress(30);
                 Classifier classify = null;
                 int[] features = null;
                 try {
@@ -96,8 +114,10 @@ public class ThreadProcesor extends Thread {
                     e.printStackTrace();
                     break;
                 }
+                panel.setProcessName("Klasyfikacja");
                 List<Rectangle> found = new ArrayList<Rectangle>();
-                Instances testData = createInstances(sw.getSubImagesFit(panel.regions));
+                int progressValue = (int) (50f / panel.regions.size());
+                Instances testData = createInstances(sw.getSubImagesFit(panel.regions), features);
                 if (testData != null) {
                     try {
                         //Instances labeled = new Instances(testData);
@@ -108,6 +128,7 @@ public class ThreadProcesor extends Thread {
                             if (clsLabel != 2) {
                                 found.add(panel.regions.get(i));
                             }
+                            panel.addProgress(progressValue);
                         }
                     } catch (Exception ex) {
                         Logger.getLogger(ThreadProcesor.class.getName()).log(Level.SEVERE, null, ex);
@@ -125,7 +146,7 @@ public class ThreadProcesor extends Thread {
 
     }
 
-    public static Instances createInstances(List<BufferedImage> images) {
+    public static Instances createInstances(List<BufferedImage> images, int[] features) {
         if (images == null || images.isEmpty()) {
             return null;
         }
@@ -159,13 +180,26 @@ public class ThreadProcesor extends Thread {
                     val++;
                 }
             }
-
-
             ret.add(ince);
         }
 
 
         ret.setClassIndex(ret.numAttributes() - 1);
-        return ret;
+        return attributeSelection(ret, features);
+    }
+
+    public static Instances attributeSelection(Instances data, int[] features) {
+        features[features.length - 1] = data.numAttributes() - 1;
+        Remove rm = new Remove();
+        rm.setAttributeIndicesArray(features);
+        rm.setInvertSelection(true);
+        try {
+            rm.setInputFormat(data);
+            return Filter.useFilter(data, rm);
+        } catch (Exception ex) {
+            Logger.getLogger(ThreadProcesor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+
     }
 }

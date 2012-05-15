@@ -7,8 +7,8 @@ package filters;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 import static com.googlecode.javacv.cpp.opencv_core.*;
- import static com.googlecode.javacv.cpp.opencv_imgproc.*;
- import static com.googlecode.javacv.cpp.opencv_highgui.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -24,27 +24,75 @@ import sys.Region;
 public class ExtractionFilter {
 
     private List<Region> regions;
+    static int counter = 0;
     private WritableRaster imageRaster;
-    static int hueLowerR = 160;
-    static int hueUpperR = 180;
-static int counter = 0;
+
     public ExtractionFilter() {
-      
+    }
+
+    public static void rgb_normalize(IplImage img) {
+
+        double[][] adj = new double[256][3];
+
+        IplImage hsv = cvCreateImage(cvGetSize(img), 8, 3);
+        double min[] = new double[3], max[] = new double[3];
+
+        cvCvtColor(img, hsv, CV_BGR2HSV);
+
+        min[0] = min[1] = min[2] = 255.0;
+        max[0] = max[1] = max[2] = 0.0;
+        for (int y = 0; y < img.height(); y++) {
+            for (int x = 0; x < img.width(); x++) {
+                CvScalar rgb = cvGet2D(hsv, y, x);
+                for (int j = 0; j < 3; ++j) {
+                    min[j] = Math.min(min[j], rgb.getVal(j));
+                    max[j] = Math.max(max[j], rgb.getVal(j));
+                }
+            }
+        }
+
+        for (int i = 0; i < 256; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                adj[i][j] = i;
+                adj[i][j] = (adj[i][j] - min[j]) * ((255 - 0) / (max[j] - min[j])) + 0;
+            }
+        }
+        for (int y = 0; y < img.height(); y++) {
+            for (int x = 0; x < img.width(); x++) {
+                CvScalar rgb = cvGet2D(hsv, y, x);
+                double r = rgb.red(), g = rgb.green(), b = rgb.blue();
+                rgb.red(adj[(int) r][0]);
+                rgb.green(adj[(int) g][1]);
+                rgb.blue(adj[(int) b][2]);
+                cvSet2D(hsv, y, x, rgb);
+            }
+        }
+        cvCvtColor(hsv, img, CV_HSV2BGR);
+        cvReleaseImage(hsv);
     }
 
     static IplImage hsvThreshold(IplImage orgImg) {
+    
+
         IplImage imgHSV = cvCreateImage(cvGetSize(orgImg), 8, 3);
+         //IplImage imgCanny = cvCreateImage(cvGetSize(orgImg), 8, 1);
+         //IplImage imgGray = cvCreateImage(cvGetSize(orgImg), 8, 1);
+         //cvCvtColor(orgImg, imgGray, CV_BGR2GRAY);
+         //cvLaplace(imgGray, imgGray, 3);
+        //cvCanny(imgGray, imgCanny, 250, 120, 3);
         cvCvtColor(orgImg, imgHSV, CV_BGR2HSV);
+       
         IplImage imgThreshold = cvCreateImage(cvGetSize(orgImg), 8, 1);
         IplImage imgThreshold2 = cvCreateImage(cvGetSize(orgImg), 8, 1);
-        cvInRangeS(imgHSV, cvScalar(hueLowerR, 50, 50, 0), cvScalar(hueUpperR, 255, 255, 0), imgThreshold);
-        cvInRangeS(imgHSV, cvScalar(0, 100, 100, 0), cvScalar(5, 255, 255, 0), imgThreshold2);
+        cvInRangeS(imgHSV, cvScalar(160, 50, 50, 0), cvScalar(180, 255, 255, 0), imgThreshold);
+        cvInRangeS(imgHSV, cvScalar(0, 60, 100, 0), cvScalar(6, 255, 255, 0), imgThreshold2);
         cvAdd(imgThreshold, imgThreshold2, imgThreshold, null);
+        //cvSub(imgThreshold, imgCanny, imgThreshold,null);
         cvReleaseImage(imgHSV);
         cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 5);
-        //cvCanny(imgThreshold, imgThreshold, 250, 120, 3);
-        //cvSaveImage("D:\\test\\"+counter+".png",imgThreshold);
-        //counter++;
+       
+        cvSaveImage("D:\\test\\"+counter+".png",imgThreshold);
+        counter++;
         return imgThreshold;
     }
 
@@ -98,10 +146,16 @@ static int counter = 0;
                     int rectY = Math.min(Math.max(rect.y - toAdd, 0), inImage.getHeight());
                     result.add(new Rectangle(rectX, rectY, width, height));
                 }
-                if (ratio >= 1.6 && ratio <= 2.5) {
+                if (ratio >= 1.7 && ratio <= 2.3) {
 
                     result.add(new Rectangle(rect.x, rect.y, rect.width, rect.height / 2));
                     result.add(new Rectangle(rect.x, rect.y + rect.height / 2, rect.width, rect.height / 2));
+                }
+                if (ratio >= 2.7 && ratio <= 3.3) {
+
+                    result.add(new Rectangle(rect.x, rect.y, rect.width, rect.height / 3));
+                    result.add(new Rectangle(rect.x, rect.y + rect.height * 1/3, rect.width, rect.height / 3));
+                    result.add(new Rectangle(rect.x, rect.y + rect.height * 2/3, rect.width, rect.height / 3));
                 }
             }
         }

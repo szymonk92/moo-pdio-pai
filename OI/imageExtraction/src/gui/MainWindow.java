@@ -4,11 +4,14 @@
  */
 package gui;
 
+import filters.ExtractionFilter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +20,9 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import oi.MLPAnalyser;
+import oi.RBFNAnalyser;
+import sys.LerningSetProcesor;
 import sys.SignWrapper;
 import sys.ThreadProcesor;
 
@@ -24,13 +30,23 @@ import sys.ThreadProcesor;
  *
  * @author Lukasz
  */
-public class MainWindow extends javax.swing.JFrame {
+public class MainWindow extends javax.swing.JFrame implements PropertyChangeListener {
 
     public JPanel columnpanel;
     FilenameFilter pngfilter;
+    int procesed;
+    int green;
+    int red;
+    int orange;
+    int tags;
+    int regions;
+    int positiveRegions;
+    int found;
+    int positiveFound;
     List<ViewPanel> panels;
     File wekaModel;
-Thread processor;
+    Thread processor;
+
     /**
      * Creates new form MainWindow
      */
@@ -78,6 +94,13 @@ Thread processor;
         jScrollPane = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         startButton = new javax.swing.JButton();
+        startLerningTestButton = new javax.swing.JButton();
+        Green = new javax.swing.JLabel();
+        Red = new javax.swing.JLabel();
+        Orange = new javax.swing.JLabel();
+        Tags = new javax.swing.JLabel();
+        Regions = new javax.swing.JLabel();
+        Found = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         openFileMenuItem = new javax.swing.JMenuItem();
@@ -173,6 +196,25 @@ Thread processor;
             }
         });
 
+        startLerningTestButton.setText("Build lerning set");
+        startLerningTestButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startLerningTestButtonActionPerformed(evt);
+            }
+        });
+
+        Green.setText("Green:");
+
+        Red.setText("Red:");
+
+        Orange.setText("Orange:");
+
+        Tags.setText("Tags:");
+
+        Regions.setText("Regions:");
+
+        Found.setText("Found:");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -180,13 +222,47 @@ Thread processor;
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(startButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Green)
+                    .addComponent(Red)
+                    .addComponent(Orange))
+                .addGap(89, 89, 89)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(Found)
+                        .addContainerGap())
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(Regions)
+                            .addComponent(Tags))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 370, Short.MAX_VALUE)
+                        .addComponent(startLerningTestButton)
+                        .addGap(71, 71, 71))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(startButton)
-                .addGap(0, 19, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(startButton)
+                    .addComponent(startLerningTestButton))
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Green)
+                    .addComponent(Tags))
+                .addGap(4, 4, 4)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(Red)
+                        .addGap(4, 4, 4)
+                        .addComponent(Orange))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(Regions)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Found)))
+                .addGap(12, 12, 12))
         );
 
         jMenu1.setText("File");
@@ -226,7 +302,7 @@ Thread processor;
                     .addComponent(folderPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(networkPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
+                .addComponent(jScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -255,8 +331,8 @@ Thread processor;
                         xmlFile = xml.getName();
                         xmlCount++;
                     }
-                    ViewPanel panel = new ViewPanel(folderPath,pngFile.getName(), xmlFile);
-
+                    ViewPanel panel = new ViewPanel(folderPath, pngFile.getName(), xmlFile);
+                    panel.changeSupport.addPropertyChangeListener(this);
                     panels.add(panel);
                     this.columnpanel.add(panel);
 
@@ -275,13 +351,24 @@ Thread processor;
     }//GEN-LAST:event_openFileMenuItemActionPerformed
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
-        if(processor!=null && processor.isAlive()){
+
+        procesed = 0;
+        green = 0;
+        red = 0;
+        orange = 0;
+        tags = 0;
+        regions = 0;
+        positiveRegions = 0;
+        found = 0;
+        positiveFound = 0;
+        setLabals();
+        if (processor != null && processor.isAlive()) {
             processor.interrupt();
         }
-        if(wekaModel==null){
+        if (wekaModel == null) {
             return;
         }
-        processor = new ThreadProcesor(panels,this.folderNameLabel.getText(),wekaModel);
+        processor = new ThreadProcesor(panels, this.folderNameLabel.getText(), wekaModel);
         processor.start();
     }//GEN-LAST:event_startButtonActionPerformed
 
@@ -295,7 +382,19 @@ Thread processor;
         }
     }//GEN-LAST:event_loadWekaButtonActionPerformed
 
+    private void startLerningTestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startLerningTestButtonActionPerformed
+
+        LerningSetProcesor lerningSetProcesor = new LerningSetProcesor(panels, this.folderNameLabel.getText(), "D:/positive/", "D:/negative/");
+        lerningSetProcesor.start();
+    }//GEN-LAST:event_startLerningTestButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel Found;
+    private javax.swing.JLabel Green;
+    private javax.swing.JLabel Orange;
+    private javax.swing.JLabel Red;
+    private javax.swing.JLabel Regions;
+    private javax.swing.JLabel Tags;
     private javax.swing.JLabel folderLabel;
     private javax.swing.JLabel folderNameLabel;
     private javax.swing.JPanel folderPanel;
@@ -311,8 +410,51 @@ Thread processor;
     private javax.swing.JLabel pngCountLabel;
     private javax.swing.JLabel pngFileLabel;
     private javax.swing.JButton startButton;
+    private javax.swing.JButton startLerningTestButton;
     private javax.swing.JLabel wekaModelLabel;
     private javax.swing.JLabel xmlFileCountLabel;
     private javax.swing.JLabel xmlFileLabel;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        String propertyName = evt.getPropertyName();
+        Object value = evt.getNewValue();
+        if("result".equals(propertyName)){
+            if(value.equals(1)){
+                green++;
+            }
+            if(value.equals(0)){
+                red++;
+            }
+            if(value.equals(2)){
+                orange++;
+            }
+        }
+        if("tags".equals(propertyName)){
+            tags+=(Integer)value;
+        }
+        if("regions".equals(propertyName)){
+            regions+=(Integer)value;
+        }
+         if("found".equals(propertyName)){
+            found+=(Integer)value;
+        }
+          if("regionsResult".equals(propertyName)){
+            positiveRegions+=(Integer)value;
+        }
+           if("foundResult".equals(propertyName)){
+            positiveFound+=(Integer)value;
+        }
+        setLabals();
+    }
+    
+    private void setLabals(){
+        this.Green.setText("Green:"+green);
+        this.Red.setText("Red:"+red);
+        this.Orange.setText("Orange:"+orange);
+        this.Tags.setText("Tags:"+tags);
+        this.Regions.setText("Regions:"+regions+ " z czego "+positiveRegions+"/"+tags);
+        this.Found.setText("Found:"+found+ " z czego "+positiveFound+"/"+tags);
+    }
 }
