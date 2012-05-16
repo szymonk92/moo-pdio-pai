@@ -153,6 +153,12 @@ public class PlotWave {
 	}
 	
 	
+	public void close() {
+		frame.setVisible(false);
+		frame.dispose();
+	}
+	
+	
 	private MouseWheelListener addZoomWheel() {
 		return new MouseWheelListener() {
 			  private void zoomChartAxis(ChartPanel chartP, boolean increase){              
@@ -187,5 +193,7 @@ public class PlotWave {
 		    }
 		};
 	}
+	
+	
 	
 }

@@ -1,7 +1,42 @@
+import java.util.Map;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import WavFile.WavFile;
 
 
 public class FundamentalFrequencyFinder {
+	
+	public class Tuple extends Pair<Double,Integer> {
+		
+		double freq;
+		int index;
+		
+
+
+
+		public Tuple(double freq, int index) {
+			super();
+			this.freq = freq;
+			this.index = index;
+		}
+
+		@Override
+		public Integer setValue(Integer value) {
+			return null;
+		}
+
+		@Override
+		public Double getLeft() {
+			return freq;
+		}
+
+		@Override
+		public Integer getRight() {
+			return index;
+		}
+		
+	}
 	
 	protected double[] signal;
 	protected WavFile wavFile;
@@ -15,12 +50,12 @@ public class FundamentalFrequencyFinder {
 		this.wavFile = wavFile;
 	}
 
-	public void plot() {
-		
+	public PlotWave plot() {
+		return null;
 	}
 	
-	public double process() {
-		return -1;
+	public Tuple process() {
+		return null;
 	}
 
 }

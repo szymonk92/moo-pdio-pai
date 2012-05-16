@@ -15,14 +15,14 @@ public class AMDF extends FundamentalFrequencyFinder {
 	
 	
 	@Override
-	public void plot() {
-		
-		new PlotWave().plot(d, "AMDF", 0);
-		
+	public PlotWave plot() {
+		PlotWave pw = new PlotWave();
+		pw.plot(d, "AMDF", 0);
+		return pw;
 	}
 	
 	@Override
-	public double process() {
+	public Tuple process() {
 		
 		d = new double[2][signal.length];
 
@@ -95,7 +95,7 @@ public class AMDF extends FundamentalFrequencyFinder {
 		System.out.println("MIN:"+min_ind + "Freq ~= "+
 			(1.0f/((double)min_ind/(double)wavFile.getSampleRate())) + "Hz");
 		
-		return (1.0f/((double)min_ind/(double)wavFile.getSampleRate()));
+		return new Tuple((1.0f/((double)min_ind/(double)wavFile.getSampleRate())),min_ind);
 		
 	}
 	
