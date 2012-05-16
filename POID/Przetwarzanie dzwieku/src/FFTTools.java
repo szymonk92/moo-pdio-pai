@@ -102,7 +102,7 @@ public class FFTTools {
         
         if ( inverse == 1)
         for (j = 0; j < x.length; ++j) {
-            x[j] = x[j].times(1.0f / (float) (x.length));
+            x[j] = x[j].times(1.0f / (float) (input_size));
         }
         
         if(input_size < x.length){

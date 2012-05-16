@@ -86,13 +86,14 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		args = new String[1];
+//		args = new String[1];
 
-		args[0] ="artificial/diff/1366Hz.wav"; 
+//		args[0] ="artificial/easy/1708Hz.wav"; 
 		//"seq/DWK_violin.wav"
 		//"artificial/diff/1366Hz.wav"
 		//"artificial/med/202Hz.wav"
 		//"natural/viola/130Hz.wav"
+		//"natural/viola/698Hz.wav"
 		//"natural/flute/1779Hz.wav"
 		//"artificial/diff/80Hz.wav"
 
@@ -221,7 +222,7 @@ public class Main {
 			ListIterator it = pperiod.listIterator();
 			while (it.hasNext()) {
 				Integer num = (Integer)it.next();
-				System.out.println(num+" "+dd[num]);
+//				System.out.println(num+" "+dd[num]);
 			}
 			int min_ind = 0;
 			min_ind = Collections.min(pperiod);
@@ -245,18 +246,18 @@ public class Main {
 			////
 			
 			
-			WINDOW_WIDTH = (int) (wavFile.getSampleRate()/4);
+			WINDOW_WIDTH = (int) (wavFile.getSampleRate()/8);
 			 int p = 0;
 			 for (; FFTTools.pow_2[p] < WINDOW_WIDTH; ++p);
 			 if ( FFTTools.pow_2[p] != WINDOW_WIDTH )
 				 WINDOW_WIDTH=FFTTools.pow_2[p];
-			 
+			 System.out.println("Rozmiar okna:"+WINDOW_WIDTH);
 		        
 			double twopi = 8.0*Math.atan(1.0);            
 			double arg = twopi/((double)WINDOW_WIDTH-1.0);
 						
 			// cepstrum analysis
-			d = new double[2][WINDOW_WIDTH];
+			d = new double[3][WINDOW_WIDTH];
 			
 			Complex[] csignal = new Complex[WINDOW_WIDTH];
 			for (int i = 0; i < WINDOW_WIDTH; ++i)
@@ -268,7 +269,13 @@ public class Main {
 			//cepstrum rzeczywiste i zespolone
 			for (int i = 0; i < csignal.length; ++i)
 				csignal[i] = new Complex(10.0*Math.log10(Math.pow(csignal[i].abs(),2)+1), 0);
-
+			
+//			double[][] fftabs = new double[1][csignal.length];
+//			for (int i = 0; i < csignal.length; ++i)
+//				fftabs[0][i]=csignal[i].abs();
+//			pw = new PlotWave();
+//			pw.plot(fftabs, "FFT widmo mocy", 0);
+//			
 			
 			FFTTools.fft(csignal,0);
 			
@@ -309,8 +316,8 @@ public class Main {
 			it = pperiod.listIterator();
 			while (it.hasNext()) {
 				Integer num = (Integer)it.next();
-				if ( dd[num] > dd[max_ind]*0.1) {
-					System.out.println(num+" "+dd[num]);
+				if ( dd[num] > dd[max_ind]*0.33) {
+//					System.out.println(num+" "+dd[num]);
 					d[1][num]=dd[num];
 				}
 				else
@@ -318,28 +325,45 @@ public class Main {
 			}
 			
 			int max_b, max_a;
-			max_a= max_ind;
+			max_b= max_ind;
+			int a,b;
 			do {
-				max_b=max_a;
-				pperiod.remove((Object)max_b);
+				for  (ListIterator del=pperiod.listIterator(); del.hasNext();)
+					if ((Integer)del.next() == max_b) {
+						del.remove();
+						
+						break;
+					}
+
 				max_a=Collections.max(pperiod,new MaxDataComp(dd));
-			
+				
+					
+				
 				System.out.println(max_a+" "+max_b);
 			
 				it = pperiod.listIterator();
+				a=max_a; b=max_b;
+				if ( a > b) {
+					int tmp = a;
+					a=b;
+					b=tmp;
+				}
+
 				while (it.hasNext()) {
 					Integer num = (Integer)it.next();
-					if ( num < max_a || num > max_b )
+					if ( num < a || num > b )
 						it.remove();
 					else {
-						System.out.println(num);
+//						System.out.println(num);
 					}
 				}
-			
+				
+				System.out.println(pperiod.size());
+				max_b=max_a;
 			
 			} while ( pperiod.size() > 2); 
 	
-			max_ind = Math.abs( max_b-max_a );
+			max_ind = Math.abs( b-a );
 
 			System.out.println("MAX:"+max_ind + "Freq ~= "+
 				(((double)wavFile.getSampleRate()/(double)max_ind)) + "Hz");
