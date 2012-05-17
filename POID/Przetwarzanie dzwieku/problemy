@@ -1,0 +1,18 @@
+Cepstrum (real,8192)
+diff 270 piki są postrzępione
+diff 607,00  duża ampliduta nie interesującego piku(dużo ich jest)
+diff 120,00 duża ampliduta nie interesującego piku(mniej ich jest)
+diff 80,00 duża ampliduta nie interesującego piku(jeden jest)
+diff 1366,00 moja metoda nie bangla :] tzn znajduje nie to co trzeba - kompletnie
+diff 911 moja metoda nie bangla :]
+med 202 duża ampliduta nie interesującego piku
+med 90 to samo co wyżej
+
+viola 440,00 trafia w połówkę bo - duża ampliduta nie interesującego piku(dużo)
+flute 887,00 nie trafia bo z cepstrum wynika perfidnie co 100
+flute 276,00 strasznie dużo pików nieznaczących i piki są niejednorodne - postrzępione
+
+==AMDF
+artificial/easy/337Hz.wav  AMDF
+natural/viola/247Hz.wav AMDF
+natural/viola/369Hz.wav AMDF

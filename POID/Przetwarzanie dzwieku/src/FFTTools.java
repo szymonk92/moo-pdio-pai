@@ -28,13 +28,25 @@ public class FFTTools {
      * @param inverse 1=inverse, 0=forward
      */
     static public void fft(Complex[] x, int inverse) {
+    	
+    	int input_size=x.length;
+    	
         int p = 0;
 
         for (int i = 0; pow_2[i] < x.length; i++, ++p);
 
         if (pow_2[p] > x.length) {
-            p--;
+            Complex[] tmp_x = new Complex[pow_2[p]];
+            int i=0;
+            for( i=0; i<x.length;++i)
+            	tmp_x[i]=x[i];
+            for( ;i<pow_2[p]; ++i)
+            	tmp_x[i]=new Complex(0,0);
+            
+            x=tmp_x;
         }
+        
+        
 
         int Bp, Np, Npp, P, b, n, BaseE, BaseO;
         Bp = 1;
@@ -90,7 +102,18 @@ public class FFTTools {
         
         if ( inverse == 1)
         for (j = 0; j < x.length; ++j) {
-            x[j] = x[j].times(1.0f / (float) (x.length));
+            x[j] = x[j].times(1.0f / (float) (input_size));
+        }
+        
+        if(input_size < x.length){
+        	
+        	Complex[] output = new Complex[input_size];
+        	
+        	for (j = 0; j < input_size; ++j) {
+        		output[j]=x[j];
+        	}
+        	
+        	x=output;
         }
 
     }
