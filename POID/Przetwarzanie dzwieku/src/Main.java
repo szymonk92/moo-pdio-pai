@@ -22,7 +22,7 @@ public class Main {
 	public static void main(String[] args) {
 //		 args = new String[1];
 
-//		 args[0] = "artificial/med/90Hz.wav";
+//		 args[0] = "artificial/diff/120Hz.wav";
 		// "seq/DWK_violin.wav"
 		// "artificial/diff/1366Hz.wav"
 		// "artificial/med/202Hz.wav"
@@ -78,14 +78,51 @@ public class Main {
 
 				// Close the wavFile
 				wavFile.close();
+				
+				
+				PlotWave pw1 = new PlotWave();
+
+				pw1.plot(new double[][]{signal}, "sygnał wejściowy 1", 0);
+				
+				//filtr uśredniający
+				int avg=5;
+				double[] ssignal = new double[signal.length];
+				for( int k=0; k<5; ++k)
+				for (int i = avg; i < signal.length-avg; ++i) {
+					for (int j =i-avg; j<i+avg; ++j) {
+						if ( j!=i)
+							signal[i]+=signal[j];
+					}
+					signal[i]/=(double)avg*2+1;
+				}
+				for (int i = 0; i < signal.length; ++i) {
+					ssignal[i]=signal[i];
+				}
+				avg=7;
+				for( int k=0; k<5; ++k)
+				for (int i = avg; i < signal.length-avg; ++i) {
+					for (int j =i-avg; j<i+avg; ++j) {
+						if ( j!=i)
+							signal[i]+=signal[j];
+					}
+					signal[i]/=(double)avg*2+1;
+				}
+				
+				
+				for (int i = avg; i < signal.length-avg; ++i) {
+					signal[i]+=ssignal[i];
+				}
+				
+				
 
 				double[][] d = new double[][] { signal };
 				Main m = new Main();
 				PlotWave pw = new PlotWave();
 				String hz = f.getName().replaceAll("[^\\d]", "");
 
-//				pw.plot(d, "sygnał wejściowy", 0);
-
+				pw.plot(new double[][]{signal}, "sygnał wejściowy 2", 0);
+				
+				
 				CepstrumAnalysis ca = new CepstrumAnalysis(signal, wavFile);
 				FundamentalFrequencyFinder.Tuple max = ca.process();
 				System.out.printf("max= %d | %d \t f= %.2f %.2f\n",(int)(wavFile.getSampleRate() / Float.parseFloat(hz)),
@@ -96,6 +133,8 @@ public class Main {
 				System.in.read();
 				
 				plot.close();
+				pw1.close();
+				pw.close();
 				
 
 			}
