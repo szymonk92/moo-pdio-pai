@@ -63,7 +63,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 		Complex[] csignal = new Complex[WINDOW_WIDTH];
 		for (int i = 0; i < WINDOW_WIDTH; ++i)
 			//hammming window
-			csignal[i] = new Complex(signal[i]*(0.54 - 0.46*Math.cos(arg*(double)i)), 0);
+			csignal[i] = new Complex(signal[i+1000]*(0.54 - 0.46*Math.cos(arg*(double)i)), 0);
 		
 		FFTTools.fft(csignal, 0);
 		
@@ -92,6 +92,27 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 		
 		
 		double[] dd = d[0];
+		
+		
+		//filtr uśredniający
+//		int avg=2;
+//		for (int i = avg; i < csignal.length-avg; ++i) {
+//			for (int j =i-avg; j<i+avg; ++j) {
+//				if ( j!=i)
+//					dd[i]+=dd[j];
+//			}
+//			dd[i]/=(double)avg*2+1;
+//		}
+		//filtr gaussa
+		double ro=1.0;
+		arg = 1.0/(Math.sqrt(2.0*Math.PI)*ro);
+		
+		for (int i = 0; i < csignal.length; ++i) {
+			dd[i]=dd[i]*arg*Math.exp(-1.0*Math.pow(dd[i], 2)/(2*Math.pow(ro, 2)));
+		}
+		
+		
+		
 		LinkedList<Integer> pperiod = new LinkedList<Integer>();
 		
 		//RANGE
@@ -114,6 +135,8 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 //				i+=range-1;
 			} 
 		}
+		
+		
 		
 		int max_ind = 0;
 		
@@ -183,7 +206,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 			System.out.println(a+" "+b);
 			
 
-			for ( ListIterator<Integer> it = pperiod.listIterator(); it.hasNext(); ){
+			for ( ListIterator<Integer> it = pperiod.listIterator(); it.hasNext(); ) {
 				Integer num = (Integer)it.next();
 				if ( num < a || num > b )
 					it.remove();

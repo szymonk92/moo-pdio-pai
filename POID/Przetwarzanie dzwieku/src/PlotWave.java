@@ -18,6 +18,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.XYItemLabelGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
@@ -29,6 +30,7 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.time.DateRange;
 import org.jfree.data.xy.XYBarDataset;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -129,6 +131,13 @@ public class PlotWave {
 		
 		
 		plot.addRangeMarker(new ValueMarker(0,Color.BLACK,new BasicStroke(1)));
+//		plot.getRenderer().setItemLabelGenerator(new XYItemLabelGenerator() {
+//			
+//			@Override
+//			public String generateLabel(XYDataset arg0, int arg1, int arg2) {
+//				return null;
+//			}
+//		})
 
 		ChartPanel chartPanel = new ChartPanel(chart);	
 		Border border = BorderFactory.createCompoundBorder(
