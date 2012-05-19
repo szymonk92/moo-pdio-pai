@@ -1,14 +1,13 @@
+package sys;
+
+import WavFile.WavFile;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import WavFile.WavFile;
-
 
 public class AMDF extends FundamentalFrequencyFinder {
 
-	
-	
 	public AMDF(double[] signal, WavFile wavFile) {
 		super(signal, wavFile);
 	}	
@@ -83,21 +82,19 @@ public class AMDF extends FundamentalFrequencyFinder {
 				i+=range-1;
 			}
 		}
-		ListIterator it = pperiod.listIterator();
-		while (it.hasNext()) {
-			Integer num = (Integer)it.next();
+                
+//		ListIterator it = pperiod.listIterator();
+//		while (it.hasNext()) {
+//			Integer num = (Integer)it.next();
 //			System.out.println(num+" "+dd[num]);
-		}
-		int min_ind = 0;
-		min_ind = Collections.min(pperiod);
+//		}
+                
+		int min_ind = Collections.min(pperiod);
 		
-
 		System.out.println("MIN:"+min_ind + "Freq ~= "+
 			(1.0f/((double)min_ind/(double)wavFile.getSampleRate())) + "Hz");
 		
 		return new Tuple((1.0f/((double)min_ind/(double)wavFile.getSampleRate())),min_ind);
-		
 	}
-	
 
 }

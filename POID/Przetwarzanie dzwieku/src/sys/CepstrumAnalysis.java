@@ -1,44 +1,14 @@
+package sys;
+
+import WavFile.WavFile;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-
-import WavFile.WavFile;
-
 
 public class CepstrumAnalysis extends FundamentalFrequencyFinder {
-	
-	
-	
-	static public class DataComp implements  Comparator<Integer> {
-
-		public double[] d;
 		
-		public DataComp(double[] d) {
-			this.d = d;
-		}
-
-		@Override
-		public int compare(Integer o1, Integer o2) {
-			return 0;
-		}
-	}
-	
-	static public class MaxDataComp extends DataComp {
-		
-		public MaxDataComp(double[] d) {super(d);}
-
-		@Override
-		public int compare(Integer o1, Integer o2) {
-			return (d[o1] > d[o2] ) ? 1 : -1 ;
-		}
-		
-	}
-	
 
 	public CepstrumAnalysis(double[] signal, WavFile wavFile) {
 		super(signal, wavFile);
@@ -115,7 +85,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 			} 
 		}
 		
-		int max_ind = 0;
+		
 		
 		//odrzucanie wysokich ale peakow ale nie stromych
 		//musza opadac w obu kierunkach - nisko
@@ -148,7 +118,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 		
 		
 		//progowanie co do największego peaku
-		max_ind = Collections.max(pperiod,new MaxDataComp(dd));
+		int max_ind = Collections.max(pperiod,new MaxDataComparator(dd));
 		
 		for ( ListIterator<Integer> it = pperiod.listIterator(); it.hasNext(); ){
 			Integer num = (Integer)it.next();
@@ -163,7 +133,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 				
 		int max_b, max_a;
 //		max_b= max_ind;
-		max_b=Collections.max(pperiod,new MaxDataComp(dd));
+		max_b=Collections.max(pperiod,new MaxDataComparator(dd));
 		int a=0,b=0;
 		while ( pperiod.size() > 1) {
 			for  (ListIterator del=pperiod.listIterator(); del.hasNext();)
@@ -172,7 +142,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 					break;
 				}
 
-			max_a=Collections.max(pperiod,new MaxDataComp(dd));
+			max_a=Collections.max(pperiod,new MaxDataComparator(dd));
 		
 			a=max_a; b=max_b;
 			if ( a > b) {
