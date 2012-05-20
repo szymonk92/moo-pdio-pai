@@ -36,13 +36,17 @@ public class ThreadProcesor extends Thread {
                     panel.basicSetUp();
                 }
                 if (cepstrum) {
+                    panel.appendLog("----Cepstrum----");
                     CepstrumAnalysis ca = new CepstrumAnalysis(panel.signal, panel.wavFile);
                     ca.process();
+                    panel.appendLog(ca.log.toString());
                     panel.addPlotData(PlotData.generatePlotData(ca.d, "Cepstrum", 0));
                 }
                 if (amdf) {
+                    panel.appendLog("----AMDF----");
                     AMDF a = new AMDF(panel.signal, panel.wavFile);
                     a.process();
+                    panel.appendLog(a.log.toString());
                     panel.addPlotData(PlotData.generatePlotData(a.d, "AMDF", 0));
                 }
                 panel.setProcessing(false);

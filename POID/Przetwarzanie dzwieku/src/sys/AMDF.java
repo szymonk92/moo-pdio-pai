@@ -22,7 +22,7 @@ public class AMDF extends FundamentalFrequencyFinder {
 	
 	@Override
 	public Tuple process() {
-		
+		log = new StringBuilder();
 		d = new double[2][signal.length];
 
 		
@@ -37,8 +37,8 @@ public class AMDF extends FundamentalFrequencyFinder {
 		
 		//RANGE
 		int range =8;
-		
-		System.out.println("RANGE"+range);
+		log.append("RANGE ").append(range).append(newline);
+		//System.out.println("RANGE"+range);
 		for (int i = range; i < wavFile.getNumFrames()/4 ; ++i) {
 			int bigger=0;
 			//sprawdz czy jest to ,,dolina o zboczu wysokim na ,,range''
@@ -91,8 +91,7 @@ public class AMDF extends FundamentalFrequencyFinder {
                 
 		int min_ind = Collections.min(pperiod);
 		
-		System.out.println("MIN:"+min_ind + "Freq ~= "+
-			(1.0f/((double)min_ind/(double)wavFile.getSampleRate())) + "Hz");
+		log.append("MIN:").append(min_ind).append("Freq ~= ").append(1.0f/((double)min_ind/(double)wavFile.getSampleRate())).append("Hz").append(newline);
 		
 		return new Tuple((1.0f/((double)min_ind/(double)wavFile.getSampleRate())),min_ind);
 	}

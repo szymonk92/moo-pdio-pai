@@ -66,7 +66,7 @@ public class MainWindow extends javax.swing.JFrame {
         for (File f : files) {
             try {
                 WavFile wavFile = WavFile.openWavFile(f);
-                wavFile.display();
+                
 
                 int numChannels = wavFile.getNumChannels();
 
@@ -213,8 +213,10 @@ public class MainWindow extends javax.swing.JFrame {
         int selectedTabIndex = closableTabbedPane.getSelectedIndex();
         if (selectedTabIndex != -1) {
             TabPanel panel = (TabPanel) closableTabbedPane.getComponentAt(selectedTabIndex);
+            panel.appendLog("----Cepstrum----");
             CepstrumAnalysis ca = new CepstrumAnalysis(panel.signal, panel.wavFile);
             ca.process();
+            panel.appendLog(ca.log.toString());
             panel.addPlotData(PlotData.generatePlotData(ca.d, "Cepstrum", 0));
 
         }
@@ -224,8 +226,10 @@ public class MainWindow extends javax.swing.JFrame {
         int selectedTabIndex = closableTabbedPane.getSelectedIndex();
         if (selectedTabIndex != -1) {
             TabPanel panel = (TabPanel) closableTabbedPane.getComponentAt(selectedTabIndex);
-             AMDF a = new AMDF(panel.signal, panel.wavFile);
+            panel.appendLog("----AMDF----"); 
+            AMDF a = new AMDF(panel.signal, panel.wavFile);
                     a.process();
+                    panel.appendLog(a.log.toString());
                     panel.addPlotData(PlotData.generatePlotData(a.d, "AMDF", 0));
         }
     }//GEN-LAST:event_jAmdfMenuItemActionPerformed

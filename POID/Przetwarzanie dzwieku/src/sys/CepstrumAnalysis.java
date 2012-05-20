@@ -16,7 +16,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 	
 	@Override
 	public Tuple process(){
-		
+		log = new StringBuilder();
 		int WINDOW_WIDTH = (int) (wavFile.getSampleRate()/8);
 		 int p = 0;
 		 for (; FFTTools.pow_2[p] < WINDOW_WIDTH; ++p);
@@ -150,7 +150,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 				a=b;
 				b=tmp;
 			}
-			System.out.println(a+" "+b);
+			log.append(a).append(" ").append(b);
 			
 
 			for ( ListIterator<Integer> it = pperiod.listIterator(); it.hasNext(); ){
@@ -167,7 +167,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 		if (max_ind ==0 && pperiod.size()==1)
 			max_ind = pperiod.get(0);
 		else 
-			System.out.println(a+" "+b);
+			log.append(a).append(" ").append(b);
 
 		return new Tuple(((double)wavFile.getSampleRate()/(double)max_ind),max_ind);
 		

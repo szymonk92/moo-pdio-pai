@@ -9,8 +9,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.border.Border;
@@ -24,7 +29,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.time.DateRange;
-import sys.CepstrumAnalysis;
+import sys.FundamentalFrequencyFinder;
 import sys.PlotData;
 
 /**
@@ -43,7 +48,7 @@ public class TabPanel extends javax.swing.JPanel {
     public WavFile wavFile;
     List<PlotData> plots;
     private JFreeChart chart;
-    
+
     public TabPanel(double[] signal, WavFile wavFile) {
         initComponents();
         this.processingLabel.setVisible(false);
@@ -52,7 +57,7 @@ public class TabPanel extends javax.swing.JPanel {
         this.signal = signal;
         this.wavFile = wavFile;
         slider.addChangeListener(new ChangeListener() {
-            
+
             @Override
             public void stateChanged(ChangeEvent event) {
                 if (domainAxis != null) {
@@ -77,24 +82,38 @@ public class TabPanel extends javax.swing.JPanel {
             }
         });
     }
-    
+
     public void setProcessing(boolean b) {
         this.processingLabel.setVisible(b);
     }
-    
+
     public void basicSetUp() {
         addPlotData(PlotData.generatePlotData(new double[][]{signal}, "Sygnał wejściowy", 0));
         if (!plots.isEmpty()) {
             plot(plots.get(0));
         }
+        StringBuilder sb = new StringBuilder();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        wavFile.display(ps);
+        try {
+            appendLog(baos.toString("UTF-8")); // e.g. ISO-8859-1
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(TabPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
-    
+
     public void addPlotData(PlotData data) {
         plots.add(data);
         this.jComboBox.addItem(data.name);
-        this.jComboBox.setSelectedIndex(this.jComboBox.getItemCount()-1);
+        this.jComboBox.setSelectedIndex(this.jComboBox.getItemCount() - 1);
     }
-   
+
+    public void appendLog(String log) {
+        this.jLogTextArea.append(log + FundamentalFrequencyFinder.newline);
+    }
+
     public void plot(PlotData data) {
         this.chart =
                 ChartFactory.createXYLineChart(
@@ -105,26 +124,26 @@ public class TabPanel extends javax.swing.JPanel {
                 PlotOrientation.VERTICAL,
                 true, false, false);
         XYPlot plot = (XYPlot) chart.getPlot();
-        
+
         domainAxis = (NumberAxis) plot.getDomainAxis();
         plot.addRangeMarker(new ValueMarker(0, Color.BLACK, new BasicStroke(1)));
-        
+
         ChartPanel chartPanel = new ChartPanel(chart);
         Border border = BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(4, 4, 4, 4),
                 BorderFactory.createEtchedBorder());
         chartPanel.setBorder(border);
-        
+
         chartPanel.addMouseWheelListener(addZoomWheel());
-        
+
         plotPanel.removeAll();
         plotPanel.add(chartPanel);
         plotPanel.revalidate();
     }
-    
+
     private MouseWheelListener addZoomWheel() {
         return new MouseWheelListener() {
-            
+
             private void zoomChartAxis(ChartPanel chartP, boolean increase) {
                 int width = chartP.getMaximumDrawWidth() - chartP.getMinimumDrawWidth();
                 int height = chartP.getMaximumDrawHeight() - chartP.getMinimumDrawWidth();
@@ -135,19 +154,19 @@ public class TabPanel extends javax.swing.JPanel {
                 }
                 lastValue = SLIDER_DEFAULT_VALUE;
                 slider.setValue(lastValue);
-                
+
             }
-            
+
             public synchronized void decreaseZoom(JComponent chart, boolean saveAction) {
                 ChartPanel ch = (ChartPanel) chart;
                 zoomChartAxis(ch, false);
             }
-            
+
             public synchronized void increaseZoom(JComponent chart, boolean saveAction) {
                 ChartPanel ch = (ChartPanel) chart;
                 zoomChartAxis(ch, true);
             }
-            
+
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
                 if (e.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) {
@@ -171,15 +190,17 @@ public class TabPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        slider = new javax.swing.JSlider();
         upPanel = new javax.swing.JPanel();
         jComboBox = new javax.swing.JComboBox();
         jLabel = new javax.swing.JLabel();
         processingLabel = new javax.swing.JLabel();
         plotPanel = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
+        slider = new javax.swing.JSlider();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jLogTextArea = new javax.swing.JTextArea();
 
         setLayout(new java.awt.BorderLayout());
-        add(slider, java.awt.BorderLayout.PAGE_END);
 
         upPanel.setPreferredSize(new java.awt.Dimension(30, 30));
 
@@ -220,22 +241,37 @@ public class TabPanel extends javax.swing.JPanel {
 
         plotPanel.setLayout(new java.awt.BorderLayout());
         add(plotPanel, java.awt.BorderLayout.CENTER);
+
+        jPanel1.setMinimumSize(new java.awt.Dimension(40, 100));
+        jPanel1.setLayout(new java.awt.BorderLayout());
+        jPanel1.add(slider, java.awt.BorderLayout.PAGE_START);
+
+        jLogTextArea.setColumns(20);
+        jLogTextArea.setEditable(false);
+        jLogTextArea.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        jLogTextArea.setRows(5);
+        jScrollPane1.setViewportView(jLogTextArea);
+
+        jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        add(jPanel1, java.awt.BorderLayout.PAGE_END);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxActionPerformed
-       int index = this.jComboBox.getSelectedIndex();
-       if(index>=0 && index<plots.size()){
-           plot(plots.get(index));
-       }
+        int index = this.jComboBox.getSelectedIndex();
+        if (index >= 0 && index < plots.size()) {
+            plot(plots.get(index));
+        }
     }//GEN-LAST:event_jComboBoxActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox jComboBox;
     private javax.swing.JLabel jLabel;
+    private javax.swing.JTextArea jLogTextArea;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel plotPanel;
     private javax.swing.JLabel processingLabel;
     private javax.swing.JSlider slider;
     private javax.swing.JPanel upPanel;
     // End of variables declaration//GEN-END:variables
-
-    
 }

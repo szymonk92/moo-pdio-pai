@@ -113,13 +113,16 @@ public class Main {
                         float hzF = hz.isEmpty() ? 0 : Float.parseFloat(hz);
                         if (line.hasOption("cepstrum")) {
                             CepstrumAnalysis ca = new CepstrumAnalysis(signal, wavFile);
+                            System.out.println(ca.log.toString());
                             Tuple max = ca.process();
-
+                            System.out.printf("max= %d | %d \t f= %.2f %.2f\n", hzF != 0 ? (int) (wavFile.getSampleRate() / hzF) : 0,
+                                    max.getRight(), hzF, max.getLeft());
                             PlotWave plot = ca.plot();
                         }
                         if (line.hasOption("amdf")) {
                             AMDF a = new AMDF(signal, wavFile);
                             Tuple max = a.process();
+                            System.out.println(a.log.toString());
                             System.out.printf("max= %d | %d \t f= %.2f %.2f\n", hzF != 0 ? (int) (wavFile.getSampleRate() / hzF) : 0,
                                     max.getRight(), hzF, max.getLeft());
                             PlotWave plot = a.plot();
