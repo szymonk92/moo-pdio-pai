@@ -8,13 +8,12 @@ import WavFile.WavFile;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
-import sys.*;
+import sys.FilenameExtensionOnly;
+import sys.ThreadProcesor;
 
 /**
  *
@@ -24,11 +23,13 @@ public class MainWindow extends javax.swing.JFrame {
 
     private static FilenameExtensionOnly WavFilesExtension = new FilenameExtensionOnly("wav");
     public List<TabPanel> panels;
+    private List<Thread> threads;
 
     /**
      * Creates new form MainWindow
      */
     public MainWindow() {
+        threads = new ArrayList<Thread>();
         initComponents();
         panels = new ArrayList<TabPanel>();
         this.closableTabbedPane.addContainerListener(new ContainerListener() {
@@ -44,6 +45,20 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         doTest();
+    }
+
+    private void CleanThreads() {
+        synchronized (threads) {
+            List<Thread> tmpthreads = new ArrayList<Thread>();
+            for (Thread t : threads) {
+                if (t.isAlive()) {
+                    tmpthreads.add(t);
+                } else {
+                    t = null;
+                }
+            }
+            threads = tmpthreads;
+        }
     }
 
     private void doTest() {
@@ -66,7 +81,7 @@ public class MainWindow extends javax.swing.JFrame {
         for (File f : files) {
             try {
                 WavFile wavFile = WavFile.openWavFile(f);
-                
+
 
                 int numChannels = wavFile.getNumChannels();
 
@@ -97,7 +112,7 @@ public class MainWindow extends javax.swing.JFrame {
                 System.err.println(e);
             }
         }
-        ThreadProcesor procesor = new ThreadProcesor(panels,true, cepstrum, amdf);
+        ThreadProcesor procesor = new ThreadProcesor(panels, true, cepstrum, amdf);
         procesor.start();
     }
 
@@ -125,6 +140,11 @@ public class MainWindow extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(600, 600));
         setPreferredSize(new java.awt.Dimension(600, 600));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
         getContentPane().add(closableTabbedPane, java.awt.BorderLayout.CENTER);
 
         jMenu1.setText("File");
@@ -212,37 +232,48 @@ public class MainWindow extends javax.swing.JFrame {
     private void jCepstrumMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCepstrumMenuItemActionPerformed
         int selectedTabIndex = closableTabbedPane.getSelectedIndex();
         if (selectedTabIndex != -1) {
-            TabPanel panel = (TabPanel) closableTabbedPane.getComponentAt(selectedTabIndex);
-            panel.appendLog("----Cepstrum----");
-            CepstrumAnalysis ca = new CepstrumAnalysis(panel.signal, panel.wavFile);
-            ca.process();
-            panel.appendLog(ca.log.toString());
-            panel.addPlotData(PlotData.generatePlotData(ca.d, "Cepstrum", 0));
-
+            List<TabPanel> panel = new ArrayList<TabPanel>();
+            panel.add((TabPanel) closableTabbedPane.getComponentAt(selectedTabIndex));
+            CleanThreads();
+            ThreadProcesor procesor = new ThreadProcesor(panel, false, true, false);
+            threads.add(procesor);
+            procesor.start();
         }
     }//GEN-LAST:event_jCepstrumMenuItemActionPerformed
 
     private void jAmdfMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jAmdfMenuItemActionPerformed
         int selectedTabIndex = closableTabbedPane.getSelectedIndex();
         if (selectedTabIndex != -1) {
-            TabPanel panel = (TabPanel) closableTabbedPane.getComponentAt(selectedTabIndex);
-            panel.appendLog("----AMDF----"); 
-            AMDF a = new AMDF(panel.signal, panel.wavFile);
-                    a.process();
-                    panel.appendLog(a.log.toString());
-                    panel.addPlotData(PlotData.generatePlotData(a.d, "AMDF", 0));
+            List<TabPanel> panel = new ArrayList<TabPanel>();
+            panel.add((TabPanel) closableTabbedPane.getComponentAt(selectedTabIndex));
+            CleanThreads();
+            ThreadProcesor procesor = new ThreadProcesor(panel, false, false, true);
+            threads.add(procesor);
+            procesor.start();
         }
     }//GEN-LAST:event_jAmdfMenuItemActionPerformed
 
     private void jCepstrumAllMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCepstrumAllMenuItemActionPerformed
-        ThreadProcesor procesor = new ThreadProcesor(panels,false, true, false);
+        ThreadProcesor procesor = new ThreadProcesor(panels, false, true, false);
+        threads.add(procesor);
         procesor.start();
     }//GEN-LAST:event_jCepstrumAllMenuItemActionPerformed
 
     private void jAmdfAllMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jAmdfAllMenuItemActionPerformed
-        ThreadProcesor procesor = new ThreadProcesor(panels,false, false, true);
+        ThreadProcesor procesor = new ThreadProcesor(panels, false, false, true);
+        threads.add(procesor);
         procesor.start();
     }//GEN-LAST:event_jAmdfAllMenuItemActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        for (Thread t : threads) {
+                if (t.isAlive()) {
+                    t.interrupt();
+                } else {
+                    t = null;
+                }
+            }
+    }//GEN-LAST:event_formWindowClosing
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private gui.ClosableTabbedPane closableTabbedPane;
