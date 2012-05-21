@@ -44,13 +44,13 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 	@Override
 	public Tuple process() {
 
-		int WINDOW_WIDTH = (int) (wavFile.getSampleRate() / 8);
+		int WINDOW_WIDTH = (int) (wavFile.getSampleRate() / 16);
 		int p = 0;
 		for (; FFTTools.pow_2[p] < WINDOW_WIDTH; ++p)
 			;
 		if (FFTTools.pow_2[p] != WINDOW_WIDTH)
 			WINDOW_WIDTH = FFTTools.pow_2[p];
-		// System.out.println("Rozmiar okna:"+WINDOW_WIDTH);
+		 System.out.println("Rozmiar okna:"+WINDOW_WIDTH);
 
 		double twopi = 8.0 * Math.atan(1.0);
 		double arg = twopi / ((double) WINDOW_WIDTH - 1.0);
@@ -74,8 +74,9 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 			// complex spectrum
 			// csignal[i] = csignal[i].log();
 			// real spectrum
-			csignal[i] = new Complex(10.0 * Math.log10(csignal[i].abs() + 1), 0);
-
+			csignal[i] = new Complex(Math.log(Math.pow(csignal[i].abs(),2) + 1), 0);
+		
+		
 		FFTTools.fft(csignal, 0);
 
 		csignal = Arrays.copyOfRange(csignal, 0, WINDOW_WIDTH / 2);
@@ -85,8 +86,8 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 		// for (int j=0; j<d.length; ++j)
 		for (int i = 0; i < csignal.length; ++i) {
 			// power cepstrum
-			// d[0][i]=Math.pow(csignal[i].abs(),2);
-			d[0][i] = csignal[i].abs();
+			 d[0][i]=Math.pow(csignal[i].abs(),2);
+//			d[0][i] = csignal[i].abs();
 		}
 
 		double[] dd = d[0];
@@ -136,7 +137,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
 			}
 
 			double maxmin = Math.max(dd[i - j], dd[i + k]);
-			if (maxmin > dd[i] * 0.2) {
+			if (maxmin > dd[i] * 0.3) {
 				iter.remove();
 				// System.out.println(i+ "+"+j+ " " +
 				// dd[i-j]+" "+dd[i]+" "+dd[i+k]);
