@@ -19,17 +19,17 @@ public class AMDF extends FundamentalFrequencyFinder {
     @Override
     public void process() {
         log = new StringBuilder();
- 
+
         d = new double[2][signal.length];
 
-        int frameCount = (int) Math.ceil((double) wavFile.getNumFrames() / (double) frameSize);
+        int frameCount = (int) Math.floor((double) wavFile.getNumFrames() / (double) frameSize);
 
         log.append("signal length: ").append(signal.length).append(newline);
         log.append("frameSize: ").append(frameSize).append(newline);
         log.append("frameCount: ").append(frameCount).append(newline);
-        
+
         this.frequencies = new double[frameCount];
-        
+        Tuple[] results = new Tuple[frameCount];
         for (int f = 0; f < frameCount; f++) {
             int first = f * frameSize;
             if (first > signal.length) {
@@ -39,21 +39,23 @@ public class AMDF extends FundamentalFrequencyFinder {
             if (last > signal.length) {
                 last = signal.length;
             }
+            results[f] = getF0(Arrays.copyOfRange(signal, first, last), first);
+            log.append("Frame ").append(f+1).append(" frequency = ").append(df.format(results[f].freq)).append(" Hz ").append("at ").append(results[f].index).append(newline);
+        }
 
-            frequencies[f] = getF0(Arrays.copyOfRange(signal, first, last), first);
-            log.append("Frame ").append(f+1).append(" frequency = ").append(df.format(frequencies[f])).append(" Hz").append(newline);
-        }
-        
         double sum = 0;
-        for(Double f : frequencies){
-            sum +=f;
+        int sum2 = 0;
+        for (int i =0; i<results.length; i++) {
+             this.frequencies[i] = results[i].freq;
+             sum += results[i].freq;
+             sum2 += results[i].index;
         }
-        
-        log.append("Average frequency = ").append(df.format(sum/frequencies.length)).append(" Hz").append(newline);
+
+        log.append("Average frequency = ").append(df.format(sum / frequencies.length)).append(" Hz ").append("at ").append(df.format(sum2 / frequencies.length)).append(newline);
     }
 
     @Override
-    public double getF0(double[] x, int start) {
+    public Tuple getF0(double[] x, int start) {
         List<LocalMinimum> pperiod = new ArrayList<LocalMinimum>();
         int n = x.length / 2;
         double[] thi = new double[n];
@@ -122,10 +124,10 @@ public class AMDF extends FundamentalFrequencyFinder {
             if (fT + start < signal.length) {
                 d[1][fT + start] = thi[fT];
             }
-            return (wavFile.getSampleRate() / fT);
+            return new Tuple(wavFile.getSampleRate() / fT, fT);
         }
 
-        return 0.0;
+        return new Tuple(0.0,0);
     }
 
     public double getF0_basic(double[] x, int start) {

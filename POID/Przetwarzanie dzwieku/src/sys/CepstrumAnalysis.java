@@ -26,6 +26,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
         log.append("frameCount: ").append(frameCount).append(newline);
 
         this.frequencies = new double[frameCount];
+        Tuple[] results = new Tuple[frameCount];
         for (int f = 0; f < frameCount; f++) {
             int first = f * frameSize;
             if (first > signal.length) {
@@ -35,17 +36,19 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
             if (last > signal.length) {
                 last = signal.length;
             }
-
-            frequencies[f] = getF0(Arrays.copyOfRange(signal, first, last), first);
-            log.append("Frame ").append(f + 1).append(" frequency = ").append(df.format(frequencies[f])).append(" Hz").append(newline);
+            results[f] = getF0(Arrays.copyOfRange(signal, first, last), first);
+            log.append("Frame ").append(f+1).append(" frequency = ").append(df.format(results[f].freq)).append(" Hz ").append("at ").append(results[f].index).append(newline);
         }
 
         double sum = 0;
-        for (Double f : frequencies) {
-            sum += f;
+        int sum2 = 0;
+        for (int i =0; i<results.length; i++) {
+             this.frequencies[i] = results[i].freq;
+             sum += results[i].freq;
+             sum2 += results[i].index;
         }
 
-        log.append("Average frequency = ").append(df.format(sum / frequencies.length)).append(" Hz").append(newline);
+        log.append("Average frequency = ").append(df.format(sum / frequencies.length)).append(" Hz ").append("at ").append(df.format(sum2 / frequencies.length)).append(newline);
     }
 
     public double[] avg(double[] x) {
@@ -83,7 +86,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
     }
 
     @Override
-    public double getF0(double[] x, int start) {
+    public Tuple getF0(double[] x, int start) {
 
         x = avg(x);
 
@@ -203,7 +206,7 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
             }
         }
         if (pperiod.isEmpty()) {
-            return 0.0;
+            return new Tuple(0.0,0);
         }
         int max_b, max_a;
         max_b = Collections.max(pperiod, new MaxDataComparator(dd));
@@ -242,6 +245,6 @@ public class CepstrumAnalysis extends FundamentalFrequencyFinder {
             max_ind = pperiod.get(0);
         }
 
-        return (double) wavFile.getSampleRate() / (double) max_ind;
+        return new Tuple((double) wavFile.getSampleRate() / (double) max_ind,max_ind);
     }
 }

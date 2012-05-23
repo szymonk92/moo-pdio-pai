@@ -28,5 +28,5 @@ public abstract class FundamentalFrequencyFinder {
 
     public abstract void process();
     
-    public abstract double getF0(double[] x, int start);
+    public abstract Tuple getF0(double[] x, int start);
 }
