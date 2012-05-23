@@ -1,185 +1,247 @@
 package sys;
 
 import WavFile.WavFile;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.ListIterator;
-
+import java.util.*;
 
 public class CepstrumAnalysis extends FundamentalFrequencyFinder {
-		
 
-	public CepstrumAnalysis(double[] signal, WavFile wavFile) {
-		super(signal, wavFile);
-	}
-	
-	@Override
-	public Tuple process(){
-		log = new StringBuilder();
-		int WINDOW_WIDTH = (int) (wavFile.getSampleRate()/8);
-		 int p = 0;
-		 for (; FFTTools.pow_2[p] < WINDOW_WIDTH; ++p);
-		 if ( FFTTools.pow_2[p] != WINDOW_WIDTH )
-			 WINDOW_WIDTH=FFTTools.pow_2[p];
-//		 System.out.println("Rozmiar okna:"+WINDOW_WIDTH);
-	        
-		double twopi = 8.0*Math.atan(1.0);            
-		double arg = twopi/((double)WINDOW_WIDTH-1.0);
-					
-		// cepstrum analysis
-		d = new double[2][WINDOW_WIDTH];
-		
-		Complex[] csignal = new Complex[WINDOW_WIDTH];
-		for (int i = 0; i < WINDOW_WIDTH; ++i)
-			//hammming window
-			csignal[i] = new Complex(signal[i]*(0.54 - 0.46*Math.cos(arg*(double)i)), 0);
-		
-		FFTTools.fft(csignal, 0);
-		
-		//cepstrum rzeczywiste i zespolone
-		for (int i = 0; i < csignal.length; ++i)
-			//power spectrum
-			//csignal[i] = new Complex(10.0*Math.log10(Math.pow(csignal[i].abs(),2)+1), 0);
-			//complex spectrum
-			//csignal[i] = csignal[i].log();
-			//real spectrum
-			csignal[i] = new Complex(10.0*Math.log10(csignal[i].abs()+1), 0);
-		
-		
-		FFTTools.fft(csignal,0);
-		
-		csignal = Arrays.copyOfRange(csignal, 0, WINDOW_WIDTH/2);
-		
-		d = new double[2][csignal.length];
-		
-//		for (int j=0; j<d.length; ++j)
-		for (int i = 0; i < csignal.length; ++i) {
-			//power cepstrum
-			//d[0][i]=Math.pow(csignal[i].abs(),2);
-			d[0][i]=csignal[i].abs();
-		}
-		
-		
-		double[] dd = d[0];
-		LinkedList<Integer> pperiod = new LinkedList<Integer>();
-		
-		//RANGE
-		int range =5;
-		
-//		System.out.println("RANGE"+range);
-		for (int i = range; i < dd.length-range ; ++i) {
-			int bigger=0;
-			//sprawdz czy jest to ,,dolina o zboczu wysokim na ,,range''
-			//sprawdzamy wysokość, ale nie stromość zbocza - peaki są ostre
-			for (int j = i-range; j < i+range; ++j) {
-				if ( dd[j] <= dd[i] && i!=j)
-					bigger++;
-			}
-			//sprawdz czy zbocza sa tak wysokie jak to zalozylismy
-			if ( bigger == (range*2)-1) {
-				
-					pperiod.add(i);
-	
-//				i+=range-1;
-			} 
-		}
-		
-		
-		
-		//odrzucanie wysokich ale peakow ale nie stromych
-		//musza opadac w obu kierunkach - nisko
-		for ( ListIterator<Integer> iter = pperiod.listIterator(); iter.hasNext(); ){
-			int i = iter.next(), j=0,k=0;
-			//szukamy najniższego wartosci na zboczu lewym
-			while (  i-j-1>=0  ) {
-				if ( (dd[i-j-1]<=dd[i-j]) ) 
-					++j;
-				else
-					break;
-			}
-			//szukamy najnizszej wartosci na zboczu prawym
-			while (  ((i+k+1) < dd.length) ) {
-				if ( (dd[i+k+1]<=dd[i+k]) ) 
-					++k;
-				else
-					break;
-			}
-			
-			
-			double maxmin= Math.max(dd[i-j], dd[i+k]);
-			if ( maxmin > dd[i]*0.2) {
-				iter.remove();
-//				System.out.println(i+ "+"+j+ " " + dd[i-j]+" "+dd[i]+" "+dd[i+k]);
-			}
-			else d[1][i]=dd[i]; 
-			
-		}
-		
-		
-		//progowanie co do największego peaku
-		int max_ind = Collections.max(pperiod,new MaxDataComparator(dd));
-		
-		for ( ListIterator<Integer> it = pperiod.listIterator(); it.hasNext(); ){
-			Integer num = (Integer)it.next();
-			if ( dd[num] > dd[max_ind]*0.4) {
-				d[1][num]=dd[num];
-			}
-			else
-				it.remove();
-		}
-		
-		
-				
-		int max_b, max_a;
-//		max_b= max_ind;
-		max_b=Collections.max(pperiod,new MaxDataComparator(dd));
-		int a=0,b=0;
-		while ( pperiod.size() > 1) {
-			for  (ListIterator del=pperiod.listIterator(); del.hasNext();)
-				if ((Integer)del.next() == max_b) {
-					del.remove();
-					break;
-				}
+    static double twopi = 8.0 * Math.atan(1.0);
 
-			max_a=Collections.max(pperiod,new MaxDataComparator(dd));
-		
-			a=max_a; b=max_b;
-			if ( a > b) {
-				int tmp = a;
-				a=b;
-				b=tmp;
-			}
-			log.append(a).append(" ").append(b);
-			
+    public CepstrumAnalysis(double[] signal, WavFile wavFile) {
+        super(signal, wavFile);
+        this.name = "Cepstrum";
+        this.frameSize = 4096;
+    }
 
-			for ( ListIterator<Integer> it = pperiod.listIterator(); it.hasNext(); ){
-				Integer num = (Integer)it.next();
-				if ( num < a || num > b )
-					it.remove();
-			}
-			
-			max_b=max_a;
-		
-		}  
+    @Override
+    public void process() {
+        log = new StringBuilder();
 
-		max_ind = Math.abs( b-a );
-		if (max_ind ==0 && pperiod.size()==1)
-			max_ind = pperiod.get(0);
-		else 
-			log.append(a).append(" ").append(b);
+        d = new double[2][signal.length];
 
-		return new Tuple(((double)wavFile.getSampleRate()/(double)max_ind),max_ind);
-		
-	}
-	
-	@Override
-	public PlotWave plot() {
-		PlotWave pw = new PlotWave();
-		pw.plot(d, "Cepstrum", 0);
-		return pw;
-	}
+        int frameCount = (int) Math.floor((double) wavFile.getNumFrames() / (double) frameSize);
 
-	
-	
+        log.append("signal length: ").append(signal.length).append(newline);
+        log.append("frameSize: ").append(frameSize).append(newline);
+        log.append("frameCount: ").append(frameCount).append(newline);
+
+        this.frequencies = new double[frameCount];
+        for (int f = 0; f < frameCount; f++) {
+            int first = f * frameSize;
+            if (first > signal.length) {
+                first = signal.length - 1;
+            }
+            int last = (f + 1) * frameSize;
+            if (last > signal.length) {
+                last = signal.length;
+            }
+
+            frequencies[f] = getF0(Arrays.copyOfRange(signal, first, last), first);
+            log.append("Frame ").append(f + 1).append(" frequency = ").append(df.format(frequencies[f])).append(" Hz").append(newline);
+        }
+
+        double sum = 0;
+        for (Double f : frequencies) {
+            sum += f;
+        }
+
+        log.append("Average frequency = ").append(df.format(sum / frequencies.length)).append(" Hz").append(newline);
+    }
+
+    public double[] avg(double[] x) {
+        int avg = 5;
+        for (int k = 0; k < 5; ++k) {
+            for (int i = avg; i < x.length - avg; ++i) {
+                for (int j = i - avg; j < i + avg; ++j) {
+                    if (j != i) {
+                        x[i] += x[j];
+                    }
+                }
+                x[i] /= (double) avg * 2 + 1;
+            }
+        }
+        double[] ssignal = new double[x.length];
+        for (int i = 0; i < x.length; ++i) {
+            ssignal[i] = x[i];
+        }
+        avg = 3;
+        for (int k = 0; k < 10; ++k) {
+            for (int i = avg; i < x.length - avg; ++i) {
+                for (int j = i - avg; j < i + avg; ++j) {
+                    if (j != i) {
+                        ssignal[i] += ssignal[j];
+                    }
+                }
+                ssignal[i] /= (double) avg * 2 + 1;
+            }
+        }
+
+        for (int i = avg; i < x.length - avg; ++i) {
+            x[i] += ssignal[i];
+        }
+        return x;
+    }
+
+    @Override
+    public double getF0(double[] x, int start) {
+
+        x = avg(x);
+
+        double arg = twopi / ((double) this.frameSize - 1.0);
+
+        Complex[] csignal = new Complex[this.frameSize];
+
+        for (int i = 0; i < this.frameSize; ++i) {
+            csignal[i] = new Complex(x[i] * (0.54 - 0.46 * Math.cos(arg * (double) i)), 0);
+        }
+
+        FFTTools.fft(csignal, 0);
+
+        // cepstrum rzeczywiste i zespolone
+        for (int i = 0; i < csignal.length; ++i) {
+            csignal[i] = new Complex(Math.log(Math.pow(csignal[i].abs(), 2) + 1), 0);
+        }
+
+        FFTTools.fft(csignal, 0);
+
+        csignal = Arrays.copyOfRange(csignal, 0, this.frameSize / 2);
+
+        double[] dd = new double[csignal.length];
+        for (int i = 0; i < csignal.length; ++i) {
+            int index = i + start;
+            if (index < signal.length) {
+                d[0][index] = Math.pow(csignal[i].abs(), 2);
+                dd[i] = d[0][i];
+            }
+        }
+
+        List<Integer> pperiod = new ArrayList<Integer>();
+
+        // RANGE
+        int range = 5;
+
+        for (int i = range; i < dd.length - range; ++i) {
+            int bigger = 0;
+            // sprawdz czy jest to ,,dolina o zboczu wysokim na ,,range''
+            // sprawdzamy wysokość, ale nie stromość zbocza - peaki są ostre
+            for (int j = i - range; j < i + range; ++j) {
+                if (dd[j] <= dd[i] && i != j) {
+                    bigger++;
+                }
+            }
+            // sprawdz czy zbocza sa tak wysokie jak to zalozylismy
+            if (bigger == (range * 2) - 1) {
+                pperiod.add(i);
+            }
+        }
+
+        // odrzucanie wysokich ale peakow ale nie stromych
+        // musza opadac w obu kierunkach - nisko
+        for (ListIterator<Integer> iter = pperiod.listIterator(); iter.hasNext();) {
+            int i = iter.next(), j = 0, k = 0;
+            // szukamy najniższego wartosci na zboczu lewym
+            while (i - j - 1 >= 0) {
+                if ((dd[i - j - 1] <= dd[i - j])) {
+                    ++j;
+                } else {
+                    break;
+                }
+            }
+            // szukamy najnizszej wartosci na zboczu prawym
+            while (((i + k + 1) < dd.length)) {
+                if ((dd[i + k + 1] <= dd[i + k])) {
+                    ++k;
+                } else {
+                    break;
+                }
+            }
+
+            double maxmin = Math.max(dd[i - j], dd[i + k]);
+            if (maxmin > dd[i] * 0.3) {
+                iter.remove();
+            }
+        }
+
+        // progowanie co do największego peaku
+        int max_ind = Collections.max(pperiod, new MaxDataComparator(dd));
+
+        for (ListIterator<Integer> it = pperiod.listIterator(); it.hasNext();) {
+            Integer num = (Integer) it.next();
+            if (dd[num] > dd[max_ind] * 0.4) {
+                d[1][num + start] = dd[num];
+            } else {
+                it.remove();
+            }
+        }
+
+        if (pperiod.size() > 3) {
+            ListIterator<Integer> it;
+            int prev, pprev;
+            pprev = pperiod.get(0);
+            prev = pperiod.get(1);
+            LinkedList<Integer> rm = new LinkedList<Integer>();
+            for (int i = 2; i < pperiod.size(); ++i) {
+                int j = pperiod.get(i);
+                //bo 1 nie jest liczba pierwsza, a dwa jest parzyste
+                if ((dd[prev] < dd[j]) && (dd[prev] < dd[pprev]) && (Math.abs(dd[prev] - dd[j]) > (dd[j] * 0.03))) {
+                    rm.add(prev);
+                }
+                pprev = prev;
+                prev = j;
+
+            }
+            for (int i : rm) {
+                for (it = pperiod.listIterator(); it.hasNext();) {
+                    int j = it.next();
+                    if (i == j) {
+                        it.remove();
+                        d[1][i + start] = 0;
+                        break;
+                    }
+                }
+
+            }
+        }
+        if (pperiod.isEmpty()) {
+            return 0.0;
+        }
+        int max_b, max_a;
+        max_b = Collections.max(pperiod, new MaxDataComparator(dd));
+        int a = 0, b = 0;
+        while (pperiod.size() > 1) {
+            for (ListIterator del = pperiod.listIterator(); del.hasNext();) {
+                if ((Integer) del.next() == max_b) {
+                    del.remove();
+                    break;
+                }
+            }
+
+            max_a = Collections.max(pperiod, new MaxDataComparator(dd));
+
+            a = max_a;
+            b = max_b;
+            if (a > b) {
+                int tmp = a;
+                a = b;
+                b = tmp;
+            }
+
+            for (ListIterator<Integer> it = pperiod.listIterator(); it.hasNext();) {
+                Integer num = (Integer) it.next();
+                if (num < a || num > b) {
+                    it.remove();
+                }
+            }
+
+            max_b = max_a;
+
+        }
+
+        max_ind = Math.abs(b - a);
+        if (max_ind == 0 && pperiod.size() == 1) {
+            max_ind = pperiod.get(0);
+        }
+
+        return (double) wavFile.getSampleRate() / (double) max_ind;
+    }
 }

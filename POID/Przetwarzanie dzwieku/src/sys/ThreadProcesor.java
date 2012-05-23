@@ -40,14 +40,14 @@ public class ThreadProcesor extends Thread {
                     CepstrumAnalysis ca = new CepstrumAnalysis(panel.signal, panel.wavFile);
                     ca.process();
                     panel.appendLog(ca.log.toString());
-                    panel.addPlotData(PlotData.generatePlotData(ca.d, "Cepstrum", 0));
+                    panel.addPlotData(new TabData("Cepstrum",TabData.generatePlotData(ca.d,0),ca.frameSize, ca.frequencies));
                 }
                 if (amdf) {
                     panel.appendLog("----AMDF----");
                     AMDF a = new AMDF(panel.signal, panel.wavFile);
                     a.process();
                     panel.appendLog(a.log.toString());
-                    panel.addPlotData(PlotData.generatePlotData(a.d, "AMDF", 0));
+                    panel.addPlotData(new TabData("AMDF",TabData.generatePlotData(a.d,0),a.frameSize, a.frequencies));
                 }
                 panel.setProcessing(false);
             }

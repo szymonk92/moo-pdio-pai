@@ -1,94 +1,166 @@
 package sys;
 
 import WavFile.WavFile;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ListIterator;
 
 public class AMDF extends FundamentalFrequencyFinder {
 
+    int range = 8;
+
     public AMDF(double[] signal, WavFile wavFile) {
         super(signal, wavFile);
+        this.frameSize = 4096;
+        this.name = "AMDF";
     }
 
     @Override
-    public PlotWave plot() {
-        PlotWave pw = new PlotWave();
-        pw.plot(d, "AMDF", 0);
-        return pw;
-    }
-
-    @Override
-    public Tuple process() {
+    public void process() {
         log = new StringBuilder();
+ 
         d = new double[2][signal.length];
 
+        int frameCount = (int) Math.ceil((double) wavFile.getNumFrames() / (double) frameSize);
 
-        for (int i = 1; i < signal.length; ++i) {
-            for (int j = i; j < signal.length; ++j) {
-                d[0][i] += Math.abs(signal[j] - signal[j - i]);
+        log.append("signal length: ").append(signal.length).append(newline);
+        log.append("frameSize: ").append(frameSize).append(newline);
+        log.append("frameCount: ").append(frameCount).append(newline);
+        
+        this.frequencies = new double[frameCount];
+        
+        for (int f = 0; f < frameCount; f++) {
+            int first = f * frameSize;
+            if (first > signal.length) {
+                first = signal.length - 1;
+            }
+            int last = (f + 1) * frameSize;
+            if (last > signal.length) {
+                last = signal.length;
+            }
+
+            frequencies[f] = getF0(Arrays.copyOfRange(signal, first, last), first);
+            log.append("Frame ").append(f+1).append(" frequency = ").append(df.format(frequencies[f])).append(" Hz").append(newline);
+        }
+        
+        double sum = 0;
+        for(Double f : frequencies){
+            sum +=f;
+        }
+        
+        log.append("Average frequency = ").append(df.format(sum/frequencies.length)).append(" Hz").append(newline);
+    }
+
+    @Override
+    public double getF0(double[] x, int start) {
+        List<LocalMinimum> pperiod = new ArrayList<LocalMinimum>();
+        int n = x.length / 2;
+        double[] thi = new double[n];
+        for (int t = 0; t < n; t++) {
+            for (int i = 0; i < n; i++) {
+                thi[t] += Math.abs(x[i] - x[i + t]);
+            }
+
+            thi[t] = thi[t] / n;
+        }
+        double sum = 0;
+        for (int t = 0; t < thi.length; t++) {
+            sum += thi[t];
+        }
+        sum = sum / thi.length;
+        for (int t = 0; t < thi.length; t++) {
+            if (thi[t] > sum) {
+                thi[t] = sum;
+            }
+            if (t + start < signal.length) {
+                d[0][t + start] = thi[t];
             }
         }
-
-        double dd[] = d[0];
-        List<Integer> pperiod = new ArrayList<Integer>();
-
-        //RANGE
-        int range = 8;
-        log.append("RANGE ").append(range).append(newline);
-        //System.out.println("RANGE"+range);
-        for (int i = range; i < wavFile.getNumFrames() / 4; ++i) {
+        for (int t = range; t < (n - 1) - range; t++) {
             int bigger = 0;
-            //sprawdz czy jest to ,,dolina o zboczu wysokim na ,,range''
-            for (int j = i - range; j < i + range; ++j) {
-                if (dd[j] > dd[i] && i != j) {
+            double max_depth = 0;
+            for (int j = t - range; j < t + range; ++j) {
+                if (t != j && thi[j] > thi[t]) {
                     bigger++;
+
                 }
             }
-            //sprawdz czy zbocza sa tak wysokie jak to zalozylismy
+
             if (bigger == (range * 2) - 1) {
                 boolean multi = false;
-                //sprawdz czy i nie jest wielokrotnoscia ktorejs liczby juz bedacych na liscie
-                for (int k = 0; k < pperiod.size() && !multi; ++k) {
-                    Integer j = pperiod.get(k);
-                    if (i < j) {
-                        continue;
-                    }
-                    if (i % j <= 3) {
+                for (LocalMinimum i : pperiod) {
+                    if ((t % i.value) < 3) {
                         multi = true;
                         break;
                     }
                 }
-
                 if (!multi) {
-                    pperiod.add(i);
+                    LocalMinimum lc = new LocalMinimum(t, Math.max(thi[t + range - 1] - thi[t], thi[t - range + 1] - thi[t]));
+                    pperiod.add(lc);
+                    max_depth = Math.max(lc.depth, max_depth);
                 }
 
-                //usun ,,płytkie minima''
-                int max_depth = 0;
-                for (int k = 0; k < pperiod.size(); ++k) {
-                    Integer j = pperiod.get(k);
-                    max_depth = (int) Math.max(dd[j + range - 1] - dd[j], max_depth);
-                }
                 ListIterator it = pperiod.listIterator();
                 while (it.hasNext()) {
-                    Integer num = (Integer) it.next();
-                    if (dd[num - range - 1] - dd[num] < ((double) max_depth) * 0.8) {
+                    LocalMinimum num = (LocalMinimum) it.next();
+                    if (num.depth < max_depth * 0.8) {
                         it.remove();
                     }
                 }
-                i += range - 1;
+            }
+
+        }
+        int fT = Integer.MAX_VALUE;
+        for (LocalMinimum lc : pperiod) {
+            if (lc.value < fT) {
+                fT = lc.value;
             }
         }
 
-//		ListIterator it = pperiod.listIterator();
-//		while (it.hasNext()) {
-//			Integer num = (Integer)it.next();
-//			System.out.println(num+" "+dd[num]);
-//		}
+        if (fT < Integer.MAX_VALUE) {
+            if (fT + start < signal.length) {
+                d[1][fT + start] = thi[fT];
+            }
+            return (wavFile.getSampleRate() / fT);
+        }
 
-        int min_ind = Collections.min(pperiod);
+        return 0.0;
+    }
 
-        log.append("MIN:").append(min_ind).append(" Freq ~= ").append(1.0f / ((double) min_ind / (double) wavFile.getSampleRate())).append("Hz").append(newline);
+    public double getF0_basic(double[] x, int start) {
+        int fT = 0;
 
-        return new Tuple((1.0f / ((double) min_ind / (double) wavFile.getSampleRate())), min_ind);
+        int n = x.length / 2;
+        double[] thi = new double[n];
+        for (int t = 0; t < n; t++) {
+            for (int i = 0; i < n; i++) {
+                thi[t] += Math.abs(x[i] - x[i + t]);
+            }
+            if (t + start < signal.length) {
+                d[0][t + start] = thi[t];
+            }
+            thi[t] = thi[t] / n;
+        }
+        double peak = thi[0];
+        for (int t = 1; t < (n - 1); t++) {
+            if (((thi[t] - thi[t - 1]) < 0) && ((thi[t] - thi[t + 1]) < 0)) {
+                if (thi[t] < (0.6 * peak)) {
+                    if (fT == 0) {
+                        fT = t;
+                        if (t + start < signal.length) {
+                            d[1][t + start] = 100;
+                        }
+                    }
+                }
+            }
+            peak = Math.max(thi[t], peak);
+        }
+
+        if (fT > 0) {
+            return (wavFile.getSampleRate() / fT);
+        }
+
+        return 0.0;
     }
 }

@@ -78,6 +78,7 @@ public class MainWindow extends javax.swing.JFrame {
         if (files.isEmpty()) {
             System.out.println("Błędnie podany plik w argumentach.");
         }
+        List<TabPanel> tmpPanels =  new ArrayList<TabPanel>();
         for (File f : files) {
             try {
                 WavFile wavFile = WavFile.openWavFile(f);
@@ -104,16 +105,17 @@ public class MainWindow extends javax.swing.JFrame {
                 } while (framesRead != 0);
                 wavFile.close();
                 TabPanel tp = new TabPanel(signal, wavFile);
-                panels.add(tp);
+                tmpPanels.add(tp);
                 this.closableTabbedPane.addTab(f.getName(), tp);
-                //this.closableTabbedPane.setSelectedIndex((this.closableTabbedPane.getTabCount() - 1));
+                this.closableTabbedPane.setSelectedIndex((this.closableTabbedPane.getTabCount() - 1));
             } catch (Exception e) {
                 e.printStackTrace();
                 System.err.println(e);
             }
         }
-        ThreadProcesor procesor = new ThreadProcesor(panels, true, cepstrum, amdf);
+        ThreadProcesor procesor = new ThreadProcesor(tmpPanels, true, cepstrum, amdf);
         procesor.start();
+        panels.addAll(tmpPanels);
     }
 
     /**
