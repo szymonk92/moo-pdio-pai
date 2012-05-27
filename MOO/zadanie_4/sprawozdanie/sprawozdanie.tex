@@ -25,12 +25,14 @@
 
 \usepackage{amsmath}
 \usepackage{fancyvrb}
-
+\usepackage{array}
 
 \usepackage{indentfirst}
 \usepackage[center,small,bf]{caption}
 \hypersetup{colorlinks=false,pdfborder={0 0 0}}
-
+\newcolumntype{x}[1]{%
+>{\centering\hspace{0pt}}p{#1}}%
+\newcommand{\tnhl}{\tabularnewline\hline}
 \renewcommand{\labelitemi}{$\bullet$}
 \renewcommand{\labelitemii}{$\cdot$}
 \renewcommand{\labelitemiii}{$\diamond$}
@@ -91,90 +93,102 @@ Napisać program implementujący rozwiązywanie zagadnienia programowania liniow
 
 \subsection{Problem programowania liniowego}
 
-Programowaniem liniowym nazywamy problem optymalizacji wielowymiarowej funkcji liniowej z ograniczeniami.
-Zapisać możemy go jako minimalizacja wyrażenia :
+Programowaniem liniowym nazywamy problem optymalizacji wielowymiarowej funkcji liniowej z ograniczeniami. Zapisać możemy go jako minimalizacja wyrażenia:
+
 \begin{equation}
 c^{T}x
 \end{equation}
+
 z ograniczeniami :
 
-\begin{eqnarray}
-Ax=b \\
-x \geq 0
-\end{eqnarray}
-Zakładając, że $b \geq 0$\\
+\begin{align}
+  Ax=b \nonumber \\
+  x \geq 0
+\end{align}
+
+Zakładając, że $b \geq 0$
+
 gdzie :
+
 \begin{itemize}
-\item x - zmienne funkcji celu
-\item c - współczynniki funkcji celu
-\item A - macierze współczynników ograniczeń
-\item b - prawa strona ograniczeń
+\item $x$ - zmienne funkcji celu
+\item $c$ - współczynniki funkcji celu
+\item $A$ - macierze współczynników ograniczeń
+\item $b$ - prawa strona ograniczeń
 \end{itemize}
 
-Przedstawioną powyżej postać, nazywamy postacią standardową, aby z dowolnej postaci problemu programowania liniowego
-\begin{eqnarray}
-c^{T}x\\
-Ax \geq b \\
+Przedstawioną powyżej postać, nazywamy postacią standardową, aby z dowolnej postaci problemu programowania liniowego:
+
+\begin{align}
+c^{T}x \nonumber \\
+Ax \geq b  \nonumber \\
 x \geq 0
-\end{eqnarray}
+\end{align}
 
- przejść do tej postaci należy : w przypadku maksymalizacji, przekształcamy zadanie na minimalizacje funkcji przeciwnej funkcji celu; w związku z założoną nie ujemnością prawej strony ograniczeń, jeśli wartość $b_i$ jest ujemna, przemnażamy ograniczenie przez $-1$. Następnie wprowadzamy sztuczne zmienne $y_i$. A problem w standardowej postawi przyjmuje się jako :
-\begin{eqnarray}
-c^{T}x\\
-\left[ \begin{smallmatrix} A &,w -I_m \end{smallmatrix} \right] \left[ \begin{smallmatrix} x\\y \end{smallmatrix} \right] = b\\
+przejść do tej postaci należy: w przypadku maksymalizacji, przekształcamy zadanie na minimalizacje funkcji przeciwnej funkcji celu; w związku z założoną nie ujemnością prawej strony ograniczeń, jeśli wartość $b_i$ jest ujemna, przemnażamy ograniczenie przez $-1$. Następnie wprowadzamy sztuczne zmienne $y_i$. A problem w standardowej postawi przyjmuje się jako:
+
+\begin{align}
+c^{T}x \nonumber \\
+\left[ \begin{smallmatrix} A &,w -I_m \end{smallmatrix} \right] \left[ \begin{smallmatrix} x\\y \end{smallmatrix} \right] = b \nonumber \\
 y \geq 0
-\end{eqnarray}
-gdzie $I_m$ jest macierzą jednostkową o wymiarach $mxm$\\
-lub gdy ograniczenia przybierają formę : $Ax \geq b$\\
-ograniczenia w standardowej formie przybierają formę : 
-$\left[ \begin{smallmatrix} A &, I_m \end{smallmatrix} \right] \left[ \begin{smallmatrix} x\\y \end{smallmatrix} \right] = b$\\
+\end{align}
 
+gdzie $I_m$ jest macierzą jednostkową o wymiarach $m \times m$
+
+lub gdy ograniczenia przybierają formę : $Ax \geq b$
+
+ograniczenia w standardowej formie przybierają formę : 
+$\left[ \begin{smallmatrix} A &, I_m \end{smallmatrix} \right] \left[ \begin{smallmatrix} x\\y \end{smallmatrix} \right] = b$
 
 \subsection{Metoda sympleks}
 
-Znając już postać problemu możemy przejść do opisu rozwiązania. 
-W algorytmie tym układ równań liniowych $Ax=b$ (gdzie $rz(A)=m$) zapisujemy w postaci ,,kanonicznej'', którą możemy otrzymać na drodze przekształceń elementarnych :\\
+Znając już postać problemu możemy przejść do opisu rozwiązania. W algorytmie sympleks układ równań liniowych $Ax=b$ (gdzie $rz(A)=m$) zapisujemy w postaci ,,kanonicznej'', którą możemy otrzymać na drodze przekształceń elementarnych:
+
 $$\left[ \begin{smallmatrix} I_m &, Y_{m,n-m} \end{smallmatrix} \right] x = y_0 $$
-Piersze m zmiennych $x$ występuje tylko w jednym równaniu, a współczynniki przy nich są równe 1, zmienne ta nazywamy zmiennymi bazowymi, w innym przypadku niebazowymi.
 
-
-Związana z tą postacią jest macierz kanoniczna : $\left[  I_m , Y_{m,n-m}, y_0 \right] $.
+Pierwsze $m$ zmiennych $x$ występuje tylko w jednym równaniu, a współczynniki przy nich są równe 1, zmienne ta nazywamy zmiennymi bazowymi, w innym przypadku niebazowymi. Związana z tą postacią jest macierz kanoniczna : $\left[  I_m , Y_{m,n-m}, y_0 \right] $. Przebieg algorytmu rozwiązywania problemów programowania liniowego:
 
 \begin{enumerate}
-\item Rozpoczynamy od pewnego dopuszczalnego rozwiązania x= $\left[ x_1, x_2,...,x_m,0,...,0 \right]^T$ gdzie $x_i \geq 0 $ dla $i \in 1..m$. Wyznaczamy macierz kanoniczną dla tego rozwiązania.
+\item Rozpoczynamy od pewnego dopuszczalnego rozwiązania  $x= \left[ x_1, x_2,...,x_m,0,...,0 \right]^T$ gdzie $x_i \geq 0 $ dla $i \in 1..m$. Wyznaczamy macierz kanoniczną dla tego rozwiązania.
 \item Obliczamy współczynniki zredukowanego kosztu względem każdej zmiennej nie bazowej -  $r_i = c_i - z_i $ gdzie $z_i = c_1 y_{1i}+ \dots + c_m y_{mi}$.
 \item Jeśli $\forall\ j\ r_j \geq 0$ to aktualne rozwiązanie jest optymalne. Koniec.
-\item Wybierze q dla którego $r_q  < 0$.
+\item Wybierze $q$ dla którego $r_q  < 0$.
 \item Jeśli  nie istnieje $y_{iq} >0$ problem jest nieograniczony - koniec. W innym przypadku oblicz $p = min \{ j : \frac{y_{j0}}{y_{jq}} = min_i \{ \frac{y_{i0}}{y_{iq}} : y_{iq} > 0 \} \}$ .
-\item zmień bazę zmiennych p i q w następujący sposób:
-\begin{eqnarray}
-y'_{ij} = y_{ij} - \frac{y_{pj}}{y_{pq}} y_{iq},\ dla\ i \neq p\\
+\item zmień bazę zmiennych $p$ i $q$ w następujący sposób:
+
+\begin{align}
+y'_{ij} = y_{ij} - \frac{y_{pj}}{y_{pq}} y_{iq},\ dla\ i \neq p \nonumber \\
 y'_{pj} = \frac{y_{pj}}{y_{pq}}
-\end{eqnarray}
+\end{align}
+
 \item Wróć do kroku 2.
 \end{enumerate}
-Powyższy algorytm opisuje kolejne kroki metody rozwiązywania problemów programowania liniowego.
 
-Jak już powyżej opisano, zmienne w ograniczeniach rozdzielamy na bazowe i niebazowe. Na podstawie tego rozgraniczenia możemy zapisać problem programowania liniowego, oznaczając cześć dotyczącą zmiennych bazowych poprzez $B$ a niebazowych przez $D$.\\
-Możemy teraz opisać zadanie jako :
-\begin{eqnarray}
-min\ c^{T} _{B} x_{B} + c^{T}_{D}x_{D}\\
-\left[ \begin{smallmatrix} B &, D \end{smallmatrix} \right] \left[ \begin{smallmatrix} x_B\\x_D \end{smallmatrix} \right] =b \\
+Jak opisano powyżej, zmienne w ograniczeniach rozdzielamy na bazowe i niebazowe. Na podstawie tego rozgraniczenia możemy zapisać problem programowania liniowego, oznaczając cześć dotyczącą zmiennych bazowych poprzez $B$ a niebazowych przez $D$.
+
+Możemy teraz opisać zadanie jako:
+
+\begin{align}
+min\ c^{T} _{B} x_{B} + c^{T}_{D}x_{D} \nonumber \\
+\left[ \begin{smallmatrix} B &, D \end{smallmatrix} \right] \left[ \begin{smallmatrix} x_B\\x_D \end{smallmatrix} \right] =b  \nonumber \\
 x_{B} \geq 0, x_{D} \geq 0
-\end{eqnarray}
+\end{align}
 
-Jeśli wektor $x_D \neq 0$, czyli aktualne rozwiązani nie jest optymalnym, możemy wyznaczyć wektor kosztów zredukowanych :
+Jeśli wektor $x_D \neq 0$, czyli aktualne rozwiązanie nie jest optymalnym, możemy wyznaczyć wektor kosztów zredukowanych:
+
 \begin{equation}
 r^{T}_{D} = c^{T}_{D} - c^{T}_{B} B^{-1} D
 \end{equation}
 
-Możemy teraz przedstawić postać macierzy sympleksowej :
+Możemy teraz przedstawić postać macierzy sympleksowej:
+
 \begin{equation}
 \left[ \begin{smallmatrix} A & b \\ c^{T} & 0  \end{smallmatrix} \right] =
-\left[ \begin{smallmatrix} B &  D & b \\c^{T}_{B} & c^{T}_{D} \end{smallmatrix} \right]  \\
+\left[ \begin{smallmatrix} B &  D & b \\c^{T}_{B} & c^{T}_{D} \end{smallmatrix} \right]
 \end{equation}
 
-Algorytm sympleksu działa na macierzy kanonicznej, należy sprowadzić zatem macierz sympleksową do tej formy, po przekształceniach, które można dokładnie poznać w  \cite{1}. A w wyniku otrzymujemy :
+Algorytm sympleksu działa na macierzy kanonicznej, należy sprowadzić zatem macierz sympleksową do tej formy, po przekształceniach, które można dokładnie poznać w \cite{1}. Jako wynik otrzymujemy:
+
 \begin{equation}
 	\begin{bmatrix}
 		I_m & B^{-1} D & B^{-1} b \\
@@ -182,59 +196,66 @@ Algorytm sympleksu działa na macierzy kanonicznej, należy sprowadzić zatem ma
 	\end{bmatrix}
 \end{equation}
 
-Rozważmy teraz przykład :\\
-maksymalizacja wyrażenia $7x_1 + 6x_2$\\
+Rozważmy teraz przykład:
+
+Maksymalizacja wyrażenia $7x_1 + 6x_2$
 z ograniczeniami $2x_1 + x_2 \leq 3$, $x_1 + 4x_2 \leq 4$, $x_1,x_2\geq 0$
 
-Zadaniem jest maksymalizacja, zatem w tablicy sympleksowej wspólczynniki funkcji celu $c$ będą zanegowane, oraz wprowadzone zostaną dwie nieujemne sztuczne zmienne. Zatem tablica sympleksowa będzie miała postać :\\
-\begin{tabular}{|c|c|c|c|c|}
-\hline 
-2 & 1 & 1 & 0 & 3 \\ 
-\hline 
-1 & 4 & 0 & 1 & 4 \\ 
-\hline 
--7 & -6 & 0 & 0 & 0 \\ 
-\hline 
-\end{tabular} 
-\\
-Zauważmy, że tablica ta jest już w postaci kanonicznej, wyznaczamy min $r_i = r_1 = -7 \implies$ q=1, następnie wyznaczamy p zgodnie z algorytmem - p=1. Zatem wykonujemy operacje zmiany bazy (1,1). \\
-\begin{tabular}{|c|c|c|c|c|}
-\hline 
-1 & $\frac{1}{2}$ & $\frac{1}{2}$ & 0 & $\frac{3}{2}$ \\ 
-\hline 
-0 & $\frac{7}{2}$ & $-\frac{1}{2}$ & 1 & $\frac{5}{2}$ \\ 
-\hline 
-0 & $-\frac{5}{2}$ & $\frac{7}{2}$ & 0 & $\frac{21}{2}$ \\ 
-\hline 
-\end{tabular} 
-\\
-Jedynie $r_2$ jest ujemne, wybieramy q=2, wybieramy zgodnie z algorytmem p=2, Wykonujemy operacje zmiany bazy (2,2).\\
+Zadaniem jest maksymalizacja, zatem w tablicy sympleksowej współczynniki funkcji celu $c$ będą zanegowane, oraz wprowadzone zostaną dwie nieujemne sztuczne zmienne. Zatem tablica sympleksowa będzie miała postać:
 
-\begin{tabular}{|c|c|c|c|c|}
+\begin{table}[H]
+\centering
+\begin{tabular}{|x{0.7cm}|x{0.7cm}|x{0.7cm}|x{0.7cm}|x{0.7cm}|}
 \hline 
-1 & 0 & $\frac{4}{7}$ & $-\frac{1}{7}$ & $\frac{8}{7}$ \\ 
-\hline 
-0 & 1 & $-\frac{1}{7}$ & $\frac{2}{7}$ & $\frac{5}{7}$ \\ 
-\hline 
-0 & 0 & $\frac{22}{7}$ & $\frac{5}{7}$ & $\frac{86}{7}$\\ 
-\hline 
+2 & 1 & 1 & 0 & 3  \tnhl
+1 & 4 & 0 & 1 & 4  \tnhl
+-7 & -6 & 0 & 0 & 0 \tnhl
 \end{tabular} 
-\\
+\end{table}
+
+Zauważmy, że tablica ta jest już w postaci kanonicznej, wyznaczamy min $r_i = r_1 = -7 \implies$ $q=1$, następnie wyznaczamy $p$ zgodnie z algorytmem - $p=1$. Zatem wykonujemy operacje zmiany bazy $(1,1)$.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|x{0.7cm}|x{0.7cm}|x{0.7cm}|x{0.7cm}|x{0.7cm}|}
+\hline 
+1 & $\frac{1}{2}$ & $\frac{1}{2}$ & 0 & $\frac{3}{2}$ \tnhl
+0 & $\frac{7}{2}$ & $-\frac{1}{2}$ & 1 & $\frac{5}{2}$ \tnhl
+0 & $-\frac{5}{2}$ & $\frac{7}{2}$ & 0 & $\frac{21}{2}$ \tnhl
+\end{tabular} 
+\end{table}
+
+Jedynie $r_2$ jest ujemne, wybieramy $q=2$, wybieramy zgodnie z algorytmem $p=2$, Wykonujemy operacje zmiany bazy $(2,2)$.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|x{0.7cm}|x{0.7cm}|x{0.7cm}|x{0.7cm}|x{0.7cm}|}
+\hline 
+1 & 0 & $\frac{4}{7}$ & $-\frac{1}{7}$ & $\frac{8}{7}$ \tnhl 
+0 & 1 & $-\frac{1}{7}$ & $\frac{2}{7}$ & $\frac{5}{7}$ \tnhl
+0 & 0 & $\frac{22}{7}$ & $\frac{5}{7}$ & $\frac{86}{7}$ \tnhl
+\end{tabular} 
+\end{table}
+
 Ponieważ żadna wartość z ostatniego wiersza nie jest ujemna, kończymy działania algorytmu. wyznaczamy rozwiązanie jako $x_1 = \frac{8}{7}$ , $x_2=\frac{5}{7}$, oraz wartość funkcji celu $\frac{86}{7}$.
 
 \subsection{Metoda dwu-fazowego sympleksu}
 
-W poprzedniej sekcji, założyliśmy, że początkowe rozwiązanie jest dopuszczalne, jednak takie założenie może być błędne. Metoda dwu-fazowego sympleksu wyznacza w pierwszej fazie początkowe rozwiązanie dopuszczalne, a następnie oblicza na jego podstawie rozwiązanie podstawowego problemu.\\
-Początkowe rozwiązanie dopuszczalne wyznaczamy rozwiązując zadanie pomocnicze.\\
-Rozwiązujemy zadanie minimalizacji\\
- $y_1+y_2+\dots+y_m$\\
- przy ograniczeniach
- $\left[ \begin{smallmatrix} A &, I_m \end{smallmatrix} \right] \left[ \begin{smallmatrix} x\\y \end{smallmatrix} \right] = b$\\
-$x, y \geq 0 $\\
-gdzie $y=[y_1+y_2+\dots+y_m]^{T}$ jest wektorem zmiennych sztucznych, oraz wiemy, że początkowe rozwiązanie dopuszczalne ma postać $\left[ \begin{smallmatrix} 0\\b \end{smallmatrix} \right]$.
-Po rozwiązaniu zadania pomocniczego możemy wyznaczyć tablice sympleksową w postaci kanonicznej problemu  podstawowego odrzucając sztuczne zmienne, oraz wracając do podstawowej funkcji celu.
+W poprzedniej sekcji, założyliśmy, że początkowe rozwiązanie jest dopuszczalne, jednak takie założenie może być błędne. Metoda dwu-fazowego sympleksu wyznacza w pierwszej fazie początkowe rozwiązanie dopuszczalne, a następnie oblicza na jego podstawie rozwiązanie podstawowego problemu. Początkowe rozwiązanie dopuszczalne wyznaczamy rozwiązując zadanie pomocnicze.
 
+Rozwiązujemy zadanie minimalizacji:
 
+\begin{equation*}
+y_1+y_2+\dots+y_m
+\end{equation*}
+
+przy ograniczeniach
+\begin{align*}
+\left[ \begin{smallmatrix} A &, I_m \end{smallmatrix} \right] \left[ \begin{smallmatrix} x\\y \end{smallmatrix} \right] = b\\
+x, y \geq 0 \\
+\end{align*}
+
+gdzie $y=[y_1+y_2+\dots+y_m]^{T}$ jest wektorem zmiennych sztucznych, oraz wiemy, że początkowe rozwiązanie dopuszczalne ma postać $\left[ \begin{smallmatrix} 0\\b \end{smallmatrix} \right]$. Po rozwiązaniu zadania pomocniczego możemy wyznaczyć tablice sympleksową w postaci kanonicznej problemu  podstawowego odrzucając sztuczne zmienne, oraz wracając do podstawowej funkcji celu.
 
 \section{Opis programu}
 
@@ -380,8 +401,7 @@ rel = '<<';
 b = [3 4];
 \end{Verbatim}
 
-\begin{Verbatim}[frame=lines
-]
+\begin{Verbatim}[frame=lines]
 Tableau
        2       1       1       0       3       
        1       4       0       1       4       
@@ -407,9 +427,7 @@ wartosc funkcji celu:
 Dla danych wejściowych :
 
 
-\begin{Verbatim}[frame=lines
-]
-
+\begin{Verbatim}[frame=lines]
 type = 'min';
 c = [7 6];
 A = [2 1;1 4];
@@ -417,9 +435,7 @@ rel = '<<';
 b = [3 4];
 \end{Verbatim}
 
-\begin{Verbatim}[frame=lines
-]
-
+\begin{Verbatim}[frame=lines]
 Tableau
        2      -1      1      6     -5     -1      0      1      0      6 
        1       1      2      1      2      0     -1      0      1      3
