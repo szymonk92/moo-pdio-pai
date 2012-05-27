@@ -1,0 +1,476 @@
+% vim:encoding=utf8 ft=tex sts=2 sw=2 et:
+
+
+\documentclass{classrep}
+\usepackage[utf8]{inputenc}
+
+\usepackage[pdftex]{color,graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+\usepackage{float}
+
+\usepackage{color}
+
+\usepackage{listings}
+
+\usepackage{color}
+
+\usepackage[hyphens]{url}
+
+\usepackage{hyperref}
+
+\usepackage[polish]{babel}
+
+\usepackage{enumitem}
+
+\usepackage{amsmath}
+\usepackage{fancyvrb}
+
+
+\usepackage{indentfirst}
+\usepackage[center,small,bf]{caption}
+\hypersetup{colorlinks=false,pdfborder={0 0 0}}
+
+\renewcommand{\labelitemi}{$\bullet$}
+\renewcommand{\labelitemii}{$\cdot$}
+\renewcommand{\labelitemiii}{$\diamond$}
+\renewcommand{\labelitemiv}{$\ast$}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{ %
+  language=Matlab,         % the language of the code
+  basicstyle=\footnotesize,           % the size of the fonts that are used for the code
+  numbers=left,     % where to put the line-numbers
+  numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+  stepnumber=2,     % the step between two line-numbers. If it's 1, each line 
+             % will be numbered
+  numbersep=5pt,           % how far the line-numbers are from the code
+  backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+  showspaces=false,        % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,          % show tabs within strings adding particular underscores
+  frame=single,     % adds a~frame around the code
+  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=2,        % sets default tabsize to 2 spaces
+  captionpos=b,     % sets the caption-position to bottom
+  breaklines=true,         % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  title=\lstname,     % show the filename of files included with \lstinputlisting;
+             % also try caption instead of title
+  keywordstyle=\color{blue},          % keyword style
+  commentstyle=\color{dkgreen},       % comment style
+  stringstyle=\color{mauve},         % string literal style
+  escapeinside={\%*}{*)},     % if you want to add a~comment within your co
+}
+
+\studycycle{Informatyka, studia dzienne, mgr II st.}
+\coursesemester{I}
+
+\coursename{Metody obliczeniowe optymalizacji}
+\courseyear{2011/2012}
+
+\courseteacher{mgr inż. Łukasz Chomątek}
+\coursegroup{czwartek, 16:00}
+
+\author{
+  \studentinfo{Paweł Musiał}{178726} \and
+  \studentinfo{Łukasz Michalski}{178724}
+}
+
+\title{Zadanie 4 - Programowanie liniowe} % np \title{Zadanie 1: Optymalizacja jednowymiarowa}
+\svnurl{https://serce.ics.p.lodz.pl/svn/labs/moo/lc_cz1600/lmpm}
+
+\begin{document}
+\maketitle
+
+\section{Cel}
+Napisać program implementujący rozwiązywanie zagadnienia programowania liniowego za pomocą dwufazowej metody sympleksu. Program powinien wykrywać sytuacje patologiczne (brak rozwiązań, nieskończenie wiele rozwiązań).
+
+\section{Rozwiązanie zadania}
+
+\subsection{Problem programowania liniowego}
+
+Programowaniem liniowym nazywamy problem optymalizacji wielowymiarowej funkcji liniowej z ograniczeniami.
+Zapisać możemy go jako minimalizacja wyrażenia :
+\begin{equation}
+c^{T}x
+\end{equation}
+z ograniczeniami :
+
+\begin{eqnarray}
+Ax=b \\
+x \geq 0
+\end{eqnarray}
+Zakładając, że $b \geq 0$\\
+gdzie :
+\begin{itemize}
+\item x - zmienne funkcji celu
+\item c - współczynniki funkcji celu
+\item A - macierze współczynników ograniczeń
+\item b - prawa strona ograniczeń
+\end{itemize}
+
+Przedstawioną powyżej postać, nazywamy postacią standardową, aby z dowolnej postaci problemu programowania liniowego
+\begin{eqnarray}
+c^{T}x\\
+Ax \geq b \\
+x \geq 0
+\end{eqnarray}
+
+ przejść do tej postaci należy : w przypadku maksymalizacji, przekształcamy zadanie na minimalizacje funkcji przeciwnej funkcji celu; w związku z założoną nie ujemnością prawej strony ograniczeń, jeśli wartość $b_i$ jest ujemna, przemnażamy ograniczenie przez $-1$. Następnie wprowadzamy sztuczne zmienne $y_i$. A problem w standardowej postawi przyjmuje się jako :
+\begin{eqnarray}
+c^{T}x\\
+\left[ \begin{smallmatrix} A &,w -I_m \end{smallmatrix} \right] \left[ \begin{smallmatrix} x\\y \end{smallmatrix} \right] = b\\
+y \geq 0
+\end{eqnarray}
+gdzie $I_m$ jest macierzą jednostkową o wymiarach $mxm$\\
+lub gdy ograniczenia przybierają formę : $Ax \geq b$\\
+ograniczenia w standardowej formie przybierają formę : 
+$\left[ \begin{smallmatrix} A &, I_m \end{smallmatrix} \right] \left[ \begin{smallmatrix} x\\y \end{smallmatrix} \right] = b$\\
+
+
+\subsection{Metoda sympleks}
+
+Znając już postać problemu możemy przejść do opisu rozwiązania. 
+W algorytmie tym układ równań liniowych $Ax=b$ (gdzie $rz(A)=m$) zapisujemy w postaci ,,kanonicznej'', którą możemy otrzymać na drodze przekształceń elementarnych :\\
+$$\left[ \begin{smallmatrix} I_m &, Y_{m,n-m} \end{smallmatrix} \right] x = y_0 $$
+Piersze m zmiennych $x$ występuje tylko w jednym równaniu, a współczynniki przy nich są równe 1, zmienne ta nazywamy zmiennymi bazowymi, w innym przypadku niebazowymi.
+
+
+Związana z tą postacią jest macierz kanoniczna : $\left[  I_m , Y_{m,n-m}, y_0 \right] $.
+
+\begin{enumerate}
+\item Rozpoczynamy od pewnego dopuszczalnego rozwiązania x= $\left[ x_1, x_2,...,x_m,0,...,0 \right]^T$ gdzie $x_i \geq 0 $ dla $i \in 1..m$. Wyznaczamy macierz kanoniczną dla tego rozwiązania.
+\item Obliczamy współczynniki zredukowanego kosztu względem każdej zmiennej nie bazowej -  $r_i = c_i - z_i $ gdzie $z_i = c_1 y_{1i}+ \dots + c_m y_{mi}$.
+\item Jeśli $\forall\ j\ r_j \geq 0$ to aktualne rozwiązanie jest optymalne. Koniec.
+\item Wybierze q dla którego $r_q  < 0$.
+\item Jeśli  nie istnieje $y_{iq} >0$ problem jest nieograniczony - koniec. W innym przypadku oblicz $p = min \{ j : \frac{y_{j0}}{y_{jq}} = min_i \{ \frac{y_{i0}}{y_{iq}} : y_{iq} > 0 \} \}$ .
+\item zmień bazę zmiennych p i q w następujący sposób:
+\begin{eqnarray}
+y'_{ij} = y_{ij} - \frac{y_{pj}}{y_{pq}} y_{iq},\ dla\ i \neq p\\
+y'_{pj} = \frac{y_{pj}}{y_{pq}}
+\end{eqnarray}
+\item Wróć do kroku 2.
+\end{enumerate}
+Powyższy algorytm opisuje kolejne kroki metody rozwiązywania problemów programowania liniowego.
+
+Jak już powyżej opisano, zmienne w ograniczeniach rozdzielamy na bazowe i niebazowe. Na podstawie tego rozgraniczenia możemy zapisać problem programowania liniowego, oznaczając cześć dotyczącą zmiennych bazowych poprzez $B$ a niebazowych przez $D$.\\
+Możemy teraz opisać zadanie jako :
+\begin{eqnarray}
+min\ c^{T} _{B} x_{B} + c^{T}_{D}x_{D}\\
+\left[ \begin{smallmatrix} B &, D \end{smallmatrix} \right] \left[ \begin{smallmatrix} x_B\\x_D \end{smallmatrix} \right] =b \\
+x_{B} \geq 0, x_{D} \geq 0
+\end{eqnarray}
+
+Jeśli wektor $x_D \neq 0$, czyli aktualne rozwiązani nie jest optymalnym, możemy wyznaczyć wektor kosztów zredukowanych :
+\begin{equation}
+r^{T}_{D} = c^{T}_{D} - c^{T}_{B} B^{-1} D
+\end{equation}
+
+Możemy teraz przedstawić postać macierzy sympleksowej :
+\begin{equation}
+\left[ \begin{smallmatrix} A & b \\ c^{T} & 0  \end{smallmatrix} \right] =
+\left[ \begin{smallmatrix} B &  D & b \\c^{T}_{B} & c^{T}_{D} \end{smallmatrix} \right]  \\
+\end{equation}
+
+Algorytm sympleksu działa na macierzy kanonicznej, należy sprowadzić zatem macierz sympleksową do tej formy, po przekształceniach, które można dokładnie poznać w  \cite{1}. A w wyniku otrzymujemy :
+\begin{equation}
+	\begin{bmatrix}
+		I_m & B^{-1} D & B^{-1} b \\
+		0^{T} & c^{T}_{D} - c^{T}_{B} B^{-1} D & -c^{T} _{B} B^{-1} b   \\
+	\end{bmatrix}
+\end{equation}
+
+Rozważmy teraz przykład :\\
+maksymalizacja wyrażenia $7x_1 + 6x_2$\\
+z ograniczeniami $2x_1 + x_2 \leq 3$, $x_1 + 4x_2 \leq 4$, $x_1,x_2\geq 0$
+
+Zadaniem jest maksymalizacja, zatem w tablicy sympleksowej wspólczynniki funkcji celu $c$ będą zanegowane, oraz wprowadzone zostaną dwie nieujemne sztuczne zmienne. Zatem tablica sympleksowa będzie miała postać :\\
+\begin{tabular}{|c|c|c|c|c|}
+\hline 
+2 & 1 & 1 & 0 & 3 \\ 
+\hline 
+1 & 4 & 0 & 1 & 4 \\ 
+\hline 
+-7 & -6 & 0 & 0 & 0 \\ 
+\hline 
+\end{tabular} 
+\\
+Zauważmy, że tablica ta jest już w postaci kanonicznej, wyznaczamy min $r_i = r_1 = -7 \implies$ q=1, następnie wyznaczamy p zgodnie z algorytmem - p=1. Zatem wykonujemy operacje zmiany bazy (1,1). \\
+\begin{tabular}{|c|c|c|c|c|}
+\hline 
+1 & $\frac{1}{2}$ & $\frac{1}{2}$ & 0 & $\frac{3}{2}$ \\ 
+\hline 
+0 & $\frac{7}{2}$ & $-\frac{1}{2}$ & 1 & $\frac{5}{2}$ \\ 
+\hline 
+0 & $-\frac{5}{2}$ & $\frac{7}{2}$ & 0 & $\frac{21}{2}$ \\ 
+\hline 
+\end{tabular} 
+\\
+Jedynie $r_2$ jest ujemne, wybieramy q=2, wybieramy zgodnie z algorytmem p=2, Wykonujemy operacje zmiany bazy (2,2).\\
+
+\begin{tabular}{|c|c|c|c|c|}
+\hline 
+1 & 0 & $\frac{4}{7}$ & $-\frac{1}{7}$ & $\frac{8}{7}$ \\ 
+\hline 
+0 & 1 & $-\frac{1}{7}$ & $\frac{2}{7}$ & $\frac{5}{7}$ \\ 
+\hline 
+0 & 0 & $\frac{22}{7}$ & $\frac{5}{7}$ & $\frac{86}{7}$\\ 
+\hline 
+\end{tabular} 
+\\
+Ponieważ żadna wartość z ostatniego wiersza nie jest ujemna, kończymy działania algorytmu. wyznaczamy rozwiązanie jako $x_1 = \frac{8}{7}$ , $x_2=\frac{5}{7}$, oraz wartość funkcji celu $\frac{86}{7}$.
+
+\subsection{Metoda dwu-fazowego sympleksu}
+
+W poprzedniej sekcji, założyliśmy, że początkowe rozwiązanie jest dopuszczalne, jednak takie założenie może być błędne. Metoda dwu-fazowego sympleksu wyznacza w pierwszej fazie początkowe rozwiązanie dopuszczalne, a następnie oblicza na jego podstawie rozwiązanie podstawowego problemu.\\
+Początkowe rozwiązanie dopuszczalne wyznaczamy rozwiązując zadanie pomocnicze.\\
+Rozwiązujemy zadanie minimalizacji\\
+ $y_1+y_2+\dots+y_m$\\
+ przy ograniczeniach
+ $\left[ \begin{smallmatrix} A &, I_m \end{smallmatrix} \right] \left[ \begin{smallmatrix} x\\y \end{smallmatrix} \right] = b$\\
+$x, y \geq 0 $\\
+gdzie $y=[y_1+y_2+\dots+y_m]^{T}$ jest wektorem zmiennych sztucznych, oraz wiemy, że początkowe rozwiązanie dopuszczalne ma postać $\left[ \begin{smallmatrix} 0\\b \end{smallmatrix} \right]$.
+Po rozwiązaniu zadania pomocniczego możemy wyznaczyć tablice sympleksową w postaci kanonicznej problemu  podstawowego odrzucając sztuczne zmienne, oraz wracając do podstawowej funkcji celu.
+
+
+
+\section{Opis programu}
+
+
+\subsection{Algorytm podstawowy : metoda sympleks}
+
+\begin{lstlisting}{simplex}
+function [subs, A, z]= simplex(A, subs, mm, k)
+[m, n] = size(A);
+[mi, col] = BlandRule(A(m,1:n-1));
+while ~isempty(mi) & mi < 0 & abs(mi) > eps
+    t = A(1:m-k,col);
+    if all(t <= 0)
+        if mm == 0
+     z = -inf;
+        else
+     z = inf;
+        end
+        fprintf('\nnieograniczone rozwiazanie z= %s\n',z)
+        return
+    end
+    c = 1:m;
+    a=A(1:m-k,n);
+    b=A(1:m-k,col);
+    l = c(b > 0);
+    [small, row] = min(a(l)./b(l));
+    row = l(row);
+    if ~isempty(row)
+        if abs(small) <= 100*eps & k == 1
+     [s,col] = BlandRule(A(m,1:n-1));
+        end
+        A(row,:)= A(row,:)/A(row,col);
+        subs(row) = col;
+        for i = 1:m
+     if i ~= row
+         A(i,:)= A(i,:)-A(i,col)*A(row,:);
+     end
+        end
+        [mi, col] = BlandRule(A(m,1:n-1));
+    end
+end
+z = A(m,n);
+end
+\end{lstlisting}
+
+
+\subsection{Dwu fazowy sympleks}
+
+\begin{lstlisting}{two-phase simplex}
+function  tpsimplex(type, c, A, rel, b)
+
+if (type == 'min')
+    mm = 0;
+else
+    mm = 1;
+    c = -c;
+end
+c=c(:)';b=b(:);
+[m, n] = size(A);
+n1 = n;
+les = 0;
+if length(c) < n
+    c = [c zeros(1,n-length(c))];
+end
+for i=1:m
+    artificial_var =zeros(m,1);
+    artificial_var(i)=1;
+    if(rel(i) == '<')
+        A = [A artificial_var];
+        les = les + 1;
+    elseif(rel(i) == '>')
+        A = [A -artificial_var];
+    end
+end
+ncol = length(A);
+
+if les == m
+    c = [c zeros(1,ncol-length(c))];
+    A = [A;c];
+    A = [A [b;0]];
+    [subs, A, z] = simplex(A, n1+1:ncol, mm, 1);
+else
+    A = [A eye(m) b];
+    if m > 1
+        w = -sum(A(1:m,1:ncol));
+    else
+        w = -A(1,1:ncol);
+    end
+    c = [c zeros(1,length(A)-length(c))];
+    A = [A;c];
+    A = [A;[w zeros(1,m) -sum(b)]];
+    subs = ncol+1:ncol+m;
+    av = subs;
+    [subs, A, z] = simplex(A, subs, mm, 2);
+    
+    nc = ncol + m + 1;
+    x = zeros(nc-1,1);
+    x(subs) = A(1:m,nc);
+    xa = x(av);
+    com = intersect(subs,av);
+    if (any(xa) ~= 0)
+        fprintf('Brak rozwiazan\n')
+        return
+    end
+    A = A(1:m+1,1:nc);
+    A =[A(1:m+1,1:ncol) A(1:m+1,nc)];
+    [subs, A, z] = simplex(A, subs, mm, 1);
+end
+
+if (z == inf | z == -inf)
+    return
+end
+[m, n] = size(A);
+x = zeros(n,1);
+x(subs) = A(1:m-1,n);
+x = x(1:n1);
+if mm == 0
+    z = -A(m,n);
+else
+    z = A(m,n);
+end
+
+disp(x(1:n1))
+disp(z)
+
+t = find(A(m,1:n-1) == 0);
+if length(t) > m-1
+    fprintf('Problem ma nieskonczenie wiele rozwiazan\n');
+end
+
+end
+\end{lstlisting}
+
+\section{Wyniki}
+\fvset{fontsize=\small}
+Dla danych wejściowych :
+\begin{Verbatim}[frame=lines
+]
+type = 'min';
+c = [7 6];
+A = [2 1;1 4];
+rel = '<<';
+b = [3 4];
+\end{Verbatim}
+
+\begin{Verbatim}[frame=lines
+]
+Tableau
+       2       1       1       0       3       
+       1       4       0       1       4       
+      -7      -6       0       0       0 
+wymiana bazy 1  -> 1
+Tableau
+       1       1/2     1/2     0       3/2     
+       0       7/2           -1/2     1       5/2     
+       0      -5/2     7/2     0      21/2     
+wymiana bazy 2  -> 2
+Tableau
+       1       0       4/7           -1/7     8/7     
+       0       1      -1/7     2/7     5/7     
+       0       0      22/7     5/7           86/7     
+Rozwiazanie optymalne:
+       8/7     
+       5/7     
+wartosc funkcji celu:
+      86/7    
+\end{Verbatim}
+
+
+Dla danych wejściowych :
+
+
+\begin{Verbatim}[frame=lines
+]
+
+type = 'min';
+c = [7 6];
+A = [2 1;1 4];
+rel = '<<';
+b = [3 4];
+\end{Verbatim}
+
+\begin{Verbatim}[frame=lines
+]
+
+Tableau
+       2      -1      1      6     -5     -1      0      1      0      6 
+       1       1      2      1      2      0     -1      0      1      3
+       3       4      6      7      1      0      0      0      0      0
+      -3       0    - 3     -7      3      1      1      0      0     -9 
+wymiana bazy 1  -> 1
+Tableau
+       1      -1/2     1/2     3      -5/2    -1/2     0       1/2     0       3
+       0       3/2     3/2    -2       9/2     1/2    -1      -1/2     1       0
+       0      11/2     9/2    -2      17/2     3/2     0      -3/2     0      -9
+       0      -3/2    -3/2     2      -9/2    -1/2     1       3/2     0       0
+wymiana bazy 2  -> 2
+Tableau
+       1       0       1       7/3    -1      -1/3   -1/3     1/3     1/3     3
+       0       1       1      -4/3     3       1/3   -2/3    -1/3     2/3     0
+       0       0      -1      16/3    -8      -1/3   11/3     1/3   -11/3     -9
+       0       0       0       0       0       0       0       1       1       0
+Koniec fazy 1
+Tableau
+       1       0       1       7/3    -1      -1/3    -1/3     3       
+       0       1       1      -4/3     3       1/3    -2/3     0       
+       0       0      -1      16/3    -8      -1/3    11/3    -9       
+wymiana bazy 2  -> 3
+Tableau
+       1      -1       0      11/3    -4     -2/3     1/3     3       
+       0       1       1      -4/3     3      1/3    -2/3     0       
+       0       1       0       4      -5      *         3	  -9       
+wymiana bazy 2  -> 5
+Tableau
+       1       1/3     4/3     17/9     0     -2/9     -5/9      3       
+       0       1/3     1/3     -4/9     1      1/9     -2/9      0       
+       0       8/3     5/3     16/9     0      5/9     17/9     -9       
+Koniec fazy 2
+
+Rozwiazanie optymalne:
+       3       
+       0       
+       0       
+       0       
+       0       
+       0       
+       0       
+
+ wartosc funkcji celu:
+       9    
+\end{Verbatim}
+
+\section{Wnioski}
+Przedstawiona powyżej implementacja algorytmu dwu-fazowego sympleksu spełnia swoje zadanie jako metody rozwiązywania problemów programowania liniowego. Rozstrzyga również sytuacje trudne, takie jak : nieskończenie wiele rozwiązań, brak rozwiązań. Również zastosowana modyfikacja podstawowego sposobu doboru zmiennych do operacji zmiany bazy - ,,regułą Blanda'' pozwala uniknąć zablokowania się algorytmu podstawowego - metody sympleksu.
+
+\begin{thebibliography}{9}
+\bibitem{1} ,,An Introduction to Optimization'' , Edwin Kah Pin Chong and Stanislaw H. Zak, Hoboken, EUA : Wiley-Interscience 2008
+\end{thebibliography}
+\end{document}
