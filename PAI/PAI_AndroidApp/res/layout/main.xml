@@ -2,29 +2,83 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:scrollbars="vertical" >
-
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/hello" />
+    android:orientation="horizontal"
+    android:scrollbars="none" >
 
     <Button
-        android:id="@+id/TrySOAP"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/soapButton" />
-<ScrollView 
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-    <TextView
-        android:id="@+id/response"
-        android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-        android:scrollbars="vertical"
-        android:text="@string/responseTextEN"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-</ScrollView>
+        android:id="@+id/switchCheque"
+        android:layout_width="35sp"
+        android:layout_height="match_parent"
+        android:text="@string/chequeSwitch" />
+
+    <LinearLayout
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="0.72"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="10sp" >
+
+        <EditText
+            android:id="@+id/login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:ems="10" >
+            <requestFocus />
+        </EditText>
+
+        <EditText
+            android:id="@+id/pass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPassword" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_marginLeft="20sp"
+            android:layout_marginRight="20sp"
+            android:layout_height="40sp" >
+
+            <Button
+                android:id="@+id/actButtonLogIn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                
+                android:text="@string/actButtonLogInTextEN" />
+
+            <Button
+                android:id="@+id/actButtonLogOut"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                
+                android:text="@string/actButtonLogOutTextEN" />
+
+        </RelativeLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <TextView
+                android:id="@+id/response"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical"
+                android:text="@string/responseTextEN"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+        </ScrollView>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/switchPayment"
+        android:layout_width="35sp"
+        android:layout_height="match_parent"
+        android:text="@string/paymentSwitch" />
+
 </LinearLayout>

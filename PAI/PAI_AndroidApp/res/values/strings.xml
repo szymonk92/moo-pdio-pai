@@ -2,8 +2,17 @@
 <resources>
 
     <string name="hello">Hello World, PAI_AndroidAppActivity!</string>
-    <string name="app_name">PAI_AndroidApp</string>
-    <string name="responseTextEN">response</string>
-    <string name="soapButton">Try SOAP</string>
+    <string name="app_name">PAI_AndroidApp</string><string name="responseTextEN">response</string>
+    
+    <string name="loginName">login:</string>
+    <string name="loginPassword">password:</string>
+    <string name="chequeSwitch">cheque</string>
+    <string name="paymentSwitch">payment</string>
+    <string name="actButtonLogInTextEN">log-in</string>
+    <string name="actButtonLogOutTextEN">log-out</string>
+    <string name="commitTemplate">commit</string>
+    <string name="viewTemplate">view</string>
+    <string name="createTemplate">create</string>
+    <string name="emptyOperationLog">Tag:Value</string>
 
 </resources>
