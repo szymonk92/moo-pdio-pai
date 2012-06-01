@@ -46,7 +46,7 @@ public class StartActivity extends Activity {
 			public void onClick(View arg0) {
 				WSDLDocument w = new WSDLDocument("http://lukaszm.servehttp.com/MainWebService.asmx?WSDL");
 				w.setTargetNamespace(NAMESPACE);
-				w.loadWSDL("");
+//				w.loadWSDL("");
 //				Element authHeader= openSession(w,  "bolek@gmail.com", "Haslobolka_2");
 				Element authHeader= openSession(w, logname.getText().toString() , logpass.getText().toString());
 				
@@ -77,8 +77,11 @@ public class StartActivity extends Activity {
 	
 	private Element openSession(WSDLDocument w, String login, String pass) {
 		Element header = null;
-		
-		
+		if (login.isEmpty() && pass.isEmpty()) {
+			login = "bolek@gmail.com";
+			pass = "Haslobolka_2"; 
+		}
+		w.loadWSDL("Authenticate");
 		SoapOperation auth= w.getOperation("Authenticate");
 		w.setElemenTextContext(auth.getRequestBody(), "login", login);
 		w.setElemenTextContext(auth.getRequestBody(), "password", pass);
@@ -91,7 +94,7 @@ public class StartActivity extends Activity {
         SoapObject request = new SoapObject(NAMESPACE, "Authenticate");
         request = SoapOperation.convertBody2SoapObject(auth, NAMESPACE);
         
-        System.out.println(request.toString());
+//        System.out.println(request.toString());
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.dotNet = true;
         
@@ -102,20 +105,24 @@ public class StartActivity extends Activity {
 
         try {
         	String response = new String();
+        	
         	androidHttpTransport.call(auth.getSopaAction(), envelope);
-        	if (envelope.bodyIn instanceof SoapFault) {
+        	
+        	if (envelope.bodyIn instanceof SoapFault)
+        	{
         	
 				SoapFault result = (SoapFault) envelope.bodyIn;
 				response+=result.getMessage();
-			} else {
-        	 Element[] result =  envelope.headerIn;
-
-        	 auth.setResponseHeader(result[0]);
-        	 WSDLDocument.printDom(result[0], 0);
-//        	 for( int i=0; i<result.length; ++i) { 
-//        		 response+=result[i].getName();
-//        	 }
 			}
+        	else
+        	{
+        	 Element[] result =  envelope.headerIn;
+        	 final StringBuilder build= new StringBuilder();
+        	 auth.setResponseHeader(result[0]);
+        	 WSDLDocument.printDom(result[0], 0,build);
+        	 response =build.toString(); 
+			}
+        	
         	tv.setText( ""+response);
         	
         	

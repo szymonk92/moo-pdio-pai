@@ -82,7 +82,7 @@ public class SoapOperation {
 					System.out.println("<<" + el.getName() + "<<"
 							+ el.getText(0));
 				} else {
-					System.out.println("addChild");
+					
 					SoapObject child = null;
 					kDomWalk(el, child, ns);
 					parent.addSoapObject(child);
@@ -103,6 +103,9 @@ public class SoapOperation {
 	public static String[] op(WSDLDocument w, Element authHeader,
 			String opName, String[] opInArgs, String[] opOutArgs,
 			TextView responseLogger) {
+		
+		
+		w.loadWSDL(opName);
 
 		String[] ret = new String[opOutArgs.length];
 
@@ -112,12 +115,13 @@ public class SoapOperation {
 		SoapOperation o = w.getOperation(opName);
 
 		o.setRequestHeader(authHeader);
-
+		w.printDom(o.getRequestBody(), 0, null);
+		System.out.println(o.getRequestBody().getChildCount()+" "+opInArgs.length);
 		for (int i = 0; i < opInArgs.length; ++i) {
 			w.setElemenTextContext(o.getRequestBody(), i, opInArgs[i]);
 		}
 
-		SoapObject request = new SoapObject(NAMESPACE, "Authenticate");
+		SoapObject request = null;
 		request = SoapOperation.convertBody2SoapObject(o, NAMESPACE);
 
 		System.out.println(request.toString());
@@ -143,9 +147,11 @@ public class SoapOperation {
 			} else {
 
 				SoapObject result = (SoapObject) envelope.bodyIn;
-
-				for (int i = 0; i < opOutArgs.length; ++i) {
-					ret[i] = result.getPropertyAsString(opOutArgs[i]);
+				response=result.toString();
+				for( int i=0; i< result.getPropertyCount(); ++i) {
+					ret[i]=result.getPropertyAsString(i);
+//				for (int i = 0; i < opOutArgs.length; ++i) {
+//					ret[i] = result.getPropertyAsString(opOutArgs[i]);
 				}
 
 			}

@@ -166,19 +166,28 @@ public class WSDLDocument {
 		e.addChild(Element.TEXT,value);
 	}
 	
-	static public void printDom(Element e, int lvl) {
+	static public void printDom(Element e, int lvl, StringBuilder out) {
 		if (e == null )
 			return;
 		String padding = new String();
 		for (int i = 0; i < lvl; ++i)
 			padding += "\t";
-		System.out.println(padding + e.getName());
+		
+		if (out != null) {
+			out.append(padding+e.getName()+"\n");
+		} else
+			System.out.println(padding + e.getName());
+		
 		for (int i = 0; i < e.getChildCount(); ++i) {
 			lvl++;
 			if (e.isText(i)) {
-				System.out.println(padding + e.getText(i));
+				if (out != null) {
+					out.append(padding+ e.getText(i)+"\n");
+					System.out.println(out);
+				} else
+					System.out.println(padding + e.getText(i));
 			} else
-				printDom((Element) e.getChild(i), lvl);
+				printDom((Element) e.getChild(i), lvl,out);
 			lvl--;
 		}
 
@@ -250,19 +259,19 @@ public class WSDLDocument {
 			services.put(opName, new SoapOperation(inputMsgBodyElem,outputMsgBodyElem,inputMsgHeaderElem,outputMsgHeaderElem,opSoapAction));
 			
 			System.out.println(opName + " soapAction:"+opSoapAction);
-			
+
 			System.out.println(inputMsg+":");
 			
 			System.out.println("\tHEADER");
-			printDom(inputMsgHeaderElem, 1);
+			printDom(inputMsgHeaderElem, 1,null);
 			System.out.println("\tBODY");
-			printDom(inputMsgBodyElem, 1);
+			printDom(inputMsgBodyElem, 1, null);
 			
 			System.out.println(outputMsg+":");
 			System.out.println("\tHEADER");
-			printDom(outputMsgHeaderElem, 1);
+			printDom(outputMsgHeaderElem, 1, null);
 			System.out.println("\tBODY");
-			printDom(outputMsgBodyElem, 1);
+			printDom(outputMsgBodyElem, 1, null);
 			
 		}
 	}
