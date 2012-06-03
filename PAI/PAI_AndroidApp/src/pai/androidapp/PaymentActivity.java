@@ -3,11 +3,16 @@ package pai.androidapp;
 import java.io.InputStream;
 import java.net.URL;
 
+import com.google.zxing.client.android.CaptureActivity;
+
+
+
 import wsdldom.SoapOperation;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class PaymentActivity extends Activity {
 
@@ -25,12 +31,17 @@ public class PaymentActivity extends Activity {
 	TextView log;
 	TextView responseResult;
 	String paymentID;
+    int requestCode;
+    String paymentData;
+    
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.payment);
+		
+		paymentData="destination:bolek@gmail.com\namount:200$";
 
 		Button create = (Button) findViewById(R.id.createPayment);
 		Button view = (Button) findViewById(R.id.viewPayment);
@@ -45,7 +56,7 @@ public class PaymentActivity extends Activity {
 		create.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View arg0) {
-				scanner.show();
+				createDialog();
 			}
 		});
 
@@ -72,6 +83,8 @@ public class PaymentActivity extends Activity {
 		});
 
 		commit.setOnClickListener(new OnClickListener() {
+			
+			
 
 			public void onClick(View arg0) {
 
@@ -95,26 +108,44 @@ public class PaymentActivity extends Activity {
 
 	private void createDialog() {
 		
+		startActivityForResult(new Intent(this, CaptureActivity.class), requestCode);
+		
 		//TODO add QR scanner
 
-		log.setText("name:" + AppGlobalVariables.getInstance().getUsername()
-				+ "\n" + "amount:" + amount + "\n");
-
-		String[] response = SoapOperation.op(
-				AppGlobalVariables.getInstance().wsdl,
-				AppGlobalVariables.getInstance().authHeader,
-				"MakePaymentTemplate",
-				// TODO update when query will be changed
-				new String[] { "amount" },
-				new String[] { "MakePaymentTemplateResult" }, responseResult);
-		String ret = new String();
-		for (int i = 0; i < response.length; ++i) {
-			ret += response[i] + "\n";
-		}
-		responseResult.setText(responseResult.getText() + ret);
-
-		paymentID = ret;
+//		log.setText("name:" + AppGlobalVariables.getInstance().getUsername()
+//				+ "\n" + "amount:" + amount + "\n");
+//
+//		String[] response = SoapOperation.op(
+//				AppGlobalVariables.getInstance().wsdl,
+//				AppGlobalVariables.getInstance().authHeader,
+//				"MakePaymentTemplate",
+//				// TODO update when query will be changed
+//				new String[] { "amount" },
+//				new String[] { "MakePaymentTemplateResult" }, responseResult);
+//		String ret = new String();
+//		for (int i = 0; i < response.length; ++i) {
+//			ret += response[i] + "\n";
+//		}
+//		responseResult.setText(responseResult.getText() + ret);
+//
+//		paymentID = ret;
 
 	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		  super.onActivityResult(requestCode, resultCode, data);
+	        if(resultCode==1){
+	        	paymentData = data.getStringExtra("msg");
+	        	log.setText(paymentData);
+	        	
+	        }
+	        else{
+	        	paymentData="";
+	            log.setText(R.string.paymentAbort);
+	        }
+	}
+	
+	
 
 }

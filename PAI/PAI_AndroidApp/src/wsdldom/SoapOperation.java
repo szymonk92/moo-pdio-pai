@@ -155,7 +155,8 @@ public class SoapOperation {
 				}
 
 			}
-			responseLogger.setText("" + response);
+			if (responseLogger != null)
+				responseLogger.setText("" + response);
 
 		} catch (IOException err) {
 			err.printStackTrace();

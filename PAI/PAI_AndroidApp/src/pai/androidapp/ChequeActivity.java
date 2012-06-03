@@ -16,11 +16,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ChequeActivity extends Activity {
 
 	int amount;
 	AlertDialog.Builder alert;
+	 ChequeActivity mThis;
 	Dialog amountAsk;
 	Dialog chequeView;
 	TextView log;
@@ -29,8 +31,10 @@ public class ChequeActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
+		
+		mThis = this;
+		
 		setContentView(R.layout.cheque);
 
 		Button create = (Button) findViewById(R.id.createCheque);
@@ -107,6 +111,7 @@ public class ChequeActivity extends Activity {
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				String value = input.getText().toString();
+				try {
 				amount = Integer.parseInt(value);
 				log.setText("name:"
 						+ AppGlobalVariables.getInstance().getUsername() + "\n"
@@ -128,6 +133,9 @@ public class ChequeActivity extends Activity {
 				responseResult.setText(responseResult.getText() + ret);
 
 				chequeID = ret;
+				} catch(NumberFormatException e) {
+					Toast.makeText(mThis, R.string.errInputFormat,1);
+				}
 			}
 		});
 

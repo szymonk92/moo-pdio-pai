@@ -23,22 +23,40 @@ import android.widget.TextView;
 
 public class StartActivity extends Activity {
 
-
-
+	StartActivity mThis;
+	EditText logname;
+	EditText logpass;
+	Button chequeSwitch, paymentSwitch;
+	Button logIn, logOut;
+	
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		
-		final StartActivity mthis = this;
+		mThis = this;
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		Button b = (Button) findViewById(R.id.actButtonLogIn);
-		final EditText logname  = (EditText) findViewById(R.id.login);
-		final EditText logpass  = (EditText) findViewById(R.id.pass);
+		logIn = (Button) findViewById(R.id.actButtonLogIn);
+		logOut = (Button) findViewById(R.id.actButtonLogOut);
+		logname  = (EditText) findViewById(R.id.login);
+		logpass  = (EditText) findViewById(R.id.pass);
 		
-		b.setOnClickListener(new OnClickListener() {
+		logOut.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View arg0) {
+//				SoapOperation.op(AppGlobalVariables.getInstance().wsdl,
+//						AppGlobalVariables.getInstance().authHeader,
+//						opName,
+//						opInArgs,
+//						opOutArgs,
+//						null);
+			}
+		});
+		
+		
+		logIn.setOnClickListener(new OnClickListener() {
 			
 			String NAMESPACE = AppGlobalVariables.getInstance().NAMESPACE;
 			
@@ -57,18 +75,20 @@ public class StartActivity extends Activity {
 			
 		});
 		
-		b = (Button) findViewById(R.id.switchCheque);
-		b.setOnClickListener(new View.OnClickListener() {
+		chequeSwitch = (Button) findViewById(R.id.switchCheque);
+		chequeSwitch.setEnabled(false);
+		chequeSwitch.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-            	startActivity(new Intent(mthis, ChequeActivity.class));
+            	startActivity(new Intent(mThis, ChequeActivity.class));
                
             }
         });
 		
-		b = (Button) findViewById(R.id.switchPayment);
-		b.setOnClickListener(new View.OnClickListener() {
+		paymentSwitch = (Button) findViewById(R.id.switchPayment);
+		paymentSwitch.setEnabled(false);
+		paymentSwitch.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-            	startActivity(new Intent(mthis, PaymentActivity.class));
+            	startActivity(new Intent(mThis, PaymentActivity.class));
             }
         });
 		
@@ -77,7 +97,7 @@ public class StartActivity extends Activity {
 	
 	private Element openSession(WSDLDocument w, String login, String pass) {
 		Element header = null;
-		if (login.isEmpty() && pass.isEmpty()) {
+		if (login.equals("") && pass.equals("")) {
 			login = "bolek@gmail.com";
 			pass = "Haslobolka_2"; 
 		}
@@ -128,6 +148,17 @@ public class StartActivity extends Activity {
         	
         	//if all was ok - save username to application globals
         	AppGlobalVariables.getInstance().setUsername(login);
+        	
+        	//enable Cheque, PAymeny
+        	chequeSwitch.setEnabled(true);
+        	paymentSwitch.setEnabled(true);
+        	//disable login
+        	logIn.setEnabled(false);
+        	logname.setEnabled(false);
+        	logpass.setEnabled(false);
+        	logOut.setEnabled(true);
+        	
+        	
         
         } catch ( IOException err) {
         	err.printStackTrace();

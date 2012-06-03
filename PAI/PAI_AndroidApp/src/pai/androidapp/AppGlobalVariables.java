@@ -18,6 +18,9 @@ public class AppGlobalVariables extends Application {
 	WSDLDocument wsdl;
 	Element authHeader;
 	String username; 
+	String msg;
+	
+
 	
 	public static final String NAMESPACE = "http://lukaszm.servehttp.com/";
 	
@@ -48,6 +51,13 @@ public class AppGlobalVariables extends Application {
 	
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
+	public String getMsg() {
+		return msg;
 	}
 	
 	

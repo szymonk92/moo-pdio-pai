@@ -5,6 +5,8 @@
 
     <uses-sdk android:minSdkVersion="7" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
@@ -19,6 +21,9 @@
         </activity>
         <activity  android:name="PaymentActivity" ></activity>
         <activity android:name="ChequeActivity" ></activity>
+        <activity android:screenOrientation="landscape" android:name="com.google.zxing.client.android.CaptureActivity"></activity>
+        <activity android:screenOrientation="landscape" android:name="com.google.zxing.client.android.PreferencesActivity"></activity>
+        <activity android:screenOrientation="landscape" android:name="com.google.zxing.client.android.encode.EncodeActivity"></activity>
     </application>
     
 
