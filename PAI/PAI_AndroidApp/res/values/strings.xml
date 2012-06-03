@@ -6,8 +6,8 @@
     
     <string name="loginName">login:</string>
     <string name="loginPassword">password:</string>
-    <string name="chequeSwitch">cheque</string>
-    <string name="paymentSwitch">payment</string>
+    <string name="chequeSwitch">←←cheque←←</string>
+    <string name="paymentSwitch">→→payment→→</string>
     <string name="actButtonLogInTextEN">log-in</string>
     <string name="actButtonLogOutTextEN">log-out</string>
     <string name="commitTemplate">commit</string>
@@ -141,5 +141,6 @@
   <string name="zxing_url">http://code.google.com/p/zxing</string>
   <string name="paymentAbout">aborte</string>
   <string name="errInputFormat">bad input format</string>
+  <string name="errNetwork">no connection</string>
 
 </resources>

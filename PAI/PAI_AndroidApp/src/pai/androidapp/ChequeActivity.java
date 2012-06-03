@@ -155,7 +155,6 @@ public class ChequeActivity extends Activity {
 
 		alert = new AlertDialog.Builder(this);
 
-		alert.setTitle("Cheque");
 		final ImageView img = new ImageView(this);
 
 		Object content = null;

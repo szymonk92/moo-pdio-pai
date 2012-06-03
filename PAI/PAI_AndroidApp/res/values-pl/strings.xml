@@ -139,4 +139,5 @@
   <string name="dropPayment">odrzuć</string>
   <string name="paymentAbort">odrzucono</string>
   <string name="errInputFormat">zły format danych</string>
+  <string name="errNetwork">brak połączenia</string>
 </resources>
