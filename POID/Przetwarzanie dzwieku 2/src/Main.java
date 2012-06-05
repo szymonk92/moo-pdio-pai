@@ -1,9 +1,6 @@
-package src;
+
 import java.io.File;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Vector;
 
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 
@@ -16,8 +13,11 @@ public class Main {
 	
 	
 	public static void main(String[] args) {
-		
+//		fftTest();
 		File input = null;
+		
+		args = new String[1];
+		args[0]="seq/DWK_violin.wav";
 		
 		if ( args.length==1) {
 			try {
@@ -31,17 +31,30 @@ public class Main {
 			return;
 		}
 		
-		
-		
 		double[] signal = readWavFile(input);
 		
 		mFrameSize = (int) (20.0*mFs/1000);
 		mOverlap = (int) (17.5*mFs/1000);
 		
-		hammingWindow(signal, mFrameSize);
 		
 		
+		double[][] frames = buffer2(signal);
+		double[][] mfcc = new double[frames.length][mMfccNum];
 		
+		
+		System.out.println("mFrameSize:"+mFrameSize+"\nmOverlap:"+mOverlap+"\nframes"+frames.length);
+		
+		PlotWave pwv = new PlotWave();
+		
+		for( int i=0; i<frames.length; ++i) {
+			mfcc[i]= frame2mfcc(frames[i]);
+			pwv.plot(new double[][]{mfcc[i]}, "mfcc"+i, mFs);
+			try {
+				Thread.sleep(300);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		
 	}
 	
@@ -184,7 +197,6 @@ public class Main {
 		int frameCount =(int)( (double)(signal.length - mOverlap)/(double)(step));
 		double[][] frames = new double[frameCount][mFrameSize];
 		for( int i =0; i< frameCount; ++i) {
-			int startIndex = i*step;
 			for( int j=0; j<mFrameSize; ++j) {
 				if (i*step+j > signal.length) {
 					frames[i][j]=0;
@@ -195,6 +207,27 @@ public class Main {
 		}
 		
 		return frames;
+	}
+	
+	
+	public static void fftTest() {
+		double[] test=new double[]{1,2,3,4,5,6,7,8,9};
+		DoubleFFT_1D fft = new DoubleFFT_1D(test.length);
+		double[] test2= new double[test.length*2];
+		for( int i=0; i<test.length; ++i)
+			test2[i]=test[i];
+		
+		fft.realForwardFull(test2);
+		
+		test2 = Arrays.copyOfRange(test2, 0, test2.length/2); 
+		
+		test2 = Complex.getAbs(Complex.floatComplex2Complex(test2));
+		for( int i=0; i<test2.length; ++i) {
+			System.out.println(test2[i]);
+		}
+//		for( int i=0; i<test2.length/2; ++i) {
+//			System.out.println(test2[2*i]+" "+test2[2*i+1]);
+//		}
 	}
 	
 	

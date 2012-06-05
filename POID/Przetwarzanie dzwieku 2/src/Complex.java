@@ -125,8 +125,8 @@ public class Complex {
 
     static public Complex[] floatComplex2Complex(double[] arr) {
     	Complex[] ret = new Complex[arr.length/2];
-    	for( int i=0; i<arr.length/2; i+=2) {
-    		ret[i] = new Complex(arr[i], arr[i+1]);
+    	for(int i=0, j=0; i<arr.length/2; ++i) {
+    		ret[i] = new Complex(arr[2*i], arr[2*i+1]);
     	}
     	return ret;
     }
