@@ -1,12 +1,10 @@
+package src;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
 
-import sun.awt.motif.MFileDialogPeer;
-
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
-import edu.emory.mathcs.jtransforms.dct.DoubleDCT_1D;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 
 
@@ -47,13 +45,9 @@ public class Main {
 		
 	}
 	
-	public static double[] fft(double[] signal, double[] freq) {
+	public static double[] fft(double[] signal) {
 		int N = signal.length;
-		double freqStep = (double)mFs/N;
-		freq = new double[N/2];
-		for( int i =0; i< freq.length; ++i) {
-			freq[i] = freqStep*i;
-		}
+		
 		double[] ssignal = new double[signal.length*2];
 		for( int i=0; i<signal.length; ++i) {
 			ssignal[i]=signal[i];
@@ -83,13 +77,13 @@ public class Main {
 	}     
 	
 	
-	public static double[][] getTriFilterBankParam() {
+	public static double[][] getTriFilterBank() {
 		double[][] freq = new double[3][mTriFilterNum];
 		double f[] = new double[mTriFilterNum+2];
 		double fLow=0, fHigh=mFs/2;
 
 		for( int i=0; i<mTriFilterNum+2; ++i) {
-			   f[i]=mel2linFreq(lin2melFreq(fLow)+(i-1)*(lin2melFreq(fHigh)-lin2melFreq(fLow))/((double)mTriFilterNum+1.0d));	
+			   f[i]=mel2linFreq(lin2melFreq(fLow)+(i)*(lin2melFreq(fHigh)-lin2melFreq(fLow))/((double)mTriFilterNum+1.0d));	
 		}
 		 
 		
@@ -102,18 +96,7 @@ public class Main {
 		return freq;
 
 	}
-		
 
-	public static double dot(double[] a, double[] b) {
-		double ret = 0;
-		
-		for( int i=0; i<a.length; ++i) {
-			ret+=a[i]*b[i];
-		}
-		
-		return ret;
-	}
-	
 	
 	public static double[] trimf( double[] freq, double[][] filter, int k) {
 		double[] ret = new double[freq.length];
@@ -123,7 +106,14 @@ public class Main {
 			a=filter[0][k];
 			b=filter[1][k];
 			c=filter[2][k];
-			ret[i]=Math.max(Math.min((x-a)/(b-a),(c-x)/(c-b)), 0);
+			if ( x >= a && x<=b ) {
+				ret[i]=(x-a)/(b-a);
+			} else if ( x>=b && x<=c ) {
+				ret[i]=(c-x)/(c-b);
+			} else {
+				ret[i]=0;
+			}
+//			ret[i]=Math.max(Math.min((x-a)/(b-a),(c-x)/(c-b)), 0);
 		}
 		return ret;
 	}
@@ -135,26 +125,33 @@ public class Main {
 		
 		hammingWindow(frame, frameSize);
 		
-		double[] fftFreq=null; 
-		double fftPowerDb[] = fft(frame, fftFreq);
-		double[][] triFilterBankParam = getTriFilterBankParam();
+		double[] fftFreq=null;
+		double freqStep = (double)mFs/frameSize;
+		fftFreq = new double[frameSize/2];
+		for( int i =0; i< fftFreq.length; ++i) {
+			fftFreq[i] = freqStep*i;
+		}
+		
+		double fftPowerDb[] = fft(frame);
+		double[][] triFilterBank = getTriFilterBank();
 		
 		double[] tbfCoef = new double[mTriFilterNum];
 		
 		for( int i=0; i<mTriFilterNum; ++i) {
-			double[] cof = trimf(fftFreq,triFilterBankParam,i);
-			tbfCoef[i]=dot(fftPowerDb,cof);
+			double[] cof = trimf(fftFreq,triFilterBank,i);
+			double dot=0;
+			for( int j=0; j<fftPowerDb.length; ++j) {
+				dot+=fftPowerDb[j]*cof[j];
+			}
+			tbfCoef[i]=dot;
 		}
 		
 		//DCT
-		for( int n=0; n<mMfccNum; ++n) {
-			
+		for( int n=1; n<=mMfccNum; ++n) {
 			for( int i=0; i<mTriFilterNum; ++i) {
-				mfcc[n]+=tbfCoef[i]*Math.cos(((Math.PI/mTriFilterNum)*n*i)-0.5);
+				mfcc[n-1]+=tbfCoef[i]*Math.cos(((double)n*Math.PI/mTriFilterNum)*((double)i+0.5));
 			}
-		    
 		}
-		
 		
 		return mfcc;
 		
@@ -164,9 +161,7 @@ public class Main {
 	public static double melScale(double arg) {
 		return 700.0d*(Math.pow(10.0d,arg/2595.0d)-1.0d);
 	}
-	
-
-	
+		
 	
 	public static void hammingWindow(double[] x,int frameSize) {
 		double twopi = 8.0 * Math.atan(1.0);
@@ -181,6 +176,26 @@ public class Main {
         }
 	}
 	
+	
+	public static double[][] buffer2(double[] signal) {
+		
+		
+		int step = mFrameSize - mOverlap;
+		int frameCount =(int)( (double)(signal.length - mOverlap)/(double)(step));
+		double[][] frames = new double[frameCount][mFrameSize];
+		for( int i =0; i< frameCount; ++i) {
+			int startIndex = i*step;
+			for( int j=0; j<mFrameSize; ++j) {
+				if (i*step+j > signal.length) {
+					frames[i][j]=0;
+				} else {
+					frames[i][j]=signal[i*step+j];
+				}
+			}
+		}
+		
+		return frames;
+	}
 	
 	
 	public static double[] readWavFile (File f) {
