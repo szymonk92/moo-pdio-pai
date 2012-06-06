@@ -125,7 +125,7 @@ Ax \geq b  \nonumber \\
 x \geq 0
 \end{align}
 
-przejść do tej postaci należy: w przypadku maksymalizacji, przekształcamy zadanie na minimalizacje funkcji przeciwnej funkcji celu; w związku z założoną nie ujemnością prawej strony ograniczeń, jeśli wartość $b_i$ jest ujemna, przemnażamy ograniczenie przez $-1$. Następnie wprowadzamy sztuczne zmienne $y_i$. A problem w standardowej postawi przyjmuje się jako:
+przejść do tej postaci należy: w przypadku maksymalizacji, przekształcamy zadanie na minimalizacje funkcji przeciwnej funkcji celu; w związku z założoną nie ujemnością prawej strony ograniczeń, jeśli wartość $b_i$ jest ujemna, przemnażamy ograniczenie przez $-1$. Następnie wprowadzamy sztuczne zmienne $y_i$. A problem w standardowej postaci przyjmuje się jako:
 
 \begin{align}
 c^{T}x \nonumber \\
@@ -409,13 +409,13 @@ Tableau
 wymiana bazy 1  -> 1
 Tableau
        1       1/2     1/2     0       3/2     
-       0       7/2           -1/2     1       5/2     
+       0       7/2    -1/2     1       5/2     
        0      -5/2     7/2     0      21/2     
 wymiana bazy 2  -> 2
 Tableau
-       1       0       4/7           -1/7     8/7     
+       1       0       4/7    -1/7     8/7     
        0       1      -1/7     2/7     5/7     
-       0       0      22/7     5/7           86/7     
+       0       0      22/7     5/7    86/7     
 Rozwiazanie optymalne:
        8/7     
        5/7     
@@ -429,10 +429,10 @@ Dla danych wejściowych :
 
 \begin{Verbatim}[frame=lines]
 type = 'min';
-c = [7 6];
-A = [2 1;1 4];
-rel = '<<';
-b = [3 4];
+c = [3 4 6 7 1 0 0];
+A = [2 -1 1 6 -5 -1 0;1 1 2 1 2 0 -1];
+rel = '==';
+b = [6;3];
 \end{Verbatim}
 
 \begin{Verbatim}[frame=lines]
@@ -484,7 +484,7 @@ Rozwiazanie optymalne:
 \end{Verbatim}
 
 \section{Wnioski}
-Przedstawiona powyżej implementacja algorytmu dwu-fazowego sympleksu spełnia swoje zadanie jako metody rozwiązywania problemów programowania liniowego. Rozstrzyga również sytuacje trudne, takie jak : nieskończenie wiele rozwiązań, brak rozwiązań. Również zastosowana modyfikacja podstawowego sposobu doboru zmiennych do operacji zmiany bazy - ,,regułą Blanda'' pozwala uniknąć zablokowania się algorytmu podstawowego - metody sympleksu.
+Przedstawiona powyżej implementacja algorytmu dwu-fazowego sympleksu spełnia swoje zadanie jako metody rozwiązywania problemów programowania liniowego. Rozstrzyga również sytuacje trudne, takie jak: nieskończenie wiele rozwiązań, brak rozwiązań. Również zastosowana modyfikacja podstawowego sposobu doboru zmiennych do operacji zmiany bazy - ,,regułą Blanda'' pozwala uniknąć zablokowania się algorytmu podstawowego - metody sympleksu.
 
 \begin{thebibliography}{9}
 \bibitem{1} ,,An Introduction to Optimization'' , Edwin Kah Pin Chong and Stanislaw H. Zak, Hoboken, EUA : Wiley-Interscience 2008

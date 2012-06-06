@@ -12,7 +12,7 @@ pause
 
 [m, n] = size(A);
 [mi, col] = BlandRule(A(m,1:n-1));
-while ~isempty(mi) & mi < 0 & abs(mi) > eps
+while ~isempty(mi) && mi < 0 && abs(mi) > eps
     t = A(1:m-k,col);
     
     if all(t <= 0)
@@ -34,7 +34,7 @@ while ~isempty(mi) & mi < 0 & abs(mi) > eps
     
     %szukamy q do wymiany bazy
     if ~isempty(row)
-        if abs(small) <= 100*eps & k == 1
+        if abs(small) <= 100*eps && k == 1
             [s,col] = BlandRule(A(m,1:n-1));
         end
         

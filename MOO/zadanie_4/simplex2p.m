@@ -4,7 +4,7 @@ function  simplex2p(type, c, A, rel, b)
 format compact;
 
 %sprowadzanie do postaci standardowej
-if (type == 'min')
+if (strcmp(type, 'min'))
     mm = 0;
 else
     mm = 1;
@@ -72,7 +72,7 @@ else
     [subs, A, z] = simplex(A, subs, mm, 1);
     fprintf('Koniec fazy 2\n')
 end
-if (z == inf | z == -inf)
+if (z == inf || z == -inf)
     return
 end
 [m, n] = size(A);
@@ -130,11 +130,11 @@ end
 % rel = '===<';
 % b = [6 4 10 2];
 
-% type = 'max';
-% c = [7 6];
-% A = [2 1;1 4];
-% rel = '<<';
-% b = [3 4];
+%  type = 'max';
+%  c = [7 6];
+%  A = [2 1;1 4];
+%  rel = '<<';
+%  b = [3 4];
 
 
 % type = 'min';
@@ -143,4 +143,4 @@ end
 % rel = '<<<';
 % b = [0 0 1];
 
-
+% simplex2p(type,c,A,rel,b);
