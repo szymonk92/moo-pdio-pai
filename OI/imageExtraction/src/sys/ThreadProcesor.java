@@ -4,13 +4,9 @@
  */
 package sys;
 
-import com.googlecode.javacv.cpp.opencv_core;
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import filters.ExtractionFilter;
-import filters.ExtractionFilter2;
 import gui.MainWindow;
 import gui.ViewPanel;
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -33,17 +29,19 @@ public class ThreadProcesor extends Thread {
     private List<ViewPanel> panels;
     private String folder;
     private File wekaModel;
+    private File tmpDir;
 
-    public ThreadProcesor(List<ViewPanel> panels, String folder, File wekaModel) {
+    public ThreadProcesor(List<ViewPanel> panels, String folder, File wekaModel,File tmpDir) {
         this.panels = panels;
         this.folder = folder;
         this.wekaModel = wekaModel;
+        this.tmpDir = tmpDir;
     }
 
     @Override
     public void run() {
         if (panels != null && !panels.isEmpty()) {
-            ExtractionFilter filter = new ExtractionFilter();
+            ExtractionFilter filter = new ExtractionFilter(tmpDir);
             BufferedImage image;
             SignWrapper sw;
             for (ViewPanel panel : panels) {
@@ -91,6 +89,7 @@ public class ThreadProcesor extends Thread {
                     panel.sendInfo();
                 }
                 panel.addProgress(30);
+                if(wekaModel!=null){
                 Classifier classify = null;
                 int[] features = null;
                 try {
@@ -138,7 +137,7 @@ public class ThreadProcesor extends Thread {
                 if (panel.tags != null) {
                     panel.setFoundResult(SignWrapper.isTheSame(panel.tags, panel.found));
                 }
-
+                }
 
                 panel.End();
             }

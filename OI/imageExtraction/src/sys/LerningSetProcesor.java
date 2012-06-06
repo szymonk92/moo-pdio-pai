@@ -43,7 +43,7 @@ public class LerningSetProcesor extends Thread {
     @Override
     public void run() {
         if (panels != null && !panels.isEmpty()) {
-            ExtractionFilter filter = new ExtractionFilter();
+            ExtractionFilter filter = new ExtractionFilter(null);
             BufferedImage image;
             SignWrapper sw;
             int count = 0;

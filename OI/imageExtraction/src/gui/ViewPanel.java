@@ -34,7 +34,7 @@ public class ViewPanel extends javax.swing.JPanel {
     public int regionsResult;
     public PropertyChangeSupport changeSupport;
     public boolean imageSet;
-    
+
     public ViewPanel() {
         initComponents();
         changeSupport = new PropertyChangeSupport(this);
@@ -127,13 +127,15 @@ public class ViewPanel extends javax.swing.JPanel {
         }
         this.revalidate();
     }
-public void sendInfo(){
-     changeSupport.firePropertyChange("regions", null, regions.size());
-     changeSupport.firePropertyChange("tags", null, tags.size());
-     changeSupport.firePropertyChange("regionsResult", null, regionsResult);
-}
+
+    public void sendInfo() {
+        changeSupport.firePropertyChange("regions", null, regions.size());
+        changeSupport.firePropertyChange("tags", null, tags.size());
+        changeSupport.firePropertyChange("regionsResult", null, regionsResult);
+    }
+
     public void Clear() {
-        this.setBackground(null);
+        this.setBackground(new Color(240,240,240));
         this.processingLabel.setVisible(false);
         this.progressBar.setVisible(false);
         found = null;
@@ -174,50 +176,24 @@ public void sendInfo(){
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        tagLabel = new javax.swing.JLabel();
-        regionLabel = new javax.swing.JLabel();
-        foundLabel = new javax.swing.JLabel();
-        tagCountLabel = new javax.swing.JLabel();
-        regionCountLabel = new javax.swing.JLabel();
-        foundCountLabel = new javax.swing.JLabel();
-        processingLabel = new javax.swing.JLabel();
         miniaturImagePanel = new gui.MiniaturImagePanel();
+        jPanel1 = new javax.swing.JPanel();
+        tagLabel = new javax.swing.JLabel();
+        tagCountLabel = new javax.swing.JLabel();
+        emptyLabel = new javax.swing.JLabel();
+        regionLabel = new javax.swing.JLabel();
+        regionCountLabel = new javax.swing.JLabel();
         regionResultLabel = new javax.swing.JLabel();
+        foundLabel = new javax.swing.JLabel();
+        foundCountLabel = new javax.swing.JLabel();
         foundResultLabel = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        processingLabel = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
 
         setMaximumSize(new java.awt.Dimension(32767, 80));
         setMinimumSize(new java.awt.Dimension(0, 80));
         setPreferredSize(new java.awt.Dimension(628, 80));
-
-        tagLabel.setText("Ilość otagowanych znaków:");
-
-        regionLabel.setText("Ilość znalezionych rejonów:");
-
-        foundLabel.setText("Ilość znalezionych znaków:");
-
-        tagCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        tagCountLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tagCountLabelMouseClicked(evt);
-            }
-        });
-
-        regionCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        regionCountLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                regionCountLabelMouseClicked(evt);
-            }
-        });
-
-        foundCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        foundCountLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                foundCountLabelMouseClicked(evt);
-            }
-        });
-
-        processingLabel.setText("Przetwarzanie...");
 
         miniaturImagePanel.setMaximumSize(new java.awt.Dimension(64, 64));
         miniaturImagePanel.setPreferredSize(new java.awt.Dimension(64, 64));
@@ -233,6 +209,31 @@ public void sendInfo(){
             .addGap(0, 64, Short.MAX_VALUE)
         );
 
+        jPanel1.setLayout(new java.awt.GridLayout(3, 3));
+
+        tagLabel.setText("Ilość otagowanych znaków:");
+        jPanel1.add(tagLabel);
+
+        tagCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        tagCountLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tagCountLabelMouseClicked(evt);
+            }
+        });
+        jPanel1.add(tagCountLabel);
+        jPanel1.add(emptyLabel);
+
+        regionLabel.setText("Ilość znalezionych rejonów:");
+        jPanel1.add(regionLabel);
+
+        regionCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        regionCountLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                regionCountLabelMouseClicked(evt);
+            }
+        });
+        jPanel1.add(regionCountLabel);
+
         regionResultLabel.setBackground(java.awt.SystemColor.activeCaption);
         regionResultLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         regionResultLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -240,6 +241,18 @@ public void sendInfo(){
                 regionResultLabelMouseClicked(evt);
             }
         });
+        jPanel1.add(regionResultLabel);
+
+        foundLabel.setText("Ilość znalezionych znaków:");
+        jPanel1.add(foundLabel);
+
+        foundCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        foundCountLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                foundCountLabelMouseClicked(evt);
+            }
+        });
+        jPanel1.add(foundCountLabel);
 
         foundResultLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         foundResultLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -247,6 +260,13 @@ public void sendInfo(){
                 foundResultLabelMouseClicked(evt);
             }
         });
+        jPanel1.add(foundResultLabel);
+
+        jPanel2.setLayout(new java.awt.GridLayout(2, 1));
+
+        processingLabel.setText("Przetwarzanie...");
+        jPanel2.add(processingLabel);
+        jPanel2.add(progressBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -255,55 +275,25 @@ public void sendInfo(){
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(miniaturImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(tagLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tagCountLabel))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(foundLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(foundCountLabel))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(regionLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(regionCountLabel)))
-                        .addGap(38, 38, 38)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(foundResultLabel)
-                            .addComponent(regionResultLabel))
-                        .addGap(45, 45, 45)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(processingLabel))))
-                .addContainerGap(176, Short.MAX_VALUE))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(83, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(miniaturImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(tagLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(tagCountLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(regionLabel)
-                            .addComponent(regionCountLabel)
-                            .addComponent(processingLabel)
-                            .addComponent(regionResultLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(foundResultLabel)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(foundLabel)
-                                .addComponent(foundCountLabel))
-                            .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(miniaturImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addGap(8, 8, 8)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(5, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -346,9 +336,12 @@ public void sendInfo(){
         // TODO add your handling code here:
     }//GEN-LAST:event_foundResultLabelMouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel emptyLabel;
     private javax.swing.JLabel foundCountLabel;
     private javax.swing.JLabel foundLabel;
     private javax.swing.JLabel foundResultLabel;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private gui.MiniaturImagePanel miniaturImagePanel;
     private javax.swing.JLabel processingLabel;
     private javax.swing.JProgressBar progressBar;

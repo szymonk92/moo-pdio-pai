@@ -4,17 +4,25 @@
  */
 package filters;
 
+import static com.googlecode.javacpp.Loader.sizeof;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_imgproc.*;
-import static com.googlecode.javacv.cpp.opencv_highgui.*;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import sys.RGBHelper;
 import sys.Region;
 
 /**
@@ -24,87 +32,158 @@ import sys.Region;
 public class ExtractionFilter {
 
     private List<Region> regions;
-    static int counter = 0;
     private WritableRaster imageRaster;
+    private File tmpDir;
+    private int counter;
+    private static int magenta = RGBHelper.fastToPixel(255, 0, 255);
+    private static int white = RGBHelper.fastToPixel(255, 255, 255);
+    private static int medianFilterSize = 3;
+    private BufferedImage inImage;
+    private int inImageWidth;
+    private int inImageHeight;
+    private int inImageMin;
+    private double regionExtraSize = 0.1;
+    public BufferedImage EqualizeImage;
+    public List<BufferedImage> imageRegions;
 
-    public ExtractionFilter() {
+    public ExtractionFilter(File tmpDir) {
+        this.tmpDir = tmpDir;
     }
 
-    public static void rgb_normalize(IplImage img) {
+    public static int[][] imageHistogram(BufferedImage input) {
+        int[][] hist = new int[3][256];
+        for (int i = 0; i < input.getWidth(); i++) {
+            for (int j = 0; j < input.getHeight(); j++) {
+                int pixel = input.getRGB(i, j);
+                hist[0][(pixel >> 16) & 0xff]++;
+                hist[1][(pixel >> 8) & 0xff]++;
+                hist[2][pixel & 0xff]++;
+            }
+        }
+        return hist;
+    }
 
-        double[][] adj = new double[256][3];
+    private static BufferedImage histogramEqualization(BufferedImage original) {
+        int[][] histLUT = histogramEqualizationLUT(original);
+        BufferedImage histogramEQ = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
+        for (int i = 0; i < original.getWidth(); i++) {
+            for (int j = 0; j < original.getHeight(); j++) {
+                int pixel = original.getRGB(i, j);
+                histogramEQ.setRGB(i, j, RGBHelper.fastToPixel(histLUT[0][(pixel >> 16) & 0xff], histLUT[1][(pixel >> 8) & 0xff], histLUT[2][pixel & 0xff]));
+            }
+        }
+        return histogramEQ;
+    }
 
-        IplImage hsv = cvCreateImage(cvGetSize(img), 8, 3);
-        double min[] = new double[3], max[] = new double[3];
+    public static int[][] histogramEqualizationLUT(BufferedImage input) {
+        int[][] imageHist = imageHistogram(input);
+        int[][] imageLUT = new int[3][256];
 
-        cvCvtColor(img, hsv, CV_BGR2HSV);
+        long sumr = 0;
+        long sumg = 0;
+        long sumb = 0;
 
-        min[0] = min[1] = min[2] = 255.0;
-        max[0] = max[1] = max[2] = 0.0;
-        for (int y = 0; y < img.height(); y++) {
-            for (int x = 0; x < img.width(); x++) {
-                CvScalar rgb = cvGet2D(hsv, y, x);
-                for (int j = 0; j < 3; ++j) {
-                    min[j] = Math.min(min[j], rgb.getVal(j));
-                    max[j] = Math.max(max[j], rgb.getVal(j));
+        float scale_factor = (float) (255.0 / (input.getWidth() * input.getHeight()));
+
+        for (int i = 0; i < 256; i++) {
+            sumr += imageHist[0][i];
+            imageLUT[0][i] = (int) (sumr * scale_factor);
+
+            sumg += imageHist[1][i];
+            imageLUT[1][i] = (int) (sumg * scale_factor);
+
+            sumb += imageHist[2][i];
+            imageLUT[2][i] = (int) (sumb * scale_factor);
+
+        }
+        return imageLUT;
+    }
+
+    private BufferedImage medianFilter(BufferedImage original) {
+        BufferedImage img = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
+        WritableRaster originalRaster = original.getRaster();
+        float threshold = (medianFilterSize * medianFilterSize) * 0.5f;
+        for (int row = medianFilterSize; row < original.getHeight() - medianFilterSize - 1; row++) {
+            for (int col = medianFilterSize; col < original.getWidth() - medianFilterSize - 1; col++) {
+                int count = 0;
+                for (int dRow = -medianFilterSize; dRow < medianFilterSize; dRow++) {
+                    for (int dCol = -medianFilterSize; dCol < medianFilterSize; dCol++) {
+                        if (originalRaster.getSample(col + dCol, row + dRow, 0) > 0) {
+                            count++;
+                        }
+                    }
+                }
+                if (count < threshold) {
+                    img.setRGB(col, row, Color.BLACK.getRGB());
+                } else {
+                    img.setRGB(col, row, Color.WHITE.getRGB());
                 }
             }
         }
 
-        for (int i = 0; i < 256; ++i) {
-            for (int j = 0; j < 3; ++j) {
-                adj[i][j] = i;
-                adj[i][j] = (adj[i][j] - min[j]) * ((255 - 0) / (max[j] - min[j])) + 0;
-            }
-        }
-        for (int y = 0; y < img.height(); y++) {
-            for (int x = 0; x < img.width(); x++) {
-                CvScalar rgb = cvGet2D(hsv, y, x);
-                double r = rgb.red(), g = rgb.green(), b = rgb.blue();
-                rgb.red(adj[(int) r][0]);
-                rgb.green(adj[(int) g][1]);
-                rgb.blue(adj[(int) b][2]);
-                cvSet2D(hsv, y, x, rgb);
-            }
-        }
-        cvCvtColor(hsv, img, CV_HSV2BGR);
-        cvReleaseImage(hsv);
+        return img;
+
     }
 
-    static IplImage hsvThreshold(IplImage orgImg) {
-    
-
-        IplImage imgHSV = cvCreateImage(cvGetSize(orgImg), 8, 3);
-         //IplImage imgCanny = cvCreateImage(cvGetSize(orgImg), 8, 1);
-         //IplImage imgGray = cvCreateImage(cvGetSize(orgImg), 8, 1);
-         //cvCvtColor(orgImg, imgGray, CV_BGR2GRAY);
-         //cvLaplace(imgGray, imgGray, 3);
-        //cvCanny(imgGray, imgCanny, 250, 120, 3);
-        cvCvtColor(orgImg, imgHSV, CV_BGR2HSV);
-       
-        IplImage imgThreshold = cvCreateImage(cvGetSize(orgImg), 8, 1);
-        IplImage imgThreshold2 = cvCreateImage(cvGetSize(orgImg), 8, 1);
-        cvInRangeS(imgHSV, cvScalar(160, 50, 50, 0), cvScalar(180, 255, 255, 0), imgThreshold);
-        cvInRangeS(imgHSV, cvScalar(0, 60, 100, 0), cvScalar(6, 255, 255, 0), imgThreshold2);
-        cvAdd(imgThreshold, imgThreshold2, imgThreshold, null);
-        //cvSub(imgThreshold, imgCanny, imgThreshold,null);
-        cvReleaseImage(imgHSV);
-        cvSmooth(imgThreshold, imgThreshold, CV_MEDIAN, 5);
-       
-        cvSaveImage("D:\\test\\"+counter+".png",imgThreshold);
-        counter++;
-        return imgThreshold;
+    private BufferedImage hsvThreshold(BufferedImage orgImg) {
+        this.EqualizeImage = histogramEqualization(orgImg);
+//         IplImage src, src_gray = null, histeq = null, rgbeq;
+//         src = IplImage.createFrom(inImage);
+//        rgbeq = cvCreateImage(cvSize(src.width(), src.height()), src.depth(), 3);
+//        src_gray = cvCreateImage(cvSize(src.width(), src.height()), IPL_DEPTH_8U, 1);
+//        histeq = cvCreateImage(cvSize(src.width(), src.height()), IPL_DEPTH_8U, 1);
+//        cvEqualizeHist(src_gray, histeq);
+//        cvCvtColor(histeq, rgbeq, CV_GRAY2BGR);
+//        cvAddWeighted(src, 1.5, rgbeq, -0.5, 0, rgbeq);
+//        this.EqualizeImage = rgbeq.getBufferedImage();
+        if (tmpDir != null) {
+            try {
+                ImageIO.write(this.EqualizeImage, "png", new File(tmpDir + "/image" + counter + "_equalized.png"));
+            } catch (IOException ex) {
+                Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        BufferedImage mask = new BufferedImage(this.inImageWidth, this.inImageHeight, BufferedImage.TYPE_BYTE_GRAY);
+        for (int y = 0; y < this.inImageHeight; y++) {
+            for (int x = 0; x < this.inImageWidth; x++) {
+                if (hsvPixel(this.EqualizeImage.getRGB(x, y))) {
+                    mask.setRGB(x, y, white);
+                }
+            }
+        }
+        if (tmpDir != null) {
+            try {
+                ImageIO.write(mask, "png", new File(tmpDir + "/image" + counter + "_mask.png"));
+            } catch (IOException ex) {
+                Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        BufferedImage result = medianFilter(mask);
+        if (tmpDir != null) {
+            try {
+                ImageIO.write(result, "png", new File(tmpDir + "/image" + counter + "_filter.png"));
+            } catch (IOException ex) {
+                Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return result;
     }
 
-    public List<Rectangle> processImage(BufferedImage inImage) {
+    public List<Rectangle> processImage(BufferedImage input) {
+        this.inImage = input;
+        this.inImageWidth = input.getWidth();
+        this.inImageHeight = input.getHeight();
+        this.inImageMin = Math.min(this.inImageHeight - 1, this.inImageWidth - 1);
+        this.imageRegions = new ArrayList<BufferedImage>();
         regions = new ArrayList<Region>();
-        imageRaster = hsvThreshold(IplImage.createFrom(inImage)).getBufferedImage().getRaster();
+        BufferedImage mask = hsvThreshold(this.inImage);
+        imageRaster = mask.getRaster();
         List<Region> inRegions = new ArrayList<Region>();
         Point testPoint;
-        for (int y = 0; y < inImage.getHeight(); y++) {
-            for (int x = 0; x < inImage.getWidth(); x++) {
+        for (int y = 0; y < this.inImageHeight; y++) {
+            for (int x = 0; x < this.inImageWidth; x++) {
 
-                if (imageRaster.getSample(x, y, 0) > 150) {
+                if (imageRaster.getSample(x, y, 0) > 0) {
                     testPoint = new Point(x, y);
                     for (Region region : regions) {
                         if (region.containsPoint(testPoint)) {
@@ -121,7 +200,6 @@ public class ExtractionFilter {
                                 main.marge(region);
                                 regions.remove(region);
                                 region.Clear();
-                                region = null;
                             }
                         }
                         main.addPoint(testPoint);
@@ -131,34 +209,170 @@ public class ExtractionFilter {
             }
         }
         List<Rectangle> result = new ArrayList<Rectangle>();
-        int imageMin = Math.min(inImage.getHeight() - 1, inImage.getWidth() - 1);
+
         for (Region region : regions) {
             Rectangle rect = region.getArea();
-            if (rect.height >= 20 && rect.width >= 20) {
+            if (rect.height >= 30 && rect.width >= 30) {
                 float ratio = region.getRatio();
-                if (ratio >= 0.5 && ratio <= 1.5) {
-                    int rectSize = Math.max(rect.width, rect.height);
-                    int toAdd = (int) ((float) rectSize * 0.05f);
-                    rectSize = Math.min(Math.max(rectSize + toAdd * 2, 0), imageMin);
-                    int width = Math.min(Math.max(rect.x + rectSize, 0), inImage.getWidth()) - rect.x;
-                    int height = Math.min(Math.max(rect.y + rectSize, 0), inImage.getHeight()) - rect.y;
-                    int rectX = Math.min(Math.max(rect.x - toAdd, 0), inImage.getWidth());
-                    int rectY = Math.min(Math.max(rect.y - toAdd, 0), inImage.getHeight());
-                    result.add(new Rectangle(rectX, rectY, width, height));
+                if (ratio >= 1.7 && ratio <= 2.5) {
+                    result.add(getBiggerRegion(rect.x, rect.y, rect.width, rect.height / 2));
+                    result.add(getBiggerRegion(rect.x, rect.y + rect.height / 2, rect.width, rect.height / 2));
+                } else if (ratio >= 2.3 && ratio <= 3.7) {
+                    result.add(getBiggerRegion(rect.x, rect.y, rect.width, rect.height / 3));
+                    result.add(getBiggerRegion(rect.x, rect.y + rect.height * 1 / 3, rect.width, rect.height / 3));
+                    result.add(getBiggerRegion(rect.x, rect.y + rect.height * 2 / 3, rect.width, rect.height / 3));
+                } else {
+                    result.add(getBiggerRegion(rect.x, rect.y, rect.width, rect.height));
                 }
-                if (ratio >= 1.7 && ratio <= 2.3) {
+            }
+        }
+        List<Rectangle> result2 = new ArrayList<Rectangle>();
+        IplImage src, src_gray;
 
-                    result.add(new Rectangle(rect.x, rect.y, rect.width, rect.height / 2));
-                    result.add(new Rectangle(rect.x, rect.y + rect.height / 2, rect.width, rect.height / 2));
+        src_gray = IplImage.createFrom(mask);
+        cvCanny(src_gray, src_gray, 0, 255, 3);
+        BufferedImage gray = src_gray.getBufferedImage();
+        BufferedImage copyEqualizeImage = copy(this.EqualizeImage);
+        int count = 0;
+         new File(tmpDir + "/result").mkdir();
+        for (Rectangle rectangle : result) {
+            new File(tmpDir + "/" + counter).mkdir();
+            BufferedImage sub = gray.getSubimage(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            BufferedImage sub2 = copyEqualizeImage.getSubimage(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            Graphics g = sub2.getGraphics();
+            count++;
+            src = IplImage.createFrom(sub);
+            CvMemStorage circles = cvCreateMemStorage(0);
+            CvSeq seq = new CvSeq();
+            cvFindContours(src, circles, seq, sizeof(CvContour.class), CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+            if (seq != null) {
+                int count2 = 0;
+                for (CvSeq ptr = seq; ptr != null; ptr = ptr.h_next()) {
+                    if (ptr.total() >= 5) {
+                        CvBox2D elipse = cvFitEllipse2(ptr);
+                        CvPoint c = cvPointFrom32f(elipse.center());
+                        CvSize s = new CvSize((int) elipse.size().width(), (int) elipse.size().height());
+                        if (Math.abs(1.0f - (double) (elipse.size().width()) / (double) (elipse.size().height())) > 0.2 || elipse.size().width() * elipse.size().height() < 300) {
+                            g.setColor(Color.YELLOW);
+                            g.drawOval(c.x() - s.width() / 2, c.y() - s.height() / 2, s.width(), s.height());
+                            continue;
+                        }
+                        g.setColor(Color.blue);
+                        g.drawOval(c.x() - s.width() / 2, c.y() - s.height() / 2, s.width(), s.height());
+                        Rectangle resultSmallRect = getOptimalRegion(rectangle.x + c.x() - s.width() / 2, rectangle.y + c.y() - s.height() / 2, s.width(), s.height());
+                        Rectangle resultRect = getBiggerRegion(rectangle.x + c.x() - s.width() / 2, rectangle.y + c.y() - s.height() / 2, s.width(), s.height());
+                        result2.add(resultRect);
+                        BufferedImage imageRegion = produceImageRegion(new Ellipse2D.Double(rectangle.x + c.x() - s.width() / 2, rectangle.y + c.y() - s.height() / 2, s.width(), s.height()), resultSmallRect);
+                        if (tmpDir != null) {
+                            try {
+                                ImageIO.write(imageRegion, "png", new File(tmpDir + "/" + counter + "/image" + counter + "_" + count + "_" + count2 + "_imageRegion.png"));
+                                ImageIO.write(imageRegion, "png", new File(tmpDir + "/result/image" + counter + "_" + count + "_" + count2 + "_imageRegion.png"));
+                            } catch (IOException ex) {
+                                Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                        imageRegions.add(imageRegion);
+                        count2++;
+
+                    }
                 }
-                if (ratio >= 2.7 && ratio <= 3.3) {
+            }
+            if (tmpDir != null) {
+                try {
+                    ImageIO.write(sub, "png", new File(tmpDir + "/" + counter + "/image" + counter + "_" + count + "_sub.png"));
+                } catch (IOException ex) {
+                    Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (tmpDir != null) {
+                try {
+                    ImageIO.write(sub2, "png", new File(tmpDir + "/" + counter + "/image" + counter + "_" + count + "_subColor.png"));
+                } catch (IOException ex) {
+                    Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        counter++;
+        return result2;
+    }
 
-                    result.add(new Rectangle(rect.x, rect.y, rect.width, rect.height / 3));
-                    result.add(new Rectangle(rect.x, rect.y + rect.height * 1/3, rect.width, rect.height / 3));
-                    result.add(new Rectangle(rect.x, rect.y + rect.height * 2/3, rect.width, rect.height / 3));
+    private Rectangle getBiggerRegion(int x, int y, int width, int height) {
+        int rectSize = Math.max(width, height);
+        int toAdd = (int) ((float) rectSize * regionExtraSize);
+        rectSize = Math.min(Math.max(rectSize + toAdd * 2, 0), inImageMin);
+        int rectWidth = Math.min(Math.max(x + rectSize, 0), this.inImageWidth) - x;
+        int rectHeight = Math.min(Math.max(y + rectSize, 0), this.inImageHeight) - y;
+        int rectX = Math.min(Math.max(x - toAdd, 0), this.inImageWidth);
+        int rectY = Math.min(Math.max(y - toAdd, 0), this.inImageHeight);
+        return new Rectangle(rectX, rectY, rectWidth, rectHeight);
+    }
+
+    private Rectangle getOptimalRegion(int x, int y, int width, int height) {
+        int rectWidth = Math.min(Math.max(x + width, 0), this.inImageWidth) - x;
+        int rectHeight = Math.min(Math.max(y + height, 0), this.inImageHeight) - y;
+        int rectX = Math.min(Math.max(x, 0), this.inImageWidth);
+        int rectY = Math.min(Math.max(y, 0), this.inImageHeight);
+        return new Rectangle(rectX, rectY, rectWidth, rectHeight);
+    }
+
+    private boolean hsvPixel(int pixel) {
+        float[] hsv = Color.RGBtoHSB((pixel >> 16) & 0xff, (pixel >> 8) & 0xff, (pixel) & 0xff, null);
+        if (hsv[1] > 0.40) {
+            if (hsv[2] > 0.35) {
+                float hMaxDif = hsv[2] * 0.10f;
+                float hMinDif = hsv[2] * 0.06f;
+                if (hsv[2] < 0.6f) {
+                    hMaxDif += 0.04f;
+                    hMinDif += 0.008f;
+                }
+                return (hsv[0] > 1 - hMaxDif || hsv[0] < hMinDif);
+            }
+        }
+        return false;
+    }
+
+    private BufferedImage produceImageRegion(Ellipse2D.Double elipse, Rectangle resultRect) {
+        BufferedImage result = new BufferedImage(resultRect.width, resultRect.height, BufferedImage.TYPE_3BYTE_BGR);
+        for (int y = 0; y < resultRect.height; y++) {
+            for (int x = 0; x < resultRect.width; x++) {
+                if (elipse.contains(x + resultRect.x, y + resultRect.y)) {
+                    result.setRGB(x, y, colorReplacer(x + resultRect.x, y + resultRect.y));
+                } else {
+                    result.setRGB(x, y, magenta);
                 }
             }
         }
         return result;
+    }
+
+    private int colorReplacer(int x, int y) {
+        int pixel = this.EqualizeImage.getRGB(x, y);
+        float[] hsv = Color.RGBtoHSB((pixel >> 16) & 0xff, (pixel >> 8) & 0xff, (pixel) & 0xff, null);
+        if (hsv[1] < 0.2 && hsv[2] > 0.3) {
+            return Color.WHITE.getRGB();
+        }
+        if (hsv[1] > 0.2 && hsv[2] < 0.3) {
+            return Color.BLACK.getRGB();
+        }
+        if ((hsv[0] > 0.6 && hsv[0] < 0.7)) {
+            return Color.blue.getRGB();
+        }
+        float hMaxDif = hsv[2] * 0.10f;
+        float hMinDif = hsv[2] * 0.06f;
+        if (hsv[2] < 0.6f) {
+            hMaxDif -= 0.03f;
+            hMinDif += 0.005f;
+        }
+        if ((hsv[0] > 1 - hMaxDif || hsv[0] < hMinDif)) {
+            return Color.RED.getRGB();
+        }
+        return this.EqualizeImage.getRGB(x, y);
+    }
+
+    public static BufferedImage copy(BufferedImage bi) {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 }

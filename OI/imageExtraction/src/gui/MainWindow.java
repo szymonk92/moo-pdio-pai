@@ -4,26 +4,18 @@
  */
 package gui;
 
-import filters.ExtractionFilter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
-import oi.MLPAnalyser;
-import oi.RBFNAnalyser;
 import sys.LerningSetProcesor;
-import sys.SignWrapper;
 import sys.ThreadProcesor;
 
 /**
@@ -45,6 +37,7 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
     int positiveFound;
     List<ViewPanel> panels;
     File wekaModel;
+    File tmpDir;
     Thread processor;
 
     /**
@@ -81,114 +74,135 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
 
         openFileChooser = new javax.swing.JFileChooser();
         openFileChooser2 = new javax.swing.JFileChooser();
+        openFileChooser3 = new javax.swing.JFileChooser();
         folderPanel = new javax.swing.JPanel();
+        loadFolderButton = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
         folderLabel = new javax.swing.JLabel();
-        folderNameLabel = new javax.swing.JLabel();
         pngFileLabel = new javax.swing.JLabel();
-        pngCountLabel = new javax.swing.JLabel();
         xmlFileLabel = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        folderNameLabel = new javax.swing.JLabel();
+        pngCountLabel = new javax.swing.JLabel();
         xmlFileCountLabel = new javax.swing.JLabel();
         networkPanel = new javax.swing.JPanel();
         loadWekaButton = new javax.swing.JButton();
         wekaModelLabel = new javax.swing.JLabel();
-        jScrollPane = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         startButton = new javax.swing.JButton();
         startLerningTestButton = new javax.swing.JButton();
+        gridPanel = new javax.swing.JPanel();
         Green = new javax.swing.JLabel();
-        Red = new javax.swing.JLabel();
-        Orange = new javax.swing.JLabel();
-        Tags = new javax.swing.JLabel();
         Regions = new javax.swing.JLabel();
+        Red = new javax.swing.JLabel();
+        Tags = new javax.swing.JLabel();
+        Orange = new javax.swing.JLabel();
         Found = new javax.swing.JLabel();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        openFileMenuItem = new javax.swing.JMenuItem();
+        jFileChooser1 = new javax.swing.JFileChooser();
+        jScrollPane = new javax.swing.JScrollPane();
+        tmpPanel = new javax.swing.JPanel();
+        setTmpButton = new javax.swing.JButton();
+        tmplLabel = new javax.swing.JLabel();
 
+        openFileChooser.setCurrentDirectory(new java.io.File("E:\\Politechnika\\stopien_II\\Obliczenia_inteligentne"));
         openFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+
+        openFileChooser3.setCurrentDirectory(new java.io.File("D:\\test"));
+        openFileChooser3.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         folderPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Folder i pliki"));
+        folderPanel.setPreferredSize(new java.awt.Dimension(500, 70));
+
+        loadFolderButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/open_dir.png"))); // NOI18N
+        loadFolderButton.setText("Open");
+        loadFolderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadFolderButtonActionPerformed(evt);
+            }
+        });
+
+        jPanel2.setLayout(new java.awt.GridLayout(3, 1));
 
         folderLabel.setText("Wybrany folder:");
-
-        folderNameLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jPanel2.add(folderLabel);
 
         pngFileLabel.setText("Ilość plików PNG:");
-
-        pngCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jPanel2.add(pngFileLabel);
 
         xmlFileLabel.setText("Ilość plików XML:");
+        jPanel2.add(xmlFileLabel);
+
+        jPanel3.setPreferredSize(new java.awt.Dimension(300, 100));
+        jPanel3.setLayout(new java.awt.GridLayout(3, 1));
+
+        folderNameLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jPanel3.add(folderNameLabel);
+
+        pngCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        pngCountLabel.setMaximumSize(new java.awt.Dimension(19, 14));
+        pngCountLabel.setMinimumSize(new java.awt.Dimension(19, 14));
+        pngCountLabel.setPreferredSize(new java.awt.Dimension(19, 14));
+        jPanel3.add(pngCountLabel);
 
         xmlFileCountLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jPanel3.add(xmlFileCountLabel);
 
         javax.swing.GroupLayout folderPanelLayout = new javax.swing.GroupLayout(folderPanel);
         folderPanel.setLayout(folderPanelLayout);
         folderPanelLayout.setHorizontalGroup(
             folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(folderPanelLayout.createSequentialGroup()
-                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(pngFileLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 87, Short.MAX_VALUE)
-                    .addComponent(folderLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(loadFolderButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(folderNameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(folderPanelLayout.createSequentialGroup()
-                        .addComponent(pngCountLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(xmlFileLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(xmlFileCountLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)))
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         folderPanelLayout.setVerticalGroup(
             folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(loadFolderButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(folderPanelLayout.createSequentialGroup()
-                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(folderLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(folderNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pngCountLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pngFileLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xmlFileLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(xmlFileCountLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(37, 37, 37))
+                .addGroup(folderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addGap(0, 1, Short.MAX_VALUE))
         );
 
         networkPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Sieć/klasyfikator"));
 
-        loadWekaButton.setText("Load...");
+        loadWekaButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/open_dir.png"))); // NOI18N
+        loadWekaButton.setText("Open");
         loadWekaButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loadWekaButtonActionPerformed(evt);
             }
         });
 
+        wekaModelLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+
         javax.swing.GroupLayout networkPanelLayout = new javax.swing.GroupLayout(networkPanel);
         networkPanel.setLayout(networkPanelLayout);
         networkPanelLayout.setHorizontalGroup(
             networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(networkPanelLayout.createSequentialGroup()
-                .addGroup(networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(loadWekaButton)
-                    .addComponent(wekaModelLabel))
-                .addGap(0, 356, Short.MAX_VALUE))
+                .addGap(2, 2, 2)
+                .addComponent(loadWekaButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(wekaModelLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         networkPanelLayout.setVerticalGroup(
             networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(networkPanelLayout.createSequentialGroup()
-                .addComponent(loadWekaButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(wekaModelLabel))
+            .addComponent(wekaModelLabel)
+            .addComponent(loadWekaButton)
         );
-
-        jScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Wyniki"));
 
+        startButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/start.gif"))); // NOI18N
         startButton.setText("Start");
         startButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -203,17 +217,25 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
             }
         });
 
+        gridPanel.setLayout(new java.awt.GridLayout(3, 2));
+
         Green.setText("Green:");
-
-        Red.setText("Red:");
-
-        Orange.setText("Orange:");
-
-        Tags.setText("Tags:");
+        gridPanel.add(Green);
 
         Regions.setText("Regions:");
+        gridPanel.add(Regions);
+
+        Red.setText("Red:");
+        gridPanel.add(Red);
+
+        Tags.setText("Tags:");
+        gridPanel.add(Tags);
+
+        Orange.setText("Orange:");
+        gridPanel.add(Orange);
 
         Found.setText("Found:");
+        gridPanel.add(Found);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -221,63 +243,59 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(startButton)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Green)
-                    .addComponent(Red)
-                    .addComponent(Orange))
-                .addGap(89, 89, 89)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(Found)
-                        .addContainerGap())
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(Regions)
-                            .addComponent(Tags))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 370, Short.MAX_VALUE)
-                        .addComponent(startLerningTestButton)
-                        .addGap(71, 71, 71))))
+                        .addComponent(startButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(gridPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jFileChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(startLerningTestButton)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(startButton)
-                    .addComponent(startLerningTestButton))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addComponent(startLerningTestButton)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(Green)
-                    .addComponent(Tags))
-                .addGap(4, 4, 4)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(Red)
-                        .addGap(4, 4, 4)
-                        .addComponent(Orange))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(Regions)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Found)))
-                .addGap(12, 12, 12))
+                    .addComponent(startButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(gridPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jFileChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        jMenu1.setText("File");
+        jScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-        openFileMenuItem.setText("Open file");
-        openFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        tmpPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Folder tymczasowy"));
+
+        setTmpButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/open_dir.png"))); // NOI18N
+        setTmpButton.setText("Open");
+        setTmpButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openFileMenuItemActionPerformed(evt);
+                setTmpButtonActionPerformed(evt);
             }
         });
-        jMenu1.add(openFileMenuItem);
 
-        jMenuBar1.add(jMenu1);
+        tmplLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 
-        setJMenuBar(jMenuBar1);
+        javax.swing.GroupLayout tmpPanelLayout = new javax.swing.GroupLayout(tmpPanel);
+        tmpPanel.setLayout(tmpPanelLayout);
+        tmpPanelLayout.setHorizontalGroup(
+            tmpPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(tmpPanelLayout.createSequentialGroup()
+                .addComponent(setTmpButton, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tmplLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        tmpPanelLayout.setVerticalGroup(
+            tmpPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(tmplLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(setTmpButton)
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -286,37 +304,71 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(folderPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(networkPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(networkPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(tmpPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(folderPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 727, Short.MAX_VALUE)
+                    .addComponent(jScrollPane))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(folderPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(networkPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(folderPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(networkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
+                .addComponent(tmpPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void openFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileMenuItemActionPerformed
-        int returnVal = this.openFileChooser.showDialog(this, "Open file");
+    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
+
+        procesed = 0;
+        green = 0;
+        red = 0;
+        orange = 0;
+        tags = 0;
+        regions = 0;
+        positiveRegions = 0;
+        found = 0;
+        positiveFound = 0;
+        setLabals();
+        if (processor != null && processor.isAlive()) {
+            processor.interrupt();
+        }
+        processor = new ThreadProcesor(panels, this.folderNameLabel.getText(), wekaModel, tmpDir);
+        processor.start();
+    }//GEN-LAST:event_startButtonActionPerformed
+
+    private void loadWekaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadWekaButtonActionPerformed
+         int returnVal = this.openFileChooser2.showDialog(this, "Open file");
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            wekaModel = this.openFileChooser2.getSelectedFile();
+            this.wekaModelLabel.setText(wekaModel.getAbsolutePath());
+        }
+    }//GEN-LAST:event_loadWekaButtonActionPerformed
+
+    private void startLerningTestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startLerningTestButtonActionPerformed
+
+        LerningSetProcesor lerningSetProcesor = new LerningSetProcesor(panels, this.folderNameLabel.getText(), "D:/positive/", "D:/negative/");
+        lerningSetProcesor.start();
+    }//GEN-LAST:event_startLerningTestButtonActionPerformed
+
+    private void loadFolderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFolderButtonActionPerformed
+      int returnVal = this.openFileChooser.showDialog(this, "Open dir");
 
         //Process the results.
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = this.openFileChooser.getSelectedFile();
-
             if (file.isDirectory()) {
                 String folderPath = file.getAbsolutePath();
                 this.folderNameLabel.setText(folderPath);
@@ -348,45 +400,19 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
 
         }
         this.openFileChooser.setSelectedFile(null);        // TODO add your handling code here:
-    }//GEN-LAST:event_openFileMenuItemActionPerformed
+    }//GEN-LAST:event_loadFolderButtonActionPerformed
 
-    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
-
-        procesed = 0;
-        green = 0;
-        red = 0;
-        orange = 0;
-        tags = 0;
-        regions = 0;
-        positiveRegions = 0;
-        found = 0;
-        positiveFound = 0;
-        setLabals();
-        if (processor != null && processor.isAlive()) {
-            processor.interrupt();
-        }
-        if (wekaModel == null) {
-            return;
-        }
-        processor = new ThreadProcesor(panels, this.folderNameLabel.getText(), wekaModel);
-        processor.start();
-    }//GEN-LAST:event_startButtonActionPerformed
-
-    private void loadWekaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadWekaButtonActionPerformed
-        int returnVal = this.openFileChooser2.showDialog(this, "Open file");
+    private void setTmpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setTmpButtonActionPerformed
+       
+         int returnVal = this.openFileChooser3.showDialog(this, "Open file");
 
         //Process the results.
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            wekaModel = this.openFileChooser2.getSelectedFile();
-            this.wekaModelLabel.setText(wekaModel.getAbsolutePath());
+            tmpDir = this.openFileChooser3.getSelectedFile();
+            this.tmplLabel.setText(tmpDir.getAbsolutePath());
         }
-    }//GEN-LAST:event_loadWekaButtonActionPerformed
-
-    private void startLerningTestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startLerningTestButtonActionPerformed
-
-        LerningSetProcesor lerningSetProcesor = new LerningSetProcesor(panels, this.folderNameLabel.getText(), "D:/positive/", "D:/negative/");
-        lerningSetProcesor.start();
-    }//GEN-LAST:event_startLerningTestButtonActionPerformed
+       
+    }//GEN-LAST:event_setTmpButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Found;
@@ -398,19 +424,25 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
     private javax.swing.JLabel folderLabel;
     private javax.swing.JLabel folderNameLabel;
     private javax.swing.JPanel folderPanel;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPanel gridPanel;
+    private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane;
+    private javax.swing.JButton loadFolderButton;
     private javax.swing.JButton loadWekaButton;
     private javax.swing.JPanel networkPanel;
     private javax.swing.JFileChooser openFileChooser;
     private javax.swing.JFileChooser openFileChooser2;
-    private javax.swing.JMenuItem openFileMenuItem;
+    private javax.swing.JFileChooser openFileChooser3;
     private javax.swing.JLabel pngCountLabel;
     private javax.swing.JLabel pngFileLabel;
+    private javax.swing.JButton setTmpButton;
     private javax.swing.JButton startButton;
     private javax.swing.JButton startLerningTestButton;
+    private javax.swing.JPanel tmpPanel;
+    private javax.swing.JLabel tmplLabel;
     private javax.swing.JLabel wekaModelLabel;
     private javax.swing.JLabel xmlFileCountLabel;
     private javax.swing.JLabel xmlFileLabel;
