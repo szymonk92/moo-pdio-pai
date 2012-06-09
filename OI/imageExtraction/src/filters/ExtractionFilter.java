@@ -31,10 +31,9 @@ import sys.Region;
  */
 public class ExtractionFilter {
 
-    private List<Region> regions;
-    private WritableRaster imageRaster;
     private File tmpDir;
     private int counter;
+    private int count;
     private static int magenta = RGBHelper.fastToPixel(255, 0, 255);
     private static int white = RGBHelper.fastToPixel(255, 255, 255);
     private static int medianFilterSize = 3;
@@ -105,44 +104,26 @@ public class ExtractionFilter {
         float threshold = (medianFilterSize * medianFilterSize) * 0.5f;
         for (int row = medianFilterSize; row < original.getHeight() - medianFilterSize - 1; row++) {
             for (int col = medianFilterSize; col < original.getWidth() - medianFilterSize - 1; col++) {
-                int count = 0;
+                int count2 = 0;
                 for (int dRow = -medianFilterSize; dRow < medianFilterSize; dRow++) {
                     for (int dCol = -medianFilterSize; dCol < medianFilterSize; dCol++) {
                         if (originalRaster.getSample(col + dCol, row + dRow, 0) > 0) {
-                            count++;
+                            count2++;
                         }
                     }
                 }
-                if (count < threshold) {
+                if (count2 < threshold) {
                     img.setRGB(col, row, Color.BLACK.getRGB());
                 } else {
                     img.setRGB(col, row, Color.WHITE.getRGB());
                 }
             }
         }
-
         return img;
-
     }
 
     private BufferedImage hsvThreshold(BufferedImage orgImg) {
-        this.EqualizeImage = histogramEqualization(orgImg);
-//         IplImage src, src_gray = null, histeq = null, rgbeq;
-//         src = IplImage.createFrom(inImage);
-//        rgbeq = cvCreateImage(cvSize(src.width(), src.height()), src.depth(), 3);
-//        src_gray = cvCreateImage(cvSize(src.width(), src.height()), IPL_DEPTH_8U, 1);
-//        histeq = cvCreateImage(cvSize(src.width(), src.height()), IPL_DEPTH_8U, 1);
-//        cvEqualizeHist(src_gray, histeq);
-//        cvCvtColor(histeq, rgbeq, CV_GRAY2BGR);
-//        cvAddWeighted(src, 1.5, rgbeq, -0.5, 0, rgbeq);
-//        this.EqualizeImage = rgbeq.getBufferedImage();
-        if (tmpDir != null) {
-            try {
-                ImageIO.write(this.EqualizeImage, "png", new File(tmpDir + "/image" + counter + "_equalized.png"));
-            } catch (IOException ex) {
-                Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        
         BufferedImage mask = new BufferedImage(this.inImageWidth, this.inImageHeight, BufferedImage.TYPE_BYTE_GRAY);
         for (int y = 0; y < this.inImageHeight; y++) {
             for (int x = 0; x < this.inImageWidth; x++) {
@@ -169,15 +150,9 @@ public class ExtractionFilter {
         return result;
     }
 
-    public List<Rectangle> processImage(BufferedImage input) {
-        this.inImage = input;
-        this.inImageWidth = input.getWidth();
-        this.inImageHeight = input.getHeight();
-        this.inImageMin = Math.min(this.inImageHeight - 1, this.inImageWidth - 1);
-        this.imageRegions = new ArrayList<BufferedImage>();
-        regions = new ArrayList<Region>();
-        BufferedImage mask = hsvThreshold(this.inImage);
-        imageRaster = mask.getRaster();
+    private List<Region> produceRegions(BufferedImage input){
+        WritableRaster imageRaster = input.getRaster();
+        List<Region> regions = new ArrayList<Region>();
         List<Region> inRegions = new ArrayList<Region>();
         Point testPoint;
         for (int y = 0; y < this.inImageHeight; y++) {
@@ -208,11 +183,13 @@ public class ExtractionFilter {
                 }
             }
         }
-        List<Rectangle> result = new ArrayList<Rectangle>();
-
+        return regions;
+    }
+    private List<Rectangle> produceImageRegions(List<Region> regions){
+         List<Rectangle> result = new ArrayList<Rectangle>();
         for (Region region : regions) {
             Rectangle rect = region.getArea();
-            if (rect.height >= 30 && rect.width >= 30) {
+            if (rect.height >= 20 && rect.width >= 20) {
                 float ratio = region.getRatio();
                 if (ratio >= 1.7 && ratio <= 2.5) {
                     result.add(getBiggerRegion(rect.x, rect.y, rect.width, rect.height / 2));
@@ -226,16 +203,18 @@ public class ExtractionFilter {
                 }
             }
         }
-        List<Rectangle> result2 = new ArrayList<Rectangle>();
+        return result;
+    }
+    private List<Rectangle> filterRegionByElipsse(List<Rectangle> regions, BufferedImage mask){
+        List<Rectangle> result = new ArrayList<Rectangle>();
         IplImage src, src_gray;
 
         src_gray = IplImage.createFrom(mask);
         cvCanny(src_gray, src_gray, 0, 255, 3);
         BufferedImage gray = src_gray.getBufferedImage();
         BufferedImage copyEqualizeImage = copy(this.EqualizeImage);
-        int count = 0;
-         new File(tmpDir + "/result").mkdir();
-        for (Rectangle rectangle : result) {
+        new File(tmpDir + "/result").mkdir();
+        for (Rectangle rectangle : regions) {
             new File(tmpDir + "/" + counter).mkdir();
             BufferedImage sub = gray.getSubimage(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
             BufferedImage sub2 = copyEqualizeImage.getSubimage(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
@@ -261,7 +240,7 @@ public class ExtractionFilter {
                         g.drawOval(c.x() - s.width() / 2, c.y() - s.height() / 2, s.width(), s.height());
                         Rectangle resultSmallRect = getOptimalRegion(rectangle.x + c.x() - s.width() / 2, rectangle.y + c.y() - s.height() / 2, s.width(), s.height());
                         Rectangle resultRect = getBiggerRegion(rectangle.x + c.x() - s.width() / 2, rectangle.y + c.y() - s.height() / 2, s.width(), s.height());
-                        result2.add(resultRect);
+                        result.add(resultRect);
                         BufferedImage imageRegion = produceImageRegion(new Ellipse2D.Double(rectangle.x + c.x() - s.width() / 2, rectangle.y + c.y() - s.height() / 2, s.width(), s.height()), resultSmallRect);
                         if (tmpDir != null) {
                             try {
@@ -292,8 +271,37 @@ public class ExtractionFilter {
                 }
             }
         }
+        return result;
+    }
+    
+    public List<Rectangle> processImage(BufferedImage input) {
+        this.inImage = input;
+        this.inImageWidth = input.getWidth();
+        this.inImageHeight = input.getHeight();
+        this.inImageMin = Math.min(this.inImageHeight - 1, this.inImageWidth - 1);
+        this.imageRegions = new ArrayList<BufferedImage>();
+        this.EqualizeImage = this.inImage;
+        this.count = 0;
+        BufferedImage mask = hsvThreshold(this.EqualizeImage);
+        List<Region> regions = produceRegions(mask);
+        List<Rectangle> imageRegionsTmp = produceImageRegions(regions);
+        List<Rectangle> result = filterRegionByElipsse(imageRegionsTmp, mask);
+        this.EqualizeImage = histogramEqualization(this.inImage);
+        if (tmpDir != null) {
+            try {
+                ImageIO.write(this.EqualizeImage, "png", new File(tmpDir + "/image" + counter + "_equalized.png"));
+            } catch (IOException ex) {
+                Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        mask = hsvThreshold(this.EqualizeImage);
+        regions = produceRegions(mask);
+        imageRegionsTmp = produceImageRegions(regions);
+        result.addAll(filterRegionByElipsse(imageRegionsTmp, mask));
+        this.EqualizeImage = this.inImage;
+        
         counter++;
-        return result2;
+        return result;
     }
 
     private Rectangle getBiggerRegion(int x, int y, int width, int height) {
@@ -322,8 +330,8 @@ public class ExtractionFilter {
                 float hMaxDif = hsv[2] * 0.10f;
                 float hMinDif = hsv[2] * 0.06f;
                 if (hsv[2] < 0.6f) {
-                    hMaxDif += 0.04f;
-                    hMinDif += 0.008f;
+                    hMaxDif += 0.06f;
+                    hMinDif += 0.01f;
                 }
                 return (hsv[0] > 1 - hMaxDif || hsv[0] < hMinDif);
             }
@@ -335,8 +343,8 @@ public class ExtractionFilter {
         BufferedImage result = new BufferedImage(resultRect.width, resultRect.height, BufferedImage.TYPE_3BYTE_BGR);
         for (int y = 0; y < resultRect.height; y++) {
             for (int x = 0; x < resultRect.width; x++) {
-                if (elipse.contains(x + resultRect.x, y + resultRect.y)) {
-                    result.setRGB(x, y, colorReplacer(x + resultRect.x, y + resultRect.y));
+                if (elipse.contains(x + resultRect.x-1, y + resultRect.y-1)) {
+                    result.setRGB(x, y, this.EqualizeImage.getRGB(x + resultRect.x, y + resultRect.y));//colorReplacer(x + resultRect.x, y + resultRect.y));
                 } else {
                     result.setRGB(x, y, magenta);
                 }
@@ -348,22 +356,16 @@ public class ExtractionFilter {
     private int colorReplacer(int x, int y) {
         int pixel = this.EqualizeImage.getRGB(x, y);
         float[] hsv = Color.RGBtoHSB((pixel >> 16) & 0xff, (pixel >> 8) & 0xff, (pixel) & 0xff, null);
-        if (hsv[1] < 0.2 && hsv[2] > 0.3) {
-            return Color.WHITE.getRGB();
-        }
-        if (hsv[1] > 0.2 && hsv[2] < 0.3) {
+        if (hsv[2] < 0.3) {
             return Color.BLACK.getRGB();
         }
-        if ((hsv[0] > 0.6 && hsv[0] < 0.7)) {
+        if (hsv[1] < 0.15) {
+            return Color.WHITE.getRGB();
+        }
+        if ((hsv[0] > 0.52 && hsv[0] < 0.77) ) {
             return Color.blue.getRGB();
         }
-        float hMaxDif = hsv[2] * 0.10f;
-        float hMinDif = hsv[2] * 0.06f;
-        if (hsv[2] < 0.6f) {
-            hMaxDif -= 0.03f;
-            hMinDif += 0.005f;
-        }
-        if ((hsv[0] > 1 - hMaxDif || hsv[0] < hMinDif)) {
+        if (hsvPixel(pixel)) {
             return Color.RED.getRGB();
         }
         return this.EqualizeImage.getRGB(x, y);

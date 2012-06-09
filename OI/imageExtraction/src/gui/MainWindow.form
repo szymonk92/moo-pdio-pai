@@ -264,7 +264,7 @@
                       <Group type="102" attributes="0">
                           <Component id="startButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="gridPanel" min="-2" pref="253" max="-2" attributes="0"/>
+                          <Component id="gridPanel" min="-2" pref="374" max="-2" attributes="0"/>
                       </Group>
                       <Component id="jFileChooser1" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
