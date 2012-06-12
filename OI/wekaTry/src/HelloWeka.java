@@ -40,11 +40,12 @@ public class HelloWeka {
                 												// weka.filters.supervised.attribute!
 //		CfsSubsetEval evall = new CfsSubsetEval();
                 SVMAttributeEval evall = new SVMAttributeEval();
-                evall.setPercentThreshold(60);
+                evall.setPercentToEliminatePerIteration(10);
+//                evall.setPercentThreshold(60);
 //		BestFirst search = new BestFirst();
                 Ranker search = new Ranker();
 //		search.setDirection(new SelectedTag(2, BestFirst.TAGS_SELECTION));
-                search.setNumToSelect(128);
+                search.setNumToSelect(333);
 		filter.setEvaluator(evall);
 		filter.setSearch(search);
 

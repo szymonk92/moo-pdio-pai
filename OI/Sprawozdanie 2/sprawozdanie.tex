@@ -1,0 +1,212 @@
+% vim:encoding=utf8 ft=tex sts=2 sw=2 et:
+
+\documentclass{classrep}
+\usepackage[utf8]{inputenc}
+\usepackage{color}
+\usepackage[sort]{natbib}
+
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.bmp,.gif,.jpg}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{mathtools}
+\usepackage{indentfirst}
+\usepackage[hyphens]{url}
+
+\usepackage[stable]{footmisc}
+\usepackage{hyperref}
+\usepackage{gensymb}
+\usepackage[polish]{babel}
+\usepackage[center,small,bf]{caption}
+\hypersetup{colorlinks=false,pdfborder={0 0 0}}
+\usepackage{subfig}
+\studycycle{Informatyka, studia dzienne, mgr II st.}
+\coursesemester{I}
+
+%\coursename{Angelologia teoretyczna i stosowana}
+\coursename{Obliczenia inteligentne}
+\courseyear{2010/2011}
+
+\courseteacher{dr inż. Arkadiusz Tomczyk}
+\coursegroup{środa, 10:15}
+
+\author{
+  \studentinfo{Paweł Musiał}{178726} \and
+  \studentinfo{Łukasz Michalski}{178724}
+}
+
+\title{Zadanie 1: Analiza i poprawa metody rozpoznawania znaków zakazu}
+\svnurl{http://serce.ics.p.lodz.pl/svn/labs/oi/adres@rewizja}
+
+\begin{document}
+\maketitle
+
+
+
+\section{Cel}
+Projekt ten jest kontynuacją projektu 1. W ramach tego projektu należy wykonać dwie rzeczy:
+\begin{itemize}
+
+
+\item    Przeanalizować pierwsze rozwiązanie pod kątem błędów, które występują w uzyskanych wynikach (niedokładności, wyniki fałszywie pozytywne, wyniki fałszywie negatywne, itp.) oraz tych elementów rozwiązania, które wpływają na to, że te błędy powstają (jeśli rozwiązanie jest kilku etapowe to być może któryś z wcześniejszych etapów powoduje, że dalsze sobie nie radzą, itp.).
+\item    Przeanalizować pierwsze rozwiązanie pod kątem jego wydajności (czasu analizy pojedynczego zdjęcia).
+    \end{itemize}
+
+
+\section{Analiza rozwiązania podstawowego}
+
+\subsection{Analiza poprawności}
+
+
+Jednym z podstawowych i najbardziej znacznych problemów w naszym rozwiązaniu okazał się być wykorzystywany przez nas zbiór uczący, ponieważ nie był reprezentatywnym dla podstawionego przed nami zadania. Mała ilość przykładów negatywnych spowodowała wysoki procent fałszywie zidentyfikowanych obiektów.\\
+Aby poradzić sobie z tym problemem, zastosowaliśmy dwa zabiegi:
+\begin{itemize}
+\item dodawanie obrazów nadmiarowych, będących znalezionymi fragmentami, z różnych etapów przetwarzania obrazu wejściowego\\
+\item dodawanie obrazów nadmiarowych, będących przypadkowymi fragmentami obrazu, nie zawierającymi oczywiście fragmentów, ani całych. znaków zakazu\\
+
+\end{itemize}
+\\
+
+\indent Również wydaje się błędną wykorzystana przez nas metoda ekstrakcja cech, mająca na celu zmniejszenie wymiarowości problemu poprzez usunięcie cech mało związanych z poszczególnymi klasami w sensie korelacji. Operując na całym zbiorze danych, udało się osiągnąć zerowy poziom fałszywie pozytywnych rozpoznań, lecz z drugiej strony wzrósł odsetek obszarów fałszywie odrzuconych.\\
+Jednak z drugiej strony, wybraliśmy inny sposób ekstrakcji cech oparty na metodzie opisanej w \cite{GuyonEtAl02}. Metoda ta w odróżnieniu nie polega na korelacji cechy - piksela dla klasy, lecz ocenia przydatność cechy na podstawie wag wejść metody maszyny wektorów nośnych. Taki wybór wydaje się nam bardziej prawidłowym, ponieważ w obrębie jednej klasy - naszych znaków zakazu mamy znaki: białe, czerwone, czerwone z niebieskim. Te zróżnicowania jak przypuszczamy znacząco ograniczały ilość cech ewaluowanych metodą opartą o korelacje. Wybrana tym razem metoda, ocenia ich przydatność na podstawie ważności tych cech w działającym już klasyfikatorze, więc nie jest to wyszukiwania korelacji wprost, takiej jak to rozumiemy analitycznie.\\
+
+
+\indent Ze względu na gorszą efektywność sieci wielowarstwowego perceptronu zauważonej podczas testowania już pierwszego, niepoprawionego 
+
+
+{\Large{OPISZ TUTAJ CO ZMIENIŁEŚ W SEGMENTACJI}}
+
+
+\subsection{Analiza wydajności}
+
+rozwiązania, w tej części postanowiliśmy jedynie używać sieci o radialnej funkcji bazowej. Sieć ta cechowała sie dokładniejszą klasyfikacją i zarówno szybkością dochodzenia do tego rozwiązania.\\
+
+
+{\Large{OPISZ TUTAJ CO ZMIENIŁEŚ W SEGMENTACJI}}
+OpenCV?
+
+\section{Wyniki}
+
+
+W sekcji tej posługiwać się będziemy skrótami :
+\begin{itemize}
+\item TP - liczba prawidłowo rozpoznanych\\
+\item FP - liczba fałszywie rozpoznanych\\
+\item FN - liczba niesłusznie odrzuconych\\
+\end{itemize}
+
+
+Jak wyżej wprowadzono, przeprowadzono testy dla dwóch przypadków:
+\begin{itemize}
+\item brak ekstrakcji cech, uczymy sieć całych fragmentów zdjęcia\\
+\item ekstrakcja najbardziej znaczących się cech, bierzemy blisko $\frac{1}{3}$ z cech wejściowych na podstawie rankingu ustalonego przy pomocy metody opisanej w \cite{GuyonEtAl02}\\
+\end{itemize}
+
+
+W obu przypadkach nauka odbywała się na zbiorze około 1400 segmentów zdjęć, z czego około 60 reprezentowało zbiór przykładów pozytywnych - zawierające znaki zakazu, reszta należała do klasy negatywnej.\\
+
+Podczas testowania natomiast dysponowaliśmy 30 zdjęciami w których zaznaczono 23 obszary zawierające znaki. Co oznacza, że wprowadzone na początku sekcji pojęcia TP,FP,FN, dotyczyć będą tego zbioru.\\
+
+
+
+\subsection{Brak ekstrakcji cech}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline 
+Poprawnie zaklasyfikowanych &  1361 & 97.0756\% \\ 
+\hline 
+Niepoprawnie zaklasyfikowanych & 41 & 2.9244\% \\
+\hline 
+\end{tabular} 
+\caption{Dokładność modelu na zbiorze uczącym, bez ekstrakcji cech.}
+\label{wyniki:eksproc}
+\end{table}
+
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline 
+TP &  FP &  FN\\
+\hline
+6  &   0 &  17\\
+\hline
+\end{tabular} 
+
+\caption{Wyniki klasyfikacja, bez ekstrakcji cech.}
+\label{wyniki:eks}
+\end{table}
+
+
+\subsection{Ekstrakcja cech}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline 
+Poprawnie zaklasyfikowanych &  1367 & 97.5036\% \\ 
+\hline 
+Niepoprawnie zaklasyfikowanych & 35 & 2.4964\% \\
+\hline 
+\end{tabular} 
+\caption{Dokładność modelu na zbiorze uczącym.}
+\label{wyniki:eksproc}
+\end{table}
+
+
+Wyniki testów na zbiorze testowym.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline 
+TP &  FP &  FN\\
+\hline
+7  &   1 &  16\\
+\hline
+\end{tabular} 
+
+\caption{Wyniki klasyfikacja, z ekstrakcją cech.}
+\label{wyniki:ekswsk}
+\end{table}
+
+
+
+
+\section{Wnioski}
+
+\subsection{Poprawność rozwiązania}
+Udało się znacznie podnieść skuteczność metody, jeśli chodzi o ilość segmentów niesłusznie akceptowanych, przy współmiernie niskim spadku  prawidłowego rozpoznania. W wydaje się najlepszym wypadku udało się pogorszyć wynik z poprzedniej metody o stratę rozpoznania jednego segmentu, kosztem zminimalizowania fałszywych rozpoznań do jednego. Co biorąc pod uwagę, że  w podstawowej wersji rozwiązania ilość tych błędnie zaklasyfikowanych segmentów była równa kilkunastu, jest zdecydowanie dobrym efektem.\\
+Jednak patrząc na drugi błąd - niesłusznego odrzucenia, nie udało się go poprawić, zatem udało się jedynie zniwelować jeden błąd. Można przypuszczać, że jednak trudno by było poprawić oba błędy jednocześnie, ponieważ metody na ich usuwanie wydają sie być sobie przeciwstawne.\\
+
+Przeciwdziałając błędom niesłusznego odrzucenia, staramy się uelastycznić granicę decyzyjną, wprowadzając coraz to bardziej zaszumione dane, co z kolei pociągać będzie za sobą, mniejsze restrykcje co od rozpoznawanego obrazu, czyli ujmując to inaczej, będziemy bardziej narażeni na wystąpienie niesłusznej akceptacji. Natomiast minimalizując błąd niesłusznej akceptacji działamy w drugą stronę, staramy się aby klasyfikator był coraz bardziej restrykcyjny, pozwala na mniejszą różnorodność danych w klasie.\\
+
+Jak widać zadanie to nie jest proste, wymaga ustalenia co ma wyższy priorytet w rozwiązywanym problemie. Z naszego punktu widzenia w realnym systemie rozpoznającym lub identyfikującym znaki drogowe, ważniejszym dla użytkownika będzie zminimalizowanie błędu niesłusznej akceptacji, ponieważ mogłoby to powodować niepotrzebne zaburzenia koncentracji u kierowcy, w konsekwencji zmniejszając jego wrażliwość na prawdziwe znaki.
+
+\subsection{Wydajność rozwiązania}
+
+Wydajność metody możemy podzielić rozróżnić na dwie płaszczyzny :
+\begin{itemize}
+\item nauka
+\item użytkowanie działającego rozwiązania
+\end{itemize}
+
+
+W procesie nauki, a właściwie szybkości tej nauki, kluczowym jest wybór sieci o  radialnej funkcji bazowej, oraz metody ekstrakcji cech. Jak widać w tabelach \ref{wyniki:eksproc} oraz \ref{wyniki:ekswsk} nie tylko udało się zmniejszyć wymiarowość zadania, ale również poprawić skuteczność klasyfikatora (przynajmniej na zbiorze uczącym).\\
+
+
+{\Large{OPISZ TUTAJ CO ZMIENIŁEŚ W SEGMENTACJI}}
+
+
+
+%\bibliographystyle{plainnat}
+\bibliographystyle{ieeetr}
+\bibliography{bibliografia}
+
+\end{document}
