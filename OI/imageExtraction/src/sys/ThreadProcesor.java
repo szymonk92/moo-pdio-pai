@@ -138,7 +138,7 @@ public class ThreadProcesor extends Thread {
                     }
                     for (int i = 1; i < tmpFound.size(); i++) {
                         boolean test = true;
-                        for (int j = 1; j < found.size(); j++) {
+                        for (int j = 0; j < found.size(); j++) {
                             if (sw.isTheSame(tmpFound.get(i), found.get(j))) {
                                 test = false;
                                 break;

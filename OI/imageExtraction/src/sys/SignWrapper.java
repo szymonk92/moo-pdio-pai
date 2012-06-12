@@ -171,12 +171,12 @@ private static int subImageSize = 30;
             double maxArea = Math.max(firstArea, secondArea);
             double minArea = Math.min(firstArea, secondArea);
             double result = minArea/maxArea;
-            if(result>0.5 &&result<1.3){
+            if(result>0.4 &&result<1.4){
                 Rectangle rect = first.intersection(second);
                 double rectArea = rect.height * rect.width;
                 double distance = Point.distance(first.getCenterX(), first.getCenterY(), second.getCenterX(), second.getCenterY());
                 double  maxRectArea = Math.max(rectArea/firstArea, rectArea/secondArea);
-                if (distance<first.height/0.5 && maxRectArea>0.6) {
+                if (distance<first.height/0.2 && maxRectArea>0.6) {
                     return true;
                 }
             }
