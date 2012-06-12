@@ -172,7 +172,7 @@ public class ThreadProcesor extends Thread {
         Attribute ClassAttribute = new Attribute("theClass", fvClassVal);
 
 
-        BufferedImage img = images.get(0);
+        BufferedImage img = SignWrapper.getSubImageFit(images.get(0));
         FastVector vec = new FastVector(img.getHeight() * img.getWidth() + 1);
         for (int i = 0; i < img.getHeight() * img.getWidth(); ++i) {
             vec.addElement(new Attribute("attr" + i));
@@ -183,7 +183,7 @@ public class ThreadProcesor extends Thread {
         ret = new Instances("data", vec, 0);
 
         for (int i = 0; i < images.size(); ++i) {
-            img = images.get(i);
+            img = SignWrapper.getSubImageFit(images.get(i));
             Instance ince = new Instance(img.getHeight() * img.getWidth() + 1);
 
             int val = 0;

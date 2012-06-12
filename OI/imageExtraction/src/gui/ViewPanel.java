@@ -136,6 +136,8 @@ public class ViewPanel extends javax.swing.JPanel {
 
     public void Clear() {
         this.setBackground(new Color(240,240,240));
+        this.jPanel1.setBackground(new Color(240,240,240));
+                this.jPanel2.setBackground(new Color(240,240,240));
         this.processingLabel.setVisible(false);
         this.progressBar.setVisible(false);
         found = null;
@@ -156,12 +158,18 @@ public class ViewPanel extends javax.swing.JPanel {
             if (value == tags.size() && value == found.size()) {
                 changeSupport.firePropertyChange("result", null, 1);
                 this.setBackground(Color.GREEN);
+                 this.jPanel1.setBackground(Color.GREEN);
+                this.jPanel2.setBackground(Color.GREEN);
             } else if (value == 0) {
                 changeSupport.firePropertyChange("result", null, 0);
                 this.setBackground(Color.RED);
+                 this.jPanel1.setBackground(Color.RED);
+                this.jPanel2.setBackground(Color.RED);
             } else {
                 changeSupport.firePropertyChange("result", null, 2);
                 this.setBackground(Color.ORANGE);
+                this.jPanel1.setBackground(Color.ORANGE);
+                this.jPanel2.setBackground(Color.ORANGE);
             }
         }
         this.revalidate();
@@ -279,7 +287,7 @@ public class ViewPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(83, Short.MAX_VALUE))
+                        .addContainerGap(149, Short.MAX_VALUE))
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
