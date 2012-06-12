@@ -123,7 +123,7 @@ public class ThreadProcesor extends Thread {
                             for (int i = 0; i < testData.numInstances(); i++) {
                                 double clsLabel = classify.classifyInstance(testData.instance(i));
                                 //labeled.instance(i).setClassValue(clsLabel);
-                                if (clsLabel != 2) {
+                                if (clsLabel != 1) {
                                     tmpFound.add(panel.regions.get(i));
                                 }
                                 panel.addProgress(progressValue);
@@ -166,8 +166,8 @@ public class ThreadProcesor extends Thread {
         Instances ret = null;
         // Declare the class attribute along with its values
         FastVector fvClassVal = new FastVector(3);
-        fvClassVal.addElement("positive0"); //zakaz
-        fvClassVal.addElement("positive1"); //odwo�anie ograniczenia
+        fvClassVal.addElement("positive"); //zakaz
+        //fvClassVal.addElement("positive1"); //odwo�anie ograniczenia
         fvClassVal.addElement("negative"); //ka�dy inny
         Attribute ClassAttribute = new Attribute("theClass", fvClassVal);
 

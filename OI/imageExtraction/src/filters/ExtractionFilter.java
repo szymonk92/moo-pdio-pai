@@ -373,7 +373,7 @@ public class ExtractionFilter {
         BufferedImage result = new BufferedImage(resultRect.width, resultRect.height, BufferedImage.TYPE_3BYTE_BGR);
         for (int y = 0; y < resultRect.height; y++) {
             for (int x = 0; x < resultRect.width; x++) {
-                if (elipse.contains(x + resultRect.x-1, y + resultRect.y-1)) {
+                if (elipse.contains(x + resultRect.x, y + resultRect.y)) {
                     result.setRGB(x, y, this.EqualizeImage.getRGB(x + resultRect.x, y + resultRect.y));//colorReplacer(x + resultRect.x, y + resultRect.y));
                 } else {
                     result.setRGB(x, y, magenta);

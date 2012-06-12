@@ -2,8 +2,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Random;
 import javax.imageio.ImageIO;
-import weka.attributeSelection.BestFirst;
-import weka.attributeSelection.CfsSubsetEval;
+import weka.attributeSelection.*;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.MultilayerPerceptron;
@@ -38,10 +37,14 @@ public class HelloWeka {
 	public static Instances attributeSelection(Instances data) throws Exception {
 		// select atributes
 		AttributeSelection filter = new AttributeSelection(); // package
-																// weka.filters.supervised.attribute!
-		CfsSubsetEval evall = new CfsSubsetEval();
-		BestFirst search = new BestFirst();
-		search.setDirection(new SelectedTag(2, BestFirst.TAGS_SELECTION));
+                												// weka.filters.supervised.attribute!
+//		CfsSubsetEval evall = new CfsSubsetEval();
+                SVMAttributeEval evall = new SVMAttributeEval();
+                evall.setPercentThreshold(60);
+//		BestFirst search = new BestFirst();
+                Ranker search = new Ranker();
+//		search.setDirection(new SelectedTag(2, BestFirst.TAGS_SELECTION));
+                search.setNumToSelect(128);
 		filter.setEvaluator(evall);
 		filter.setSearch(search);
 
@@ -54,8 +57,8 @@ public class HelloWeka {
 		Instances ret = null;
 		// Declare the class attribute along with its values
 		FastVector fvClassVal = new FastVector(3);
-		fvClassVal.addElement("positive0"); //zakaz
-		fvClassVal.addElement("positive1"); //odwo�anie ograniczenia
+		fvClassVal.addElement("positive"); //zakaz
+//		fvClassVal.addElement("positive1"); //odwo�anie ograniczenia
 		fvClassVal.addElement("negative"); //ka�dy inny
 		Attribute ClassAttribute = new Attribute("theClass", fvClassVal);
 
@@ -84,10 +87,11 @@ public class HelloWeka {
 					}
 				}
 				
-				if (files[i].getName().contains("ozakaz")) //
-					ince.setValue((Attribute) vec.elementAt(val), "positive1");
-				else if (files[i].getName().contains("zakaz")) //
-					ince.setValue((Attribute) vec.elementAt(val), "positive0");
+//				if (files[i].getName().contains("ozakaz")) //
+//					ince.setValue((Attribute) vec.elementAt(val), "positive1");
+//				else
+                                    if (files[i].getName().contains("zakaz")) //
+					ince.setValue((Attribute) vec.elementAt(val), "positive");
 				else
 					ince.setValue((Attribute) vec.elementAt(val), "negative");
 
