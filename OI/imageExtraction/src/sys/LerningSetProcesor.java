@@ -30,14 +30,12 @@ public class LerningSetProcesor extends Thread {
 
     private List<ViewPanel> panels;
     private String folder;
-    private String positiveFolder;
-    private String negativeFolder;
+    private File dir;
 
-    public LerningSetProcesor(List<ViewPanel> panels, String folder, String positiveFolder, String negativeFolder) {
+    public LerningSetProcesor(List<ViewPanel> panels, String folder,File dir) {
         this.panels = panels;
         this.folder = folder;
-        this.negativeFolder = negativeFolder;
-        this.positiveFolder = positiveFolder;
+        this.dir = dir;
     }
 
     @Override
@@ -92,6 +90,7 @@ public class LerningSetProcesor extends Thread {
 
                 panel.setProcessName("Zapisywanie");
                 int progressValue = (int) (50f / panel.regions.size());
+                int imageCount = 0;
                 if (panel.regions != null && !panel.regions.isEmpty()) {
                     
                     if (panel.tags != null && !panel.tags.isEmpty()) {
@@ -103,26 +102,25 @@ public class LerningSetProcesor extends Thread {
                                     test = true;
                                     break;
                                 }
-
                             }
-                            File file = new File(negativeFolder + "image" + count + ".png");
+                            File file = new File(dir + "/image-" + count + ".png");
                             if (test) {
-                                file = new File(positiveFolder + "-zakaz-" + count + ".png");
+                                file = new File(dir + "/zakaz-" + count + ".png");
                             }
                             try {
-                                ImageIO.write(sw.getSubImageFit(region), "png", file);
+                                ImageIO.write(sw.getSubImageFit(filter.imageRegions.get(imageCount)), "png", file);
                                 count++;
+                                imageCount++;
                             } catch (IOException ex) {
                                 Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
                             }
                             
                         }
                     } else {
-                        List<BufferedImage> images = sw.getSubImagesFit(panel.regions);
-                        for (BufferedImage minImage : images) {
-                            File file = new File(negativeFolder + "image" + count + ".png");
+                        for (BufferedImage minImage : filter.imageRegions) {
+                            File file = new File(dir + "/image-" + count + ".png");
                             try {
-                                ImageIO.write(minImage, "png", file);
+                                ImageIO.write(sw.getSubImageFit(minImage), "png", file);
                                 count++;
                             } catch (IOException ex) {
                                 Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);

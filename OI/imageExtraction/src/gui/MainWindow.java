@@ -39,6 +39,7 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
     File wekaModel;
     File tmpDir;
     Thread processor;
+    File learningDir;
 
     /**
      * Creates new form MainWindow
@@ -90,7 +91,6 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
         wekaModelLabel = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         startButton = new javax.swing.JButton();
-        startLerningTestButton = new javax.swing.JButton();
         gridPanel = new javax.swing.JPanel();
         Green = new javax.swing.JLabel();
         Regions = new javax.swing.JLabel();
@@ -103,6 +103,10 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
         tmpPanel = new javax.swing.JPanel();
         setTmpButton = new javax.swing.JButton();
         tmplLabel = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        startLerningTestButton = new javax.swing.JButton();
+        learningDirButton = new javax.swing.JButton();
+        learningLabel = new javax.swing.JLabel();
 
         openFileChooser.setCurrentDirectory(new java.io.File("E:\\Politechnika\\stopien_II\\Obliczenia_inteligentne"));
         openFileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
@@ -210,13 +214,6 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
             }
         });
 
-        startLerningTestButton.setText("Build lerning set");
-        startLerningTestButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                startLerningTestButtonActionPerformed(evt);
-            }
-        });
-
         gridPanel.setLayout(new java.awt.GridLayout(3, 2));
 
         Green.setText("Green:");
@@ -244,25 +241,20 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jFileChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(startButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(gridPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jFileChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(startLerningTestButton)
-                .addContainerGap())
+                        .addGap(33, 33, 33)
+                        .addComponent(gridPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(123, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addComponent(startLerningTestButton)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(startButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(gridPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(112, 112, 112)
                 .addComponent(jFileChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -297,6 +289,52 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
             .addComponent(setTmpButton)
         );
 
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Learning set"));
+
+        startLerningTestButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/start.gif"))); // NOI18N
+        startLerningTestButton.setText("Build");
+        startLerningTestButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startLerningTestButtonActionPerformed(evt);
+            }
+        });
+
+        learningDirButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/open_dir.png"))); // NOI18N
+        learningDirButton.setText("Set folder");
+        learningDirButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                learningDirButtonActionPerformed(evt);
+            }
+        });
+
+        learningLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        learningLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(startLerningTestButton)
+                .addGap(18, 18, 18)
+                .addComponent(learningDirButton, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                    .addContainerGap(219, Short.MAX_VALUE)
+                    .addComponent(learningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 486, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap()))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(startLerningTestButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(learningDirButton))
+            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(learningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -308,7 +346,8 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
                     .addComponent(networkPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(tmpPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(folderPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 727, Short.MAX_VALUE)
-                    .addComponent(jScrollPane))
+                    .addComponent(jScrollPane)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -321,10 +360,12 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tmpPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
+                .addComponent(jScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 330, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -359,8 +400,10 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
 
     private void startLerningTestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startLerningTestButtonActionPerformed
 
-        LerningSetProcesor lerningSetProcesor = new LerningSetProcesor(panels, this.folderNameLabel.getText(), "D:/positive/", "D:/negative/");
+        if(learningDir!=null){
+        LerningSetProcesor lerningSetProcesor = new LerningSetProcesor(panels, this.folderNameLabel.getText(), learningDir);
         lerningSetProcesor.start();
+        }
     }//GEN-LAST:event_startLerningTestButtonActionPerformed
 
     private void loadFolderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFolderButtonActionPerformed
@@ -414,6 +457,16 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
        
     }//GEN-LAST:event_setTmpButtonActionPerformed
 
+    private void learningDirButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_learningDirButtonActionPerformed
+        int returnVal = this.openFileChooser3.showDialog(this, "Open file");
+
+        //Process the results.
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            learningDir = this.openFileChooser3.getSelectedFile();
+            this.learningLabel.setText(learningDir.getAbsolutePath());
+        }
+    }//GEN-LAST:event_learningDirButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Found;
     private javax.swing.JLabel Green;
@@ -429,7 +482,10 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane;
+    private javax.swing.JButton learningDirButton;
+    private javax.swing.JLabel learningLabel;
     private javax.swing.JButton loadFolderButton;
     private javax.swing.JButton loadWekaButton;
     private javax.swing.JPanel networkPanel;

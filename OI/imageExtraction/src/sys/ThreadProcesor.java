@@ -31,7 +31,7 @@ public class ThreadProcesor extends Thread {
     private File wekaModel;
     private File tmpDir;
 
-    public ThreadProcesor(List<ViewPanel> panels, String folder, File wekaModel,File tmpDir) {
+    public ThreadProcesor(List<ViewPanel> panels, String folder, File wekaModel, File tmpDir) {
         this.panels = panels;
         this.folder = folder;
         this.wekaModel = wekaModel;
@@ -47,7 +47,7 @@ public class ThreadProcesor extends Thread {
             for (ViewPanel panel : panels) {
                 panel.Clear();
                 panel.Start();
-                
+
                 panel.setProcessName("Ładowanie zdjęcia");
                 File imageFile = new File(folder + File.separator + panel.image);
 
@@ -57,7 +57,7 @@ public class ThreadProcesor extends Thread {
                 }
                 try {
                     image = ImageIO.read(imageFile);
-                    if(!panel.imageSet){
+                    if (!panel.imageSet) {
                         panel.SetImage(SignWrapper.resize(image, 64, 64));
                     }
                     sw = new SignWrapper(image);
@@ -67,7 +67,7 @@ public class ThreadProcesor extends Thread {
                     break;
                 }
                 panel.addProgress(10);
-                if (xmlFile != null && panel.tags==null) {
+                if (xmlFile != null && panel.tags == null) {
                     try {
                         panel.setProcessName("Ładowanie tagów");
                         sw.setXmlFile(new FileInputStream(xmlFile.getAbsolutePath()));
@@ -78,67 +78,81 @@ public class ThreadProcesor extends Thread {
                     }
                 }
                 panel.addProgress(10);
-                if(panel.regions==null){
+                if (panel.regions == null) {
                     panel.setProcessName("Tworzenie regionów");
                     panel.setRegions(filter.processImage(image));
                     if (panel.tags != null) {
                         panel.setRegionsResult(SignWrapper.isTheSame(panel.tags, panel.regions));
                     }
-                }
-                else{
+                } else {
                     panel.sendInfo();
                 }
                 panel.addProgress(30);
-                if(wekaModel!=null){
-                Classifier classify = null;
-                int[] features = null;
-                try {
-
-                    classify = (Classifier) SerializationHelper.read(wekaModel.getAbsolutePath());
-                    String baseFileName = wekaModel.getName().split("\\.")[0];
-                    ObjectInputStream oi = new ObjectInputStream(new BufferedInputStream(new FileInputStream(wekaModel.getAbsolutePath().substring(0, wekaModel.getAbsolutePath().lastIndexOf(File.separator) + 1) + baseFileName + ".features")));
-                    features = (int[]) oi.readObject();
-                    oi.close();
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    break;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    break;
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                    break;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    break;
-                }
-                panel.setProcessName("Klasyfikacja");
-                List<Rectangle> found = new ArrayList<Rectangle>();
-                int progressValue = (int) (50f / panel.regions.size());
-                Instances testData = createInstances(sw.getSubImagesFit(panel.regions), features);
-                if (testData != null) {
+                if (wekaModel != null) {
+                    Classifier classify = null;
+                    int[] features = null;
                     try {
-                        //Instances labeled = new Instances(testData);
-                        // label instances
-                        for (int i = 0; i < testData.numInstances(); i++) {
-                            double clsLabel = classify.classifyInstance(testData.instance(i));
-                            //labeled.instance(i).setClassValue(clsLabel);
-                            if (clsLabel != 2) {
-                                found.add(panel.regions.get(i));
+
+                        classify = (Classifier) SerializationHelper.read(wekaModel.getAbsolutePath());
+                        String baseFileName = wekaModel.getName().split("\\.")[0];
+                        ObjectInputStream oi = new ObjectInputStream(new BufferedInputStream(new FileInputStream(wekaModel.getAbsolutePath().substring(0, wekaModel.getAbsolutePath().lastIndexOf(File.separator) + 1) + baseFileName + ".features")));
+                        features = (int[]) oi.readObject();
+                        oi.close();
+
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        break;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        break;
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                        break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        break;
+                    }
+                    panel.setProcessName("Klasyfikacja");
+                    List<Rectangle> tmpFound = new ArrayList<Rectangle>();
+                    int progressValue = (int) (50f / panel.regions.size());
+                    Instances testData = createInstances(filter.imageRegions, features);
+                    if (testData != null) {
+                        try {
+                            //Instances labeled = new Instances(testData);
+                            // label instances
+                            for (int i = 0; i < testData.numInstances(); i++) {
+                                double clsLabel = classify.classifyInstance(testData.instance(i));
+                                //labeled.instance(i).setClassValue(clsLabel);
+                                if (clsLabel != 2) {
+                                    tmpFound.add(panel.regions.get(i));
+                                }
+                                panel.addProgress(progressValue);
                             }
-                            panel.addProgress(progressValue);
+                        } catch (Exception ex) {
+                            Logger.getLogger(ThreadProcesor.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                    } catch (Exception ex) {
-                        Logger.getLogger(ThreadProcesor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    List<Rectangle> found = new ArrayList<Rectangle>();
+                    if (!tmpFound.isEmpty()) {
+                        found.add(tmpFound.get(0));
+                    }
+                    for (int i = 1; i < tmpFound.size(); i++) {
+                        boolean test = true;
+                        for (int j = 1; j < found.size(); j++) {
+                            if (sw.isTheSame(tmpFound.get(i), found.get(j))) {
+                                test = false;
+                                break;
+                            }
+                        }
+                        if (test) {
+                            found.add(tmpFound.get(i));
+                        }
+                    }
+                    panel.setFound(found);
+                    if (panel.tags != null) {
+                        panel.setFoundResult(SignWrapper.isTheSame(panel.tags, panel.found));
                     }
                 }
-                panel.setFound(found);
-                if (panel.tags != null) {
-                    panel.setFoundResult(SignWrapper.isTheSame(panel.tags, panel.found));
-                }
-                }
-
                 panel.End();
             }
         }

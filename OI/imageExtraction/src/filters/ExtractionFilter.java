@@ -240,6 +240,16 @@ public class ExtractionFilter {
                         g.drawOval(c.x() - s.width() / 2, c.y() - s.height() / 2, s.width(), s.height());
                         Rectangle resultSmallRect = getOptimalRegion(rectangle.x + c.x() - s.width() / 2, rectangle.y + c.y() - s.height() / 2, s.width(), s.height());
                         Rectangle resultRect = getBiggerRegion(rectangle.x + c.x() - s.width() / 2, rectangle.y + c.y() - s.height() / 2, s.width(), s.height());
+                        boolean test = false;
+                        for(Rectangle rect : result){
+                            if(isTheSame(rect, resultRect)){
+                                test = true;
+                                break;
+                            }         
+                        }
+                        if(test){
+                            continue;
+                        }
                         result.add(resultRect);
                         BufferedImage imageRegion = produceImageRegion(new Ellipse2D.Double(rectangle.x + c.x() - s.width() / 2, rectangle.y + c.y() - s.height() / 2, s.width(), s.height()), resultSmallRect);
                         if (tmpDir != null) {
@@ -272,6 +282,26 @@ public class ExtractionFilter {
             }
         }
         return result;
+    }
+    
+    public static boolean isTheSame(Rectangle first, Rectangle second) {
+        if (first.intersects(second)) {
+            double firstArea = first.height * first.width;
+            double secondArea = second.height * second.width;
+            double maxArea = Math.max(firstArea, secondArea);
+            double minArea = Math.min(firstArea, secondArea);
+            double result = minArea/maxArea;
+            if(result>0.5 &&result<1.3){
+                Rectangle rect = first.intersection(second);
+                double rectArea = rect.height * rect.width;
+                double distance = Point.distance(first.getCenterX(), first.getCenterY(), second.getCenterX(), second.getCenterY());
+                double  maxRectArea = Math.max(rectArea/firstArea, rectArea/secondArea);
+                if (distance<first.height/0.5 && maxRectArea>0.6) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     public List<Rectangle> processImage(BufferedImage input) {

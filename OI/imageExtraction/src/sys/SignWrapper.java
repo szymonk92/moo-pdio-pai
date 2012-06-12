@@ -24,7 +24,7 @@ public class SignWrapper {
     Document con;
     XPath xpath;
     BufferedImage img;
-
+private static int subImageSize = 30;
     public SignWrapper(BufferedImage image) {
         img = image;
 
@@ -91,14 +91,21 @@ public class SignWrapper {
         List<BufferedImage> result = new ArrayList<BufferedImage>();
         if (img != null) {
             for (Rectangle rect : rectangles) {
-                result.add(resize(img.getSubimage(rect.x, rect.y, rect.width, rect.height), 30,30));
+                result.add(resize(img.getSubimage(rect.x, rect.y, rect.width, rect.height), subImageSize,subImageSize));
             }
         }
         return result;
     }
      public BufferedImage getSubImageFit(Rectangle rect) {
         if (img != null) {
-                return resize(img.getSubimage(rect.x, rect.y, rect.width, rect.height), 30,30);
+                return resize(img.getSubimage(rect.x, rect.y, rect.width, rect.height), subImageSize,subImageSize);
+        }
+        return null;
+    }
+     
+      public BufferedImage getSubImageFit(BufferedImage image) {
+        if (image != null) {
+                return resize(image, 30,30);
         }
         return null;
     }
