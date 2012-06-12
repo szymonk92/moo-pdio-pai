@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -32,7 +33,7 @@ public class LerningSetProcesor extends Thread {
     private String folder;
     private File dir;
 
-    public LerningSetProcesor(List<ViewPanel> panels, String folder,File dir) {
+    public LerningSetProcesor(List<ViewPanel> panels, String folder, File dir) {
         this.panels = panels;
         this.folder = folder;
         this.dir = dir;
@@ -45,6 +46,7 @@ public class LerningSetProcesor extends Thread {
             BufferedImage image;
             SignWrapper sw;
             int count = 0;
+            Random rand = new Random();
             for (ViewPanel panel : panels) {
 
                 panel.Start();
@@ -92,9 +94,9 @@ public class LerningSetProcesor extends Thread {
                 int progressValue = (int) (50f / panel.regions.size());
                 int imageCount = 0;
                 if (panel.regions != null && !panel.regions.isEmpty()) {
-                    
+
                     if (panel.tags != null && !panel.tags.isEmpty()) {
-                        
+
                         for (Rectangle region : panel.regions) {
                             boolean test = false;
                             for (Rectangle tag : panel.tags) {
@@ -114,7 +116,7 @@ public class LerningSetProcesor extends Thread {
                             } catch (IOException ex) {
                                 Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                            
+
                         }
                     } else {
                         for (BufferedImage minImage : filter.imageRegions) {
@@ -125,8 +127,65 @@ public class LerningSetProcesor extends Thread {
                             } catch (IOException ex) {
                                 Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                            
+
                         }
+                    }
+
+                    for (int i = 0; i < 10; i++) {
+                        int x = rand.nextInt(filter.inImage.getWidth());
+                        int y = rand.nextInt(filter.inImage.getHeight());
+                        int width = 25 + rand.nextInt(80);
+                        boolean test = false;
+                        Rectangle region;
+                        do {
+                            region = filter.getOptimalRegion(x, y, width, width);
+                            if (panel.tags != null && !panel.tags.isEmpty()) {
+
+                                for (Rectangle tag : panel.tags) {
+                                    if (SignWrapper.isTheSame(region, tag)) {
+                                        test = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        } while (test);
+                        File file = new File(dir + "/image-" + count + ".png");
+
+                        try {
+                            ImageIO.write(sw.getSubImageFit(filter.produceImageRegion(region, filter.EqualizeImage)), "png", file);
+                            count++;
+                        } catch (IOException ex) {
+                            Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+                    }
+                    for (int i = 0; i < 10; i++) {
+                        int x = rand.nextInt(filter.inImage.getWidth());
+                        int y = rand.nextInt(filter.inImage.getHeight());
+                        int width = 25 + rand.nextInt(80);
+                        boolean test = false;
+                        Rectangle region;
+                        do {
+                            region = filter.getOptimalRegion(x, y, width, width);
+                            if (panel.tags != null && !panel.tags.isEmpty()) {
+
+                                for (Rectangle tag : panel.tags) {
+                                    if (SignWrapper.isTheSame(region, tag)) {
+                                        test = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        } while (test);
+                        File file = new File(dir + "/image-" + count + ".png");
+
+                        try {
+                            ImageIO.write(sw.getSubImageFit(filter.produceImageRegion(region, filter.inImage)), "png", file);
+                            count++;
+                        } catch (IOException ex) {
+                            Logger.getLogger(ExtractionFilter.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
                     }
                 }
                 panel.End();

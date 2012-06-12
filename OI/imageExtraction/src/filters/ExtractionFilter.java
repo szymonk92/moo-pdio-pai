@@ -37,7 +37,7 @@ public class ExtractionFilter {
     private static int magenta = RGBHelper.fastToPixel(255, 0, 255);
     private static int white = RGBHelper.fastToPixel(255, 255, 255);
     private static int medianFilterSize = 3;
-    private BufferedImage inImage;
+    public BufferedImage inImage;
     private int inImageWidth;
     private int inImageHeight;
     private int inImageMin;
@@ -345,7 +345,7 @@ public class ExtractionFilter {
         return new Rectangle(rectX, rectY, rectWidth, rectHeight);
     }
 
-    private Rectangle getOptimalRegion(int x, int y, int width, int height) {
+    public Rectangle getOptimalRegion(int x, int y, int width, int height) {
         int rectWidth = Math.min(Math.max(x + width, 0), this.inImageWidth) - x;
         int rectHeight = Math.min(Math.max(y + height, 0), this.inImageHeight) - y;
         int rectX = Math.min(Math.max(x, 0), this.inImageWidth);
@@ -375,6 +375,20 @@ public class ExtractionFilter {
             for (int x = 0; x < resultRect.width; x++) {
                 if (elipse.contains(x + resultRect.x, y + resultRect.y)) {
                     result.setRGB(x, y, this.EqualizeImage.getRGB(x + resultRect.x, y + resultRect.y));//colorReplacer(x + resultRect.x, y + resultRect.y));
+                } else {
+                    result.setRGB(x, y, magenta);
+                }
+            }
+        }
+        return result;
+    }
+    public BufferedImage produceImageRegion(Rectangle resultRect, BufferedImage image) {
+        Ellipse2D.Double elipse = new Ellipse2D.Double(resultRect.x, resultRect.y , resultRect.getWidth(), resultRect.getHeight());
+        BufferedImage result = new BufferedImage(resultRect.width, resultRect.height, BufferedImage.TYPE_3BYTE_BGR);
+        for (int y = 0; y < resultRect.height; y++) {
+            for (int x = 0; x < resultRect.width; x++) {
+                if (elipse.contains(x + resultRect.x, y + resultRect.y)) {
+                    result.setRGB(x, y,image.getRGB(x + resultRect.x, y + resultRect.y));//colorReplacer(x + resultRect.x, y + resultRect.y));
                 } else {
                     result.setRGB(x, y, magenta);
                 }

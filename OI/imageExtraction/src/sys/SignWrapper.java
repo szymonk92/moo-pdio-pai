@@ -105,7 +105,7 @@ private static int subImageSize = 30;
      
       public static BufferedImage getSubImageFit(BufferedImage image) {
         if (image != null) {
-                return resize(image, 30,30);
+                return resize(image,subImageSize,subImageSize);
         }
         return null;
     }
