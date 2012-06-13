@@ -140,4 +140,6 @@
   <string name="paymentAbort">odrzucono</string>
   <string name="errInputFormat">zły format danych</string>
   <string name="errNetwork">brak połączenia</string>
+  <string name="chequeDialogAmount">kwota</string>
+  <string name="chequeDialogDesc">opis</string>
 </resources>

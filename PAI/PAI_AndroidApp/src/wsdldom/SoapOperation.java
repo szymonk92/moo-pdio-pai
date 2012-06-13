@@ -11,6 +11,7 @@ import org.kxml2.kdom.Element;
 import org.xmlpull.v1.XmlPullParserException;
 
 import pai.androidapp.AppGlobalVariables;
+import android.util.Log;
 import android.widget.TextView;
 
 public class SoapOperation {
@@ -73,13 +74,13 @@ public class SoapOperation {
 		if (e == null)
 			return null;
 		parent = new SoapObject(ns, e.getName());
-		System.out.println(e.getName());
+		Log.i("SoapOperation.print",e.getName());
 		for (int i = 0; i < e.getChildCount(); ++i) {
 			if (!e.isText(i)) {
 				Element el = (Element) e.getChild(i);
 				if (el.getChildCount() == 1) {
 					parent.addProperty(el.getName(), el.getText(0));
-					System.out.println("<<" + el.getName() + "<<"
+					Log.i("SoapOperation.print","<<" + el.getName() + "<<"
 							+ el.getText(0));
 				} else {
 					
@@ -116,7 +117,7 @@ public class SoapOperation {
 
 		o.setRequestHeader(authHeader);
 		w.printDom(o.getRequestBody(), 0, null);
-		System.out.println(o.getRequestBody().getChildCount()+" "+opInArgs.length);
+		Log.i("SoapOperation.op",o.getRequestBody().getChildCount()+" "+opInArgs.length);
 		for (int i = 0; i < opInArgs.length; ++i) {
 			w.setElemenTextContext(o.getRequestBody(), i, opInArgs[i]);
 		}
@@ -124,7 +125,7 @@ public class SoapOperation {
 		SoapObject request = null;
 		request = SoapOperation.convertBody2SoapObject(o, NAMESPACE);
 
-		System.out.println(request.toString());
+		Log.i("SoapOperation.op",request.toString());
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
 				SoapEnvelope.VER11);
 		envelope.dotNet = true;
@@ -148,6 +149,7 @@ public class SoapOperation {
 
 				SoapObject result = (SoapObject) envelope.bodyIn;
 				response=result.toString();
+				ret = new String[result.getPropertyCount()];
 				for( int i=0; i< result.getPropertyCount(); ++i) {
 					ret[i]=result.getPropertyAsString(i);
 //				for (int i = 0; i < opOutArgs.length; ++i) {

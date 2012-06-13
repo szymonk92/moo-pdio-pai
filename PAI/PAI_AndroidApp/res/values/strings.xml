@@ -142,5 +142,7 @@
   <string name="paymentAbout">aborte</string>
   <string name="errInputFormat">bad input format</string>
   <string name="errNetwork">no connection</string>
+  <string name="chequeDialogAmount">amount</string>
+  <string name="chequeDialogDesc">description</string>
 
 </resources>

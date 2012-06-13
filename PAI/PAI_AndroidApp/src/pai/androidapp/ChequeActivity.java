@@ -2,6 +2,9 @@ package pai.androidapp;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import wsdldom.SoapOperation;
 import android.app.Activity;
@@ -10,24 +13,37 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
 public class ChequeActivity extends Activity {
 
 	int amount;
 	AlertDialog.Builder alert;
+	AlertDialog mAlertDialog;
 	 ChequeActivity mThis;
 	Dialog amountAsk;
 	Dialog chequeView;
 	TextView log;
 	TextView responseResult;
+	
+	
+	String description;
 	String chequeID;
+	String date;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,20 +74,91 @@ public class ChequeActivity extends Activity {
 
 			public void onClick(View arg0) {
 
-				String[] response = SoapOperation.op(
+
+				ListView mListview = new ListView(mThis);
+				mListview.setOnItemClickListener(new OnItemClickListener() {
+
+					public void onItemClick(AdapterView<?> arg0, View view,
+							int arg2, long arg3) {
+						// Do what you want on List Item Click
+						TextView mTextView;
+						mTextView = (TextView) view;
+						String txtstr;
+						txtstr = mTextView.getText().toString();
+						
+						String[] data = txtstr.split(";");
+						
+						////TODO!!!!!!!!!!!!!!!!!!
+						////!!!!!!!!!!!!!!!
+						chequeID = data[0].split("=")[1]; //ID
+						description = data[3].split("=")[1]; //Description
+						date = data[6].split("=")[1]; //Date
+						try {
+						amount = Integer.parseInt(data[4].split("=")[1]); //Amount
+						}catch (NumberFormatException e) {
+							Log.i("PaymentActivity.this",""+data[4].split("=")[1]);
+							amount = Integer.parseInt(data[4].split("=")[1].split("\\.")[0]); //Amount
+						}
+						
+						log.setText(chequeID+"\namount:"+
+						amount+"\ndescription:"+description+"\n");
+						
+						mAlertDialog.cancel();
+						
+						
+						checkViewer("recipientName:"+AppGlobalVariables.getInstance().username+"\ndescription:"+description+"\namount:"+amount);
+						}
+				});
+				
+				
+
+				String[] paymentsList = SoapOperation.op(
 						AppGlobalVariables.getInstance().wsdl,
 						AppGlobalVariables.getInstance().authHeader,
-						"ViewCheque", new String[] { chequeID },
-						new String[] { "Amount" }, responseResult);
-
-				// TODO print result in log
+						"GetAvailableCheques",
+						new String[] {}, new String[] {}
+						, responseResult);
+				
+			
+				
+				if ( paymentsList.length < 1) {
+					Toast.makeText(ChequeActivity.this, "pusto", 1).show();
+					return;
+				}
+				
 				String ret = new String();
-				for (int i = 0; i < response.length; ++i) {
-					ret += response[i] + "\n";
+				for (int i = 0; i < paymentsList.length; ++i) {
+					ret += paymentsList[i] + "\n";
 				}
 				responseResult.setText(responseResult.getText() + "\n" + ret);
+				
+				
+				paymentsList=  (paymentsList[0].replace("GetAvailableChequesResult=", "")
+						.replace("Cheque=", "\n")
+						.replace("{", "").replace("}", "").replace("anyType", "")).split("\n");
+				
+				
+				Log.i("PaymentActivity.this",""+paymentsList.length);
+//				paymentsList[0].replace("PaymentTemplate=", "\n").replace("{", "").replace("}", "").replace("anyType", "");
+				
 
-				checkViewer(chequeID);
+				ArrayAdapter adapter = new ArrayAdapter<String>(
+						ChequeActivity.this, R.layout.simplelist_item_text,
+						paymentsList);
+				mListview.setAdapter(adapter);
+				WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+				AlertDialog.Builder mBuider = new AlertDialog.Builder(
+						ChequeActivity.this);
+				
+				mBuider.setView(mListview);
+				mAlertDialog = mBuider.create();
+				mAlertDialog.show();
+
+				lp.copyFrom(mAlertDialog.getWindow().getAttributes());
+				
+				
+				
+
 			}
 
 		});
@@ -79,11 +166,21 @@ public class ChequeActivity extends Activity {
 		commit.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View arg0) {
+				
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+				Date d = null;
+				try {
+					d =  sdf.parse(date);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+					
 
 				String[] response = SoapOperation.op(
 						AppGlobalVariables.getInstance().wsdl,
 						AppGlobalVariables.getInstance().authHeader,
-						"AcceptCheque", new String[] { chequeID },
+						"CashCheque", new String[] { chequeID, ""+d.getSeconds() },
 						new String[] { "AcceptChequeResult" }, responseResult);
 
 				String ret = new String();
@@ -101,29 +198,42 @@ public class ChequeActivity extends Activity {
 
 		alert = new AlertDialog.Builder(this);
 
-		alert.setTitle("Amount");
-		alert.setMessage("input amount");
 		alert.setCancelable(true);
 		// Set an EditText view to get user input
-		final EditText input = new EditText(this);
-		alert.setView(input);
+		
+		final LinearLayout linl = new LinearLayout(this);
+		linl.setOrientation(1);
+		final TextView tva = new TextView(this);
+		tva.setText(R.string.chequeDialogAmount);
+		final TextView tvd = new TextView(this);
+		tvd.setText(R.string.chequeDialogDesc);
+		final EditText inputa = new EditText(this);
+		final EditText inputd = new EditText(this);
+		linl.addView(tva); 
+		linl.addView(inputa);
+		linl.addView(tvd);
+		linl.addView(inputd);
+		
+		alert.setView(linl);
 
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				String value = input.getText().toString();
+				String value = inputa.getText().toString();
+				description = inputd.getText().toString();
 				try {
 				amount = Integer.parseInt(value);
-				log.setText("name:"
-						+ AppGlobalVariables.getInstance().getUsername() + "\n"
+				
+				log.setText("desc:"
+						+ description + "\n"
 						+ "amount:" + amount + "\n");
 
 				String[] response = SoapOperation.op(
 						AppGlobalVariables.getInstance().wsdl,
 						AppGlobalVariables.getInstance().authHeader,
-						"MakeCheque",
+						"GenerateCheque",
 						// TODO update when query will be changed
 						new String[] {
-								AppGlobalVariables.getInstance().username,
+								description,
 								Integer.toString(amount) },
 						new String[] { "MakeChequeResult" }, responseResult);
 				String ret = new String();
@@ -147,6 +257,10 @@ public class ChequeActivity extends Activity {
 					}
 				});
 
+		
+		
+		
+		
 		amountAsk = alert.create();
 
 	}
