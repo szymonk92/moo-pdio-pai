@@ -1,16 +1,7 @@
-POID/
-PAI/
-MOO/
 *class
 *.prefs
-<<<<<<< HEAD
-=======
-*.pdf
 *.log
 *.aux
 *.bbl
 *.blg
 *.gz
->>>>>>> a3c0d6d701020ff755c3157346e7fb9672bb581d
-/OI/imageExtraction/build/
-/OI/imageExtraction/dist/
