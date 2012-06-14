@@ -63,7 +63,7 @@ public class PlotWave {
 		XYSeries[] soundWave = new XYSeries[signal.length];
 		for(int j=0; j<signal.length; ++j) {
 			soundWave[j]= new XYSeries("sygnal"+j);
-			for( int i=0; i<signal[0].length; ++i) {
+			for( int i=0; i<signal[j].length; ++i) {
 				soundWave[j].add(i,signal[j][i]);
 			}
 		}

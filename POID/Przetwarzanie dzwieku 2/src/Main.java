@@ -1,5 +1,6 @@
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
@@ -8,8 +9,10 @@ import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 public class Main {
 	
 	static int mFs, mFrameSize, mOverlap,
-	mTriFilterNum=20,
-	mMfccNum=12;
+	mTriFilterNum=40,
+	mMfccNum=20;
+	static double hammingNormalize;
+	
 	
 	
 	public static void main(String[] args) {
@@ -33,27 +36,53 @@ public class Main {
 		
 		double[] signal = readWavFile(input);
 		
-		mFrameSize = (int) (20.0*mFs/1000);
-		mOverlap = (int) (17.5*mFs/1000);
+		if (signal.length%256 > 0 ) {
+			int p=0;
+			while( signal.length> (256*p++));
+			p--;
+			signal = Arrays.copyOfRange(signal, 0, 256*p);
+		}
+		
+		mFrameSize = (int) 512/*(20.0*mFs/1000)*/;
+		mOverlap = (int) 256/*(17.5*mFs/1000)*/;
 		
 		
 		
 		double[][] frames = buffer2(signal);
 		double[][] mfcc = new double[frames.length][mMfccNum];
+		double[][] mfcc2 = null;
+		
+		MFCC mfcc_2 = new MFCC(mFs);
 		
 		
 		System.out.println("mFrameSize:"+mFrameSize+"\nmOverlap:"+mOverlap+"\nframes"+frames.length);
 		
 		PlotWave pwv = new PlotWave();
 		
+		try {
+			mfcc2=mfcc_2.process(signal);
+		} catch (IllegalArgumentException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
 		for( int i=0; i<frames.length; ++i) {
 			mfcc[i]= frame2mfcc(frames[i]);
-			pwv.plot(new double[][]{mfcc[i]}, "mfcc"+i, mFs);
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			
+
+		}
+		
+		for( int i=0; i<frames.length; ++i) {
+			
+//		pwv.plot(new double[][]{mfcc[i]}, "mfcc"+i, mFs);
+//		delay(60);
+		pwv.plot(new double[][]{mfcc2[i],mfcc[i]}, "mfcc"+i, mFs);
+		delay(100);
+		
 		}
 		
 	}
@@ -70,15 +99,18 @@ public class Main {
 		
 		ssignal = Arrays.copyOfRange(ssignal, 0, ssignal.length/2); 
 		
+		for( int i=0; i<ssignal.length; ++i){
+			ssignal[i]/=hammingNormalize*2;
+		}
 		double[] mag = Complex.getAbs(Complex.floatComplex2Complex(ssignal));
 		
 		double powerDb[] = new double[mag.length];
 		
-		for( int i=0; i<mag.length; ++i){
-			powerDb[i]=20.0d*Math.log(mag[i]+1.0d);
-		}
+//		for( int i=0; i<mag.length; ++i){
+//			powerDb[i]=20.0*Math.log(mag[i]+1.0d);
+//		}
 	
-		return powerDb;
+		return mag;
 	}
 	
 	public static double lin2melFreq(double linFreq) {
@@ -147,7 +179,7 @@ public class Main {
 		
 		double fftPowerDb[] = fft(frame);
 		double[][] triFilterBank = getTriFilterBank();
-		
+		double log10 = 10 * (1 / Math.log(10));
 		double[] tbfCoef = new double[mTriFilterNum];
 		
 		for( int i=0; i<mTriFilterNum; ++i) {
@@ -156,8 +188,13 @@ public class Main {
 			for( int j=0; j<fftPowerDb.length; ++j) {
 				dot+=fftPowerDb[j]*cof[j];
 			}
-			tbfCoef[i]=dot;
+			
+			dot = dot < 1.0 ? 1.0: dot;
+			dot=Math.log(dot+1.0);
+//			dot*=log10;
+			tbfCoef[i]=-dot;
 		}
+			
 		
 		//DCT
 		for( int n=1; n<=mMfccNum; ++n) {
@@ -183,9 +220,10 @@ public class Main {
         double arg = twopi / ((double) frameSize - 1.0);
 
         Complex[] csignal = new Complex[ frameSize];
-
+        hammingNormalize=0;
         for (int i = 0; i < frameSize; ++i) {
             x[i] =  x[i] * ((1.0-a) - a * Math.cos(arg * (double) i));
+            hammingNormalize+=((1.0-a) - a * Math.cos(arg * (double) i));
         }
 	}
 	
@@ -285,4 +323,14 @@ public class Main {
 		return ret;
 	}
 	
+	
+	
+	public static void delay(int ms) {
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
 }
