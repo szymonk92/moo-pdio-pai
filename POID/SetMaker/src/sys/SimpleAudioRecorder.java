@@ -42,7 +42,7 @@ public class SimpleAudioRecorder extends Thread {
     public void stopRecording() {
         recording = false;
         m_line.stop();
-        m_line.close();
+        //m_line.close();
     }
 
     @Override

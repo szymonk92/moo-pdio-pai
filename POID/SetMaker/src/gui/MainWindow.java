@@ -12,6 +12,8 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sound.sampled.*;
 import javax.swing.JFileChooser;
 import sys.Messages;
@@ -32,13 +34,23 @@ public class MainWindow extends javax.swing.JFrame {
     SecureRandom random = new SecureRandom();
     int currentWord;
     boolean keyAvaible;
+    TargetDataLine targetDataLine;
+    AudioFormat audioFormat;
+    DataLine.Info info;
 
     /**
      * Creates new form MainWindow
      */
     public MainWindow() {
         initComponents();
-
+        audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 2, 4, 44100.0F, false);
+        info = new DataLine.Info(TargetDataLine.class, audioFormat);
+        try {
+            targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
+            targetDataLine.open(audioFormat);
+        } catch (LineUnavailableException e) {
+            Messages.error("Błąd: " + e.getMessage());
+        }
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
 
             @Override
@@ -51,6 +63,11 @@ public class MainWindow extends javax.swing.JFrame {
                 if (keyCode == KeyEvent.VK_SPACE) {
                     if (!spaceBarPressed && id == KeyEvent.KEY_PRESSED) {
                         spaceBarPressed = true;
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         recordedFiles.add(recordFile());
                         recorder.start();
                         recordInd.setEnabled(true);
@@ -77,13 +94,22 @@ public class MainWindow extends javax.swing.JFrame {
         currentWord = 0;
         setButtons();
         this.keyAvaible = true;
+        this.recordLabel.setEnabled(true);
+    }
+
+    public void restart() {
+        recordedFiles = new ArrayList<File>();
+        currentWord = 0;
+        setButtons();
+        this.keyAvaible = true;
+        this.recordLabel.setEnabled(true);
     }
 
     public void setButtons() {
         this.wordLabel.setText(wordSet.get(currentWord));
         this.recordInd.setEnabled(false);
         this.wordLabel.setEnabled(true);
-        this.nextButton.setEnabled(recordedFiles.size() > currentWord + 1);
+        this.nextButton.setEnabled(recordedFiles.size() > currentWord);
         this.previousButton.setEnabled(currentWord != 0);
         this.playButton.setEnabled(recordedFiles.size() > currentWord);
         this.newSetButton.setEnabled(recordedFiles.size() == wordSet.size());
@@ -96,7 +122,7 @@ public class MainWindow extends javax.swing.JFrame {
         this.newSetButton.setEnabled(recordedFiles.size() == wordSet.size());
     }
 
-    public void NextWord() {
+    public void nextWord() {
         if (currentWord == wordSet.size() - 1) {
             return;
         }
@@ -104,7 +130,7 @@ public class MainWindow extends javax.swing.JFrame {
         setButtons();
     }
 
-    public void PreviousWord() {
+    public void previousWord() {
         if (currentWord == 0) {
             return;
         }
@@ -116,7 +142,6 @@ public class MainWindow extends javax.swing.JFrame {
     public void playSound(File soundFile) {
         int bufferSize = 128000;
         AudioInputStream audioStream;
-        AudioFormat audioFormat;
         SourceDataLine sourceLine;
         try {
             audioStream = AudioSystem.getAudioInputStream(soundFile);
@@ -124,10 +149,9 @@ public class MainWindow extends javax.swing.JFrame {
             Messages.error("Błąd: " + e.getMessage());
             return;
         }
-        audioFormat = audioStream.getFormat();
-        DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
+        DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioStream.getFormat());
         try {
-            sourceLine = (SourceDataLine) AudioSystem.getLine(info);
+            sourceLine = (SourceDataLine) AudioSystem.getLine(lineInfo);
             sourceLine.open(audioFormat);
         } catch (LineUnavailableException e) {
             Messages.error("Błąd: " + e.getMessage());
@@ -184,6 +208,9 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private File recordFile() {
+        if (targetDataLine == null) {
+            return null;
+        }
         File savedir = new File(dir.getAbsolutePath() + File.separator + wordSet.get(currentWord));
         savedir.mkdir();
         File outputFile = null;
@@ -194,18 +221,12 @@ public class MainWindow extends javax.swing.JFrame {
                 outputFile = new File(dir.getAbsolutePath() + File.separator + wordSet.get(currentWord) + File.separator + "record" + randomFileName() + ".wav");
             } while (outputFile.exists());
         }
-        AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 2, 4, 44100.0F, false);
-        DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
-        TargetDataLine targetDataLine;
         try {
-            targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
             targetDataLine.open(audioFormat);
-        } catch (LineUnavailableException e) {
-            Messages.error("Błąd: " + e.getMessage());
-            return null;
+        } catch (LineUnavailableException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
-        AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
-        recorder = new SimpleAudioRecorder(targetDataLine, targetType, outputFile);
+        recorder = new SimpleAudioRecorder(targetDataLine, AudioFileFormat.Type.WAVE, outputFile);
         return outputFile;
     }
 
@@ -230,7 +251,7 @@ public class MainWindow extends javax.swing.JFrame {
         nextButton = new javax.swing.JButton();
         recordInd = new javax.swing.JLabel();
         newSetButton = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        recordLabel = new javax.swing.JLabel();
 
         openDirChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
@@ -321,8 +342,8 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        jLabel1.setText("Naciśnij i przytrzymaj Spacje aby nagrać...");
-        jLabel1.setEnabled(false);
+        recordLabel.setText("Naciśnij i przytrzymaj Spacje aby nagrać...");
+        recordLabel.setEnabled(false);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -336,7 +357,7 @@ public class MainWindow extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addComponent(recordInd)
                         .addGap(82, 82, 82))
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(recordLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addGap(18, 18, 18)
                 .addComponent(newSetButton)
                 .addContainerGap())
@@ -353,7 +374,7 @@ public class MainWindow extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addComponent(recordInd)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel1))
+                        .addComponent(recordLabel))
                     .addComponent(newSetButton, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
         );
@@ -396,18 +417,17 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_playButtonActionPerformed
 
     private void nextButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextButtonActionPerformed
-        NextWord();
+        nextWord();
     }//GEN-LAST:event_nextButtonActionPerformed
 
     private void previousButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previousButtonActionPerformed
-        PreviousWord();
+        previousWord();
     }//GEN-LAST:event_previousButtonActionPerformed
 
     private void newSetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newSetButtonActionPerformed
-        setUp();
+        restart();
     }//GEN-LAST:event_newSetButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -418,6 +438,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton playButton;
     private javax.swing.JButton previousButton;
     private javax.swing.JLabel recordInd;
+    private javax.swing.JLabel recordLabel;
     private javax.swing.JButton saveDirButton;
     private javax.swing.JLabel wordLabel;
     // End of variables declaration//GEN-END:variables

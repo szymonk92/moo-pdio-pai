@@ -132,7 +132,7 @@
                           <Component id="recordInd" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="82" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="recordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="newSetButton" min="-2" max="-2" attributes="0"/>
@@ -152,7 +152,7 @@
                       <Group type="102" alignment="1" attributes="0">
                           <Component id="recordInd" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                          <Component id="recordLabel" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="newSetButton" alignment="1" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -238,7 +238,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="newSetButtonActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel1">
+        <Component class="javax.swing.JLabel" name="recordLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Naci&#x15b;nij i przytrzymaj Spacje aby nagra&#x107;..."/>
             <Property name="enabled" type="boolean" value="false"/>
