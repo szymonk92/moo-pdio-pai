@@ -10,7 +10,6 @@ public class Messages {
     
     public static void fatalError(String msg) {
         JOptionPane.showMessageDialog(null, msg, "Błąd", JOptionPane.INFORMATION_MESSAGE);
-        System.out.println("Program sie zakonczyl.");
         System.exit(-1);
     }
 

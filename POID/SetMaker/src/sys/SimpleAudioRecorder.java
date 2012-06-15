@@ -42,15 +42,14 @@ public class SimpleAudioRecorder extends Thread {
     public void stopRecording() {
         recording = false;
         m_line.stop();
-        //m_line.close();
     }
 
     @Override
     public void run() {
         try {
             AudioSystem.write(m_audioInputStream, m_targetType, m_outputFile);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Messages.info(ex.getMessage());
         }
     }
 }

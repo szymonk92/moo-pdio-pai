@@ -12,12 +12,11 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.sampled.*;
 import javax.swing.JFileChooser;
 import sys.Messages;
 import sys.SimpleAudioRecorder;
+import sys.WavCorrection;
 
 /**
  *
@@ -37,12 +36,14 @@ public class MainWindow extends javax.swing.JFrame {
     TargetDataLine targetDataLine;
     AudioFormat audioFormat;
     DataLine.Info info;
+    WavCorrection corrector;
 
     /**
      * Creates new form MainWindow
      */
     public MainWindow() {
         initComponents();
+        corrector = new WavCorrection();
         audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 2, 4, 44100.0F, false);
         info = new DataLine.Info(TargetDataLine.class, audioFormat);
         try {
@@ -62,15 +63,13 @@ public class MainWindow extends javax.swing.JFrame {
                 int id = e.getID();
                 if (keyCode == KeyEvent.VK_SPACE) {
                     if (!spaceBarPressed && id == KeyEvent.KEY_PRESSED) {
-                        spaceBarPressed = true;
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                        recorder = recordFile();
+                        if (recorder != null) {
+                            spaceBarPressed = true;
+                            recorder.start();
+                            delay(150);
+                            recordInd.setEnabled(true);
                         }
-                        recordedFiles.add(recordFile());
-                        recorder.start();
-                        recordInd.setEnabled(true);
                     }
                     if (spaceBarPressed && id == KeyEvent.KEY_RELEASED) {
                         spaceBarPressed = false;
@@ -78,6 +77,8 @@ public class MainWindow extends javax.swing.JFrame {
                             recorder.stopRecording();
                         }
                         recordInd.setEnabled(false);
+                        delay(150);
+                        corrector.rewriteWaveFile(recordedFiles.get(currentWord));
                         setButtonsRecorded();
                     }
                     return true;
@@ -88,6 +89,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     public void setUp() {
+        this.pathLabel.setText(dir.getAbsolutePath());
         this.jPanel2.setEnabled(true);
         loadWordSet();
         recordedFiles = new ArrayList<File>();
@@ -111,8 +113,8 @@ public class MainWindow extends javax.swing.JFrame {
         this.wordLabel.setEnabled(true);
         this.nextButton.setEnabled(recordedFiles.size() > currentWord);
         this.previousButton.setEnabled(currentWord != 0);
-        this.playButton.setEnabled(recordedFiles.size() > currentWord);
-        this.newSetButton.setEnabled(recordedFiles.size() == wordSet.size());
+        this.playButton.setEnabled(!recordedFiles.isEmpty() && recordedFiles.size() > currentWord);
+        this.newSetButton.setEnabled(!recordedFiles.isEmpty() && recordedFiles.size() == wordSet.size());
     }
 
     public void setButtonsRecorded() {
@@ -139,46 +141,21 @@ public class MainWindow extends javax.swing.JFrame {
         setButtons();
     }
 
-    public void playSound(File soundFile) {
-        int bufferSize = 128000;
-        AudioInputStream audioStream;
-        SourceDataLine sourceLine;
-        try {
-            audioStream = AudioSystem.getAudioInputStream(soundFile);
-        } catch (Exception e) {
-            Messages.error("Błąd: " + e.getMessage());
-            return;
-        }
-        DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioStream.getFormat());
-        try {
-            sourceLine = (SourceDataLine) AudioSystem.getLine(lineInfo);
-            sourceLine.open(audioFormat);
-        } catch (LineUnavailableException e) {
-            Messages.error("Błąd: " + e.getMessage());
-            return;
-        } catch (Exception e) {
-            Messages.error("Błąd: " + e.getMessage());
-            return;
-        }
+    public void playSound(final File soundFile) {
+        new Thread(new Runnable() {
 
-        sourceLine.start();
-
-        int nBytesRead = 0;
-        byte[] abData = new byte[bufferSize];
-        while (nBytesRead != -1) {
-            try {
-                nBytesRead = audioStream.read(abData, 0, abData.length);
-            } catch (IOException e) {
-                Messages.error("Błąd: " + e.getMessage());
-                return;
+            @Override
+            public void run() {
+                try {
+                    Clip clip = AudioSystem.getClip();
+                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(soundFile.getAbsoluteFile());
+                    clip.open(inputStream);
+                    clip.start();
+                } catch (Exception e) {
+                    Messages.error(e.getMessage());
+                }
             }
-            if (nBytesRead >= 0) {
-                sourceLine.write(abData, 0, nBytesRead);
-            }
-        }
-
-        sourceLine.drain();
-        sourceLine.close();
+        }).start();
     }
 
     private void loadWordSet() {
@@ -198,8 +175,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
             in.close();
         } catch (Exception e) {
-            Messages.error("Błąd: " + e.getMessage());
-            System.exit(-1);
+            Messages.fatalError("Błąd: " + e.getMessage());
         }
     }
 
@@ -207,27 +183,35 @@ public class MainWindow extends javax.swing.JFrame {
         return new BigInteger(130, random).toString(16);
     }
 
-    private File recordFile() {
+    private SimpleAudioRecorder recordFile() {
         if (targetDataLine == null) {
             return null;
         }
         File savedir = new File(dir.getAbsolutePath() + File.separator + wordSet.get(currentWord));
         savedir.mkdir();
         File outputFile = null;
-        if (recordedFiles.size() > currentWord) {
+        if (!recordedFiles.isEmpty() && recordedFiles.size() > currentWord) {
             outputFile = recordedFiles.get(currentWord);
         } else {
             do {
                 outputFile = new File(dir.getAbsolutePath() + File.separator + wordSet.get(currentWord) + File.separator + "record" + randomFileName() + ".wav");
             } while (outputFile.exists());
+            recordedFiles.add(outputFile);
         }
         try {
             targetDataLine.open(audioFormat);
         } catch (LineUnavailableException ex) {
-            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            Messages.info(ex.getMessage());
         }
-        recorder = new SimpleAudioRecorder(targetDataLine, AudioFileFormat.Type.WAVE, outputFile);
-        return outputFile;
+        return new SimpleAudioRecorder(targetDataLine, AudioFileFormat.Type.WAVE, outputFile);
+    }
+
+    public static void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ex) {
+            Messages.error(ex.getMessage());
+        }
     }
 
     /**
@@ -407,7 +391,6 @@ public class MainWindow extends javax.swing.JFrame {
         int returnVal = this.openDirChooser.showDialog(this, "Save path");
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             dir = this.openDirChooser.getSelectedFile();
-            this.pathLabel.setText(dir.getAbsolutePath());
             setUp();
         }
     }//GEN-LAST:event_saveDirButtonActionPerformed
