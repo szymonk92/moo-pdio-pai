@@ -17,17 +17,23 @@ public class MFCC {
     int mFs;
     int mFrameSize;
     int mOverlap;
-    static int mTriFilterNum = 20;
-    static int mMfccNum = 12;
+    static int mTriFilterNum = 40;
+    static int mMfccNum = 20;
+    double hammingNormalize;
     WavFile wavFile;
 
     public double[][] compute(File input) {
         double[] signal = readWavFile(input);
-        
         mFs = (int) wavFile.getSampleRate();
-        mFrameSize = (int) (20.0 * mFs / 1000);
-        mOverlap = (int) (17.5 * mFs / 1000);
-        if(mFrameSize<=mOverlap ||signal.length<=mOverlap){
+        if (signal.length % 256 > 0) {
+            int p = 0;
+            while (signal.length > (256 * p++));
+            p--;
+            signal = Arrays.copyOfRange(signal, 0, 256 * p);
+        }
+        mFrameSize = (int) 512;
+        mOverlap = (int) 256;
+        if (mFrameSize <= mOverlap || signal.length <= mOverlap) {
             return null;
         }
         double[][] frames = buffer(signal);
@@ -38,7 +44,7 @@ public class MFCC {
         return mfcc;
     }
 
-    public  double[][] buffer(double[] signal) {
+    public double[][] buffer(double[] signal) {
         int step = mFrameSize - mOverlap;
         int frameCount = (int) ((double) (signal.length - mOverlap) / (double) (step));
         double[][] frames = new double[frameCount][mFrameSize];
@@ -54,7 +60,7 @@ public class MFCC {
         return frames;
     }
 
-    public static double[] fft(double[] signal) {
+    public double[] fft(double[] signal) {
         double[] ssignal = new double[signal.length * 2];
         for (int i = 0; i < signal.length; ++i) {
             ssignal[i] = signal[i];
@@ -64,14 +70,13 @@ public class MFCC {
 
         ssignal = Arrays.copyOfRange(ssignal, 0, ssignal.length / 2);
 
+        for (int i = 0; i < ssignal.length; ++i) {
+            ssignal[i] /= hammingNormalize * 2;
+        }
+
         double[] mag = Complex.getAbs(Complex.floatComplex2Complex(ssignal));
 
-        double powerDb[] = new double[mag.length];
-
-        for (int i = 0; i < mag.length; ++i) {
-            powerDb[i] = 20.0d * Math.log(mag[i] + 1.0d);
-        }
-        return powerDb;
+        return mag;
     }
 
     public static double lin2melFreq(double linFreq) {
@@ -97,7 +102,7 @@ public class MFCC {
         return freq;
     }
 
-    public  double[] trimf(double[] freq, double[][] filter, int k) {
+    public double[] trimf(double[] freq, double[][] filter, int k) {
         double[] ret = new double[freq.length];
         double a, b, c, x;
         for (int i = 0; i < freq.length; ++i) {
@@ -117,7 +122,7 @@ public class MFCC {
         return ret;
     }
 
-    public  double[] frame2mfcc(double[] frame) {
+    public double[] frame2mfcc(double[] frame) {
         double[] mfcc = new double[mMfccNum];
         int frameSize = frame.length;
 
@@ -131,7 +136,6 @@ public class MFCC {
 
         double fftPowerDb[] = fft(frame);
         double[][] triFilterBank = getTriFilterBank();
-
         double[] tbfCoef = new double[mTriFilterNum];
 
         for (int i = 0; i < mTriFilterNum; ++i) {
@@ -140,7 +144,10 @@ public class MFCC {
             for (int j = 0; j < fftPowerDb.length; ++j) {
                 dot += fftPowerDb[j] * cof[j];
             }
-            tbfCoef[i] = dot;
+
+            dot = dot < 1.0 ? 1.0 : dot;
+            dot = Math.log(dot + 1.0);
+            tbfCoef[i] = -dot;
         }
 
         //DCT
@@ -158,18 +165,19 @@ public class MFCC {
         return 700.0d * (Math.pow(10.0d, arg / 2595.0d) - 1.0d);
     }
 
-    public static void hammingWindow(double[] x, int frameSize) {
+    public void hammingWindow(double[] x, int frameSize) {
         double twopi = 8.0 * Math.atan(1.0);
         final double a = 0.46;
 
         double arg = twopi / ((double) frameSize - 1.0);
-
+        hammingNormalize = 0;
         for (int i = 0; i < frameSize; ++i) {
             x[i] = x[i] * ((1.0 - a) - a * Math.cos(arg * (double) i));
+            hammingNormalize += ((1.0 - a) - a * Math.cos(arg * (double) i));
         }
     }
 
-    public  double[] readWavFile(File f) {
+    public double[] readWavFile(File f) {
         double[] ret = null;
         try {
             wavFile = WavFile.openWavFile(f);

@@ -34,6 +34,10 @@ public class MainWindow extends javax.swing.JFrame {
     boolean keyAvaible;
     File tmpFile;
     Recognizer recognizer;
+    TargetDataLine targetDataLine;
+    AudioFormat audioFormat;
+    DataLine.Info info;
+    WavCorrection corrector;
 
     /**
      * Creates new form MainWindow
@@ -47,7 +51,15 @@ public class MainWindow extends javax.swing.JFrame {
         } catch (IOException ex) {
             Messages.fatalError("Nie można utworzyć pliku tymczasowego. " + ex.getMessage());
         }
-
+        corrector = new WavCorrection();
+        audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 2, 4, 44100.0F, false);
+        info = new DataLine.Info(TargetDataLine.class, audioFormat);
+        try {
+            targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
+            targetDataLine.open(audioFormat);
+        } catch (LineUnavailableException e) {
+            Messages.error("Błąd: " + e.getMessage());
+        }
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
 
             @Override
@@ -59,25 +71,22 @@ public class MainWindow extends javax.swing.JFrame {
                 int id = e.getID();
                 if (keyCode == KeyEvent.VK_SPACE) {
                     if (!spaceBarPressed && id == KeyEvent.KEY_PRESSED) {
-                        spaceBarPressed = true;
-                        recordFile();
-                        recorder.start();
-                        recordInd.setEnabled(true);
+                        recorder = recordFile();
+                        if (recorder != null) {
+                            spaceBarPressed = true;
+                            recorder.start();
+                            delay(150);
+                            recordInd.setEnabled(true);
+                        }
                     }
                     if (spaceBarPressed && id == KeyEvent.KEY_RELEASED) {
-                        recordInd.setEnabled(false);
                         spaceBarPressed = false;
                         if (recorder.recording) {
                             recorder.stopRecording();
                         }
-                        try {
-                            do {
-                                Thread.sleep(50);
-                            } while (recorder.recording);
-                        } catch (InterruptedException ex) {
-
-                            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                        recordInd.setEnabled(false);
+                        delay(150);
+                        corrector.rewriteWaveFile(tmpFile);
                         wordLabel.setText(recognizer.recognize(tmpFile).word);
                         playButton.setEnabled(true);
                     }
@@ -86,6 +95,15 @@ public class MainWindow extends javax.swing.JFrame {
                 return false;
             }
         });
+
+    }
+
+    public static void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ex) {
+            Messages.error(ex.getMessage());
+        }
     }
 
     public void setUp() {
@@ -116,67 +134,33 @@ public class MainWindow extends javax.swing.JFrame {
         setButtons();
     }
 
-    public void playSound(File soundFile) {
-        int bufferSize = 128000;
-        AudioInputStream audioStream;
-        AudioFormat audioFormat;
-        SourceDataLine sourceLine;
-        try {
-            audioStream = AudioSystem.getAudioInputStream(soundFile);
-        } catch (Exception e) {
-            Messages.error("Błąd: " + e.getMessage());
-            return;
-        }
-        audioFormat = audioStream.getFormat();
-        DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-        try {
-            sourceLine = (SourceDataLine) AudioSystem.getLine(info);
-            sourceLine.open(audioFormat);
-        } catch (LineUnavailableException e) {
-            Messages.error("Błąd: " + e.getMessage());
-            return;
-        } catch (Exception e) {
-            Messages.error("Błąd: " + e.getMessage());
-            return;
-        }
+    public void playSound(final File soundFile) {
+        new Thread(new Runnable() {
 
-        sourceLine.start();
-
-        int nBytesRead = 0;
-        byte[] abData = new byte[bufferSize];
-        while (nBytesRead != -1) {
-            try {
-                nBytesRead = audioStream.read(abData, 0, abData.length);
-            } catch (IOException e) {
-                Messages.error("Błąd: " + e.getMessage());
-                return;
+            @Override
+            public void run() {
+                try {
+                    Clip clip = AudioSystem.getClip();
+                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(soundFile.getAbsoluteFile());
+                    clip.open(inputStream);
+                    clip.start();
+                } catch (Exception e) {
+                    Messages.error(e.getMessage());
+                }
             }
-            if (nBytesRead >= 0) {
-                sourceLine.write(abData, 0, nBytesRead);
-            }
-        }
-
-        sourceLine.drain();
-        sourceLine.close();
+        }).start();
     }
 
-    public String randomFileName() {
-        return new BigInteger(130, random).toString(16);
-    }
-
-    private void recordFile() {
-        AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 2, 4, 44100.0F, false);
-        DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
-        TargetDataLine targetDataLine;
+    private SimpleAudioRecorder recordFile() {
+        if (targetDataLine == null) {
+            return null;
+        }
         try {
-            targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
             targetDataLine.open(audioFormat);
-        } catch (LineUnavailableException e) {
-            Messages.error("Błąd: " + e.getMessage());
-            return;
+        } catch (LineUnavailableException ex) {
+            Messages.info(ex.getMessage());
         }
-        AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
-        recorder = new SimpleAudioRecorder(targetDataLine, targetType, tmpFile);
+        return new SimpleAudioRecorder(targetDataLine, AudioFileFormat.Type.WAVE, tmpFile);
     }
 
     public List<ClassFile> processDir(File input) {

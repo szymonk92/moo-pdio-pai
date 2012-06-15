@@ -41,7 +41,6 @@ public class SimpleAudioRecorder extends Thread {
 
     public void stopRecording() {
         m_line.stop();
-        m_line.close();
         recording = false;
     }
 
