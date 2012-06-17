@@ -6,6 +6,7 @@ package sys;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -14,41 +15,43 @@ import java.util.List;
  */
 public class Recognizer {
 
-    public List<Word> words;
+    public List<DTWMatch> matchList;
+    private DTWMatchComparator DTWMatchComparator;
     public DTW dtw;
     public MFCC mfcc;
 
-    public List<Word> getWords() {
-        return words;
-    }
-
-    public void setWords(List<Word> words) {
-        this.words = words;
-    }
-
     public Recognizer() {
-        words = new ArrayList<Word>();
+        DTWMatchComparator = new DTWMatchComparator();
+        matchList = new ArrayList<DTWMatch>();
         dtw = new DTW();
         mfcc = new MFCC();
     }
 
-    public Word recognize(File input) {
+    public List<Word> getWords() {
+        List<Word> result = new ArrayList<Word>();
+        for (DTWMatch match : matchList) {
+            result.add(match.getWord());
+        }
+        return result;
+    }
+
+    public void setWords(List<Word> words) {
+        matchList = new ArrayList<DTWMatch>();
+        for (Word word : words) {
+            matchList.add(new DTWMatch(word));
+        }
+    }
+
+    public DTWMatch recognize(File input) {
         double[][] unknown = mfcc.compute(input);
         if (unknown == null) {
-            return new Word();
+            return null;
         }
-        List<Double> distance = new ArrayList<Double>();
-        for (Word word : words) {
-            distance.add(dtw.compute(unknown, word.mcff));
+        dtw.setUnknown(unknown);
+        for (DTWMatch match : matchList) {
+            dtw.compute(match);
         }
-        int index = 0;
-        double min = Double.MAX_VALUE;
-        for (int i = 0; i < distance.size(); i++) {
-            if (distance.get(i) < min) {
-                min = distance.get(i);
-                index = i;
-            }
-        }
-        return words.get(index);
+        Collections.sort(matchList, DTWMatchComparator);
+        return matchList.get(0);
     }
 }

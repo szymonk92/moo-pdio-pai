@@ -4,18 +4,15 @@
  */
 package gui;
 
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.sampled.*;
 import javax.swing.JFileChooser;
+import javax.swing.JPanel;
 import sys.*;
 
 /**
@@ -24,6 +21,7 @@ import sys.*;
  */
 public class MainWindow extends javax.swing.JFrame {
 
+    public JPanel columnpanel;
     List<String> wordSet;
     SimpleAudioRecorder recorder;
     File recordedFile;
@@ -44,6 +42,13 @@ public class MainWindow extends javax.swing.JFrame {
      */
     public MainWindow() {
         initComponents();
+        JPanel borderlaoutpanel = new JPanel();
+        this.jScrollPane.setViewportView(borderlaoutpanel);
+        borderlaoutpanel.setLayout(new BorderLayout(0, 0));
+        columnpanel = new JPanel();
+        borderlaoutpanel.add(columnpanel, BorderLayout.NORTH);
+        columnpanel.setLayout(new GridLayout(0, 1, 0, 1));
+        columnpanel.setBackground(Color.gray);
         recognizer = new Recognizer();
         try {
             tmpFile = File.createTempFile("record", ".wav");
@@ -87,7 +92,11 @@ public class MainWindow extends javax.swing.JFrame {
                         recordInd.setEnabled(false);
                         delay(150);
                         corrector.rewriteWaveFile(tmpFile);
-                        wordLabel.setText(recognizer.recognize(tmpFile).word);
+                        wordLabel.setText(recognizer.recognize(tmpFile).getWord().word);
+                         columnpanel.removeAll();
+          for(DTWMatch match : recognizer.matchList){
+           columnpanel.add(match.getView());
+          }
                         playButton.setEnabled(true);
                     }
                     return true;
@@ -198,17 +207,16 @@ public class MainWindow extends javax.swing.JFrame {
         recordInd = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         playButton = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jScrollPane = new javax.swing.JScrollPane();
 
         openDirChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Tworzenie zbioru");
-        setMaximumSize(new java.awt.Dimension(520, 380));
-        setMinimumSize(new java.awt.Dimension(520, 380));
         setName("mainForm");
-        setPreferredSize(new java.awt.Dimension(520, 380));
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Ścieżka bazy"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Baza słów"));
 
         saveDirButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/open.png"))); // NOI18N
         saveDirButton.addActionListener(new java.awt.event.ActionListener() {
@@ -246,7 +254,7 @@ public class MainWindow extends javax.swing.JFrame {
                         .addComponent(computeButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(saveButton)
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addGap(0, 314, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -258,7 +266,7 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(computeButton)
                     .addComponent(saveButton))
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Rozpoznawanie"));
@@ -288,31 +296,37 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(wordLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(wordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(recordInd)
                 .addGap(18, 18, 18)
                 .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(165, 165, 165))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(129, 129, 129)
-                .addComponent(jLabel1)
-                .addContainerGap(128, Short.MAX_VALUE))
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel1))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(wordLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(recordInd, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(playButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addContainerGap())
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(wordLabel))
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(recordInd, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(playButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel1))
         );
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Porównania"));
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        jScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        jPanel3.add(jScrollPane, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -320,18 +334,21 @@ public class MainWindow extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -358,10 +375,10 @@ public class MainWindow extends javax.swing.JFrame {
                 try {
                     FileInputStream fis = new FileInputStream(file);
                     ObjectInputStream ois = new ObjectInputStream(fis);
-                    recognizer.words = (List<Word>) ois.readObject();
+                    recognizer.setWords((List<Word>) ois.readObject());
                     fis.close();
                     ois.close();
-                    if (recognizer.words != null) {
+                    if (recognizer.matchList != null) {
                         System.out.println("Wczytano!");
                     } else {
                         System.out.println("Wczytano null!");
@@ -381,22 +398,26 @@ public class MainWindow extends javax.swing.JFrame {
         if (!test) {
             List<ClassFile> files = processDir(dir);
             MFCC mfcc = new MFCC();
+            List<Word> words = new ArrayList<Word>();
             for (ClassFile file : files) {
-                recognizer.words.add(new Word(file.getClassName(), mfcc.compute(file.getFile())));
+                words.add(new Word(file.getClassName(), mfcc.compute(file.getFile())));
+                
             }
+            recognizer.setWords(words);
         }
+         
         setUp();
         this.keyAvaible = true;
     }//GEN-LAST:event_computeButtonActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
-        if (dir == null || recognizer.words.isEmpty()) {
+        if (dir == null || recognizer.matchList.isEmpty()) {
             return;
         }
         try {
             FileOutputStream fos = new FileOutputStream(dir + File.separator + "recognizer.words");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(recognizer.words);
+            oos.writeObject(recognizer.getWords());
             fos.close();
             oos.close();
         } catch (FileNotFoundException e) {
@@ -415,6 +436,8 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane;
     private javax.swing.JFileChooser openDirChooser;
     private javax.swing.JLabel pathLabel;
     private javax.swing.JButton playButton;
