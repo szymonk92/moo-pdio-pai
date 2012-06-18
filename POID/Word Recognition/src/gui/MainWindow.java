@@ -4,6 +4,10 @@
  */
 package gui;
 
+import dtw.DTWData;
+import dtw.DTWMatch;
+import dtw.ItakuraConstraints;
+import dtw.SakoeChibaContrsraints;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
@@ -50,6 +54,7 @@ public class MainWindow extends javax.swing.JFrame {
         columnpanel.setLayout(new GridLayout(0, 1, 0, 1));
         columnpanel.setBackground(Color.gray);
         recognizer = new Recognizer();
+        MatchPreview.setDistanceImageGenerator(recognizer.getDistanceImageGenerator());
         try {
             tmpFile = File.createTempFile("record", ".wav");
             tmpFile.deleteOnExit();
@@ -92,11 +97,16 @@ public class MainWindow extends javax.swing.JFrame {
                         recordInd.setEnabled(false);
                         delay(150);
                         corrector.rewriteWaveFile(tmpFile);
-                        wordLabel.setText(recognizer.recognize(tmpFile).getWord().word);
-                         columnpanel.removeAll();
-          for(DTWMatch match : recognizer.matchList){
-           columnpanel.add(match.getView());
-          }
+                        DTWMatch recognized = recognizer.recognize(tmpFile);
+                        if (recognized != null) {
+                            wordLabel.setText(recognized.getData().getWord());
+                        } else {
+                            wordLabel.setText("nie rozpoznano");
+                        }
+                        columnpanel.removeAll();
+                        for (DTWMatch match : recognizer.getMatchList()) {
+                            columnpanel.add(match.getView());
+                        }
                         playButton.setEnabled(true);
                     }
                     return true;
@@ -187,6 +197,24 @@ public class MainWindow extends javax.swing.JFrame {
         return result;
     }
 
+    private void refreshRecognized(){
+        if (recognizer.processed) {
+            DTWMatch recognized = recognizer.refresh();
+            if (recognized != null) {
+                wordLabel.setText(recognized.getData().getWord());
+            } else {
+                wordLabel.setText("nie rozpoznano");
+            }
+            columnpanel.removeAll();
+            for (DTWMatch match : recognizer.getMatchList()) {
+                columnpanel.add(match.getView());
+            }
+            for (DTWMatch match : recognizer.getMatchList()) {
+                match.getView().refershImage();
+            }
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -209,30 +237,49 @@ public class MainWindow extends javax.swing.JFrame {
         playButton = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane = new javax.swing.JScrollPane();
+        jPanel4 = new javax.swing.JPanel();
+        jComboBox1 = new javax.swing.JComboBox();
+        jLabel3 = new javax.swing.JLabel();
+        jCheckBox1 = new javax.swing.JCheckBox();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jTextField2 = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
 
         openDirChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Tworzenie zbioru");
+        setTitle("Rozpoznawanie słów");
+        setMaximumSize(new java.awt.Dimension(472, 567));
+        setMinimumSize(new java.awt.Dimension(472, 567));
         setName("mainForm");
+        setResizable(false);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Baza słów"));
 
         saveDirButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/open.png"))); // NOI18N
+        saveDirButton.setText("Wczytaj");
         saveDirButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveDirButtonActionPerformed(evt);
             }
         });
 
-        computeButton.setText("Compute");
+        computeButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/process.png"))); // NOI18N
+        computeButton.setText("Generuj/Ładuj");
+        computeButton.setActionCommand("Generuj/Ładuj");
+        computeButton.setEnabled(false);
         computeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 computeButtonActionPerformed(evt);
             }
         });
 
-        saveButton.setText("Save");
+        saveButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/save.png"))); // NOI18N
+        saveButton.setText("Zapisz");
+        saveButton.setEnabled(false);
         saveButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveButtonActionPerformed(evt);
@@ -245,27 +292,27 @@ public class MainWindow extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(saveDirButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(saveDirButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pathLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(pathLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(computeButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(saveButton)
-                        .addGap(0, 314, Short.MAX_VALUE))))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(saveDirButton)
-                    .addComponent(pathLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(computeButton)
-                    .addComponent(saveButton))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(pathLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(computeButton)
+                            .addComponent(saveButton)))
+                    .addComponent(saveDirButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -297,28 +344,32 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(wordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(recordInd)
-                .addGap(18, 18, 18)
-                .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel1))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addComponent(wordLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(recordInd)
+                        .addGap(31, 31, 31)
+                        .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addGap(15, 15, 15)
+                            .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(recordInd, javax.swing.GroupLayout.Alignment.TRAILING))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(wordLabel))
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(recordInd, javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(playButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel1))
+                        .addComponent(wordLabel)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addContainerGap())
         );
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Porównania"));
@@ -327,6 +378,80 @@ public class MainWindow extends javax.swing.JFrame {
         jScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         jPanel3.add(jScrollPane, java.awt.BorderLayout.CENTER);
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Ustawienia DTW"));
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Brak", "Itakura parallelogram", "Sakoe and Chiba" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("Globalne ograniczenia:");
+
+        jCheckBox1.setText("rysuj ograniczenia");
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
+
+        jPanel6.setLayout(new java.awt.GridLayout(2, 2));
+
+        jLabel2.setText("Wartość r:");
+        jPanel6.add(jLabel2);
+
+        jTextField1.setText("40");
+        jTextField1.setEnabled(false);
+        jPanel6.add(jTextField1);
+
+        jLabel4.setText("Próg:");
+        jPanel6.add(jLabel4);
+
+        jTextField2.setText("600");
+        jPanel6.add(jTextField2);
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/refresh.png"))); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel3)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jCheckBox1)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(268, 268, 268))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(12, Short.MAX_VALUE))
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jCheckBox1))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -337,7 +462,8 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -346,9 +472,11 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -360,7 +488,7 @@ public class MainWindow extends javax.swing.JFrame {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             dir = this.openDirChooser.getSelectedFile();
             this.pathLabel.setText(dir.getAbsolutePath());
-
+            this.computeButton.setEnabled(true);
         }
     }//GEN-LAST:event_saveDirButtonActionPerformed
 
@@ -375,10 +503,10 @@ public class MainWindow extends javax.swing.JFrame {
                 try {
                     FileInputStream fis = new FileInputStream(file);
                     ObjectInputStream ois = new ObjectInputStream(fis);
-                    recognizer.setWords((List<Word>) ois.readObject());
+                    recognizer.setWords((List<DTWData>) ois.readObject());
                     fis.close();
                     ois.close();
-                    if (recognizer.matchList != null) {
+                    if (recognizer.getMatchList() != null) {
                         System.out.println("Wczytano!");
                     } else {
                         System.out.println("Wczytano null!");
@@ -398,20 +526,21 @@ public class MainWindow extends javax.swing.JFrame {
         if (!test) {
             List<ClassFile> files = processDir(dir);
             MFCC mfcc = new MFCC();
-            List<Word> words = new ArrayList<Word>();
+            List<DTWData> words = new ArrayList<DTWData>();
             for (ClassFile file : files) {
-                words.add(new Word(file.getClassName(), mfcc.compute(file.getFile())));
-                
+                words.add(new DTWData(file.getClassName(), mfcc.compute(file.getFile()), file.getFile()));
+
             }
             recognizer.setWords(words);
         }
-         
+
         setUp();
         this.keyAvaible = true;
+        this.saveButton.setEnabled(true);
     }//GEN-LAST:event_computeButtonActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
-        if (dir == null || recognizer.matchList.isEmpty()) {
+        if (dir == null || recognizer.getMatchList().isEmpty()) {
             return;
         }
         try {
@@ -431,13 +560,76 @@ public class MainWindow extends javax.swing.JFrame {
     private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playButtonActionPerformed
         playSound(tmpFile);
     }//GEN-LAST:event_playButtonActionPerformed
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        int index = this.jComboBox1.getSelectedIndex();
+        switch (index) {
+            case 0:
+                this.jTextField1.setEnabled(false);
+                this.recognizer.getDtw().setGlobalConstraints(null);
+                break;
+            case 1:
+                this.jTextField1.setEnabled(false);
+                this.recognizer.getDtw().setGlobalConstraints(new ItakuraConstraints());
+                break;
+            case 2:
+                this.jTextField1.setEnabled(true);
+                int value = 20;
+                try {
+                    value = Integer.parseInt(this.jTextField1.getText());
+                } catch (Exception e) {
+                }
+                this.jTextField1.setText(String.valueOf(value));
+                this.recognizer.getDtw().setGlobalConstraints(new SakoeChibaContrsraints(value));
+                break;
+        }
+        refreshRecognized();
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        this.recognizer.getDistanceImageGenerator().setDrawGlobalContstraints(this.jCheckBox1.isSelected());
+        for (DTWMatch match : recognizer.getMatchList()) {
+            match.getView().refershImage();
+        }
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if (this.jTextField1.isEnabled()) {
+            int value = 20;
+            try {
+                value = Integer.parseInt(this.jTextField1.getText());
+            } catch (Exception e) {
+            }
+            this.jTextField1.setText(String.valueOf(value));
+            ((SakoeChibaContrsraints) this.recognizer.getDtw().getGlobalConstraints()).setR(value);
+ 
+        }
+        double value = 0;
+        try {
+            value = Double.parseDouble(this.jTextField2.getText());
+        } catch (Exception e) {
+        }
+        this.jTextField2.setText(String.valueOf(value));
+        this.recognizer.getDtw().setThresholdLevel(value);
+        refreshRecognized();
+    }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton computeButton;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane;
+    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField2;
     private javax.swing.JFileChooser openDirChooser;
     private javax.swing.JLabel pathLabel;
     private javax.swing.JButton playButton;

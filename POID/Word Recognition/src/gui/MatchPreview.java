@@ -4,8 +4,13 @@
  */
 package gui;
 
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
-import sys.DTWMatch;
+import dtw.DTWMatch;
+import dtw.DistanceImageGenerator;
 
 /**
  *
@@ -13,25 +18,48 @@ import sys.DTWMatch;
  */
 public class MatchPreview extends javax.swing.JPanel {
 
-    DTWMatch match;
-    DecimalFormat df = new DecimalFormat("#.##");
+    private static DecimalFormat df = new DecimalFormat("#.##");
+    private DTWMatch match;
+    private static DistanceImageGenerator distanceImageGenerator;
+
     /**
      * Creates new form MatchPreview
      */
     public MatchPreview(DTWMatch match) {
         initComponents();
         this.match = match;
-        this.wordLabel.setText(match.getWord().word);
+        this.wordLabel.setText(match.getData().getWord());
         this.distnaceLabel.setText("nieznana");
     }
 
-    public void Update() {
-        this.wordLabel.setText(match.getWord().word);
-        this.distnaceLabel.setText(df.format(match.getWarpingDistance()));
-        this.miniaturImagePanel1.setImage(DTWMatch.resize(match.getImage(),100,60));
-        this.localLimitsLabel.setText(match.isGlobalConstraints()?"tak":"nie");
+    public static DistanceImageGenerator getDistanceImageGenerator() {
+        return distanceImageGenerator;
     }
 
+    public static void setDistanceImageGenerator(DistanceImageGenerator distanceImageGenerator) {
+        MatchPreview.distanceImageGenerator = distanceImageGenerator;
+    }
+
+    public void setWord(String word) {
+        this.wordLabel.setText(word);
+    }
+
+    public void setDistance(double distace) {
+        this.distnaceLabel.setText(df.format(distace));
+    }
+
+    public void setMiniaturImage(BufferedImage image) {
+        this.miniaturImagePanel.setImage(resize(image, 100, 60));
+    }
+
+    public void setGlobalConstrains(boolean globalConstrains) {
+        this.globalConstraintsLabel.setText(globalConstrains ? "tak" : "nie");
+    }
+   public void refershImage() {
+       if (match.getImage() != null) {
+            distanceImageGenerator.generate(match);
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -43,48 +71,46 @@ public class MatchPreview extends javax.swing.JPanel {
 
         wordLabel = new javax.swing.JLabel();
         distnaceLabel = new javax.swing.JLabel();
-        miniaturImagePanel1 = new gui.ImagePanel();
-        localLimitsLabel = new javax.swing.JLabel();
+        miniaturImagePanel = new gui.ImagePanel();
+        globalConstraintsLabel = new javax.swing.JLabel();
 
         wordLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         wordLabel.setText("wordLabel");
 
         distnaceLabel.setText("distnaceLabel");
 
-        miniaturImagePanel1.setPreferredSize(new java.awt.Dimension(100, 60));
-        miniaturImagePanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+        miniaturImagePanel.setPreferredSize(new java.awt.Dimension(100, 60));
+        miniaturImagePanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                miniaturImagePanel1MouseClicked(evt);
+                miniaturImagePanelMouseClicked(evt);
             }
         });
 
-        javax.swing.GroupLayout miniaturImagePanel1Layout = new javax.swing.GroupLayout(miniaturImagePanel1);
-        miniaturImagePanel1.setLayout(miniaturImagePanel1Layout);
-        miniaturImagePanel1Layout.setHorizontalGroup(
-            miniaturImagePanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout miniaturImagePanelLayout = new javax.swing.GroupLayout(miniaturImagePanel);
+        miniaturImagePanel.setLayout(miniaturImagePanelLayout);
+        miniaturImagePanelLayout.setHorizontalGroup(
+            miniaturImagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 117, Short.MAX_VALUE)
         );
-        miniaturImagePanel1Layout.setVerticalGroup(
-            miniaturImagePanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        miniaturImagePanelLayout.setVerticalGroup(
+            miniaturImagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 60, Short.MAX_VALUE)
         );
-
-        localLimitsLabel.setText("localLimitsLabel");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(miniaturImagePanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(miniaturImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(wordLabel)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(distnaceLabel)
                         .addGap(51, 51, 51)
-                        .addComponent(localLimitsLabel)))
-                .addGap(0, 108, Short.MAX_VALUE))
+                        .addComponent(globalConstraintsLabel)))
+                .addGap(0, 180, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -94,23 +120,46 @@ public class MatchPreview extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(distnaceLabel)
-                    .addComponent(localLimitsLabel))
+                    .addComponent(globalConstraintsLabel))
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
-                .addComponent(miniaturImagePanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(miniaturImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void miniaturImagePanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_miniaturImagePanel1MouseClicked
-      DistanceImagePreviewWindow window =  new DistanceImagePreviewWindow(match.getImage());
-      window.setVisible(true);
-    }//GEN-LAST:event_miniaturImagePanel1MouseClicked
+    private void miniaturImagePanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_miniaturImagePanelMouseClicked
+        if (match.getImage() == null) {
+            distanceImageGenerator.generate(match);
+            return;
+        }
+        DistanceImagePreviewWindow window = new DistanceImagePreviewWindow(match.getImage());
+        window.setVisible(true);
+    }//GEN-LAST:event_miniaturImagePanelMouseClicked
+    public static BufferedImage resize(BufferedImage image, int width,
+            int height) {
+        if (image == null) {
+            return null;
+        }
+        int type = image.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : image.getType();
+        BufferedImage resizedImage = new BufferedImage(width, height, type);
+        Graphics2D g = resizedImage.createGraphics();
+        g.setComposite(AlphaComposite.Src);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
 
+        g.drawImage(image, 0, 0, width, height, null);
+        g.dispose();
+        return resizedImage;
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel distnaceLabel;
-    private javax.swing.JLabel localLimitsLabel;
-    private gui.ImagePanel miniaturImagePanel1;
+    private javax.swing.JLabel globalConstraintsLabel;
+    private gui.ImagePanel miniaturImagePanel;
     private javax.swing.JLabel wordLabel;
     // End of variables declaration//GEN-END:variables
 }

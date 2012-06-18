@@ -9,7 +9,7 @@ package main;
 import gui.MainWindow;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import sys.DTW;
+import dtw.DTW;
 
 /**
  *

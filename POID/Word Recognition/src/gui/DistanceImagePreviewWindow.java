@@ -5,7 +5,7 @@
 package gui;
 
 import java.awt.image.BufferedImage;
-import sys.DTWMatch;
+import dtw.DTWMatch;
 
 /**
  *
