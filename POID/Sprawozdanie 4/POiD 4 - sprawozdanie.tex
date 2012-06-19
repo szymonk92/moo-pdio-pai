@@ -170,11 +170,46 @@ Znaczenie poszczególnych parametrów funkcji \textit{check}:
 Dodatkowo w ramach zadania posłużyliśmy się algorytmem do usuwania ciszy przed i po wypowiedzianym słowie. Algorytm ten bazuje na pracy \cite{2} a jego implementacja pochodzi z \cite{3}. Mimo pozytywnych efektów jego niestety czasami pogarsza on rejestrowaną próbkę co utrudnia jej dopasowanie. Powód jego nieprawidłowej pracy mimo prób analizy nie został odkryty. Ze względu na to że pogorszenie występuje stosunkowo rzadko nie ma ono dużego wpływu na pracę całej aplikacji.
 
 \section{Wyniki}
+Przygotowana przez nas aplikacja ma posłużyć do rozpoznawania 10 izolowanych słów. Zgodnie przykładem w instrukcji wybraliśmy słowa reprezentujące cyfry i liczby poczynając od 1 na 10 kończąc. Próbki tworzące bazę sygnałów wzorcowych pochodzą od pięciu osób. Łącznie w bazie mieliśmy 60 nagrań równo podzielonych po 6 nagrań na każde słowo. Poniżej przedstawiamy kilka różnych prób rozpoznania dla tych słów z różnymi ograniczeniami. Obrazy reprezentują macierz zakumulowanej odległości, której wartości zostały przedstawione w postaci skali szarości. Jaśniejsze obszary reprezentują niższy koszt. Kolorem czerwonym została przedstawiona ścieżka optymalnego dopasowania natomiast kolorem zielonym obszar ograniczony przez przyjęte warunki globalne. Zgodnie z przyjętą w instrukcji do tego zadnia konwencją szerokość obrazu reprezentuje próbkę wzorcową a wysokość nową próbkę wejściową.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6cm]{dtw_jeden.PNG} 
+\caption{Próba dopasowania słowa ,,jeden''. Ograniczenie jedynie w postaci maksymalnego dystansu dopasowania $<600$. Rozpoznano poprawnie.}
+\label{fig:dtw_jeden}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6cm]{dtw_i_trzy.PNG} 
+\caption{Próba dopasowania słowa ,,trzy''. Ograniczenie w postaci maksymalnego dystansu dopasowania $<600$ oraz Itakura parallelogram. Rozpoznano poprawnie.}
+\label{fig:dtw_i_trzy}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6cm]{dtw_s_dwa.PNG} 
+\caption{Próba dopasowania słowa ,,dwa''. Ograniczenie w postaci maksymalnego dystansu dopasowania $<600$ oraz Sakoe and Chiba band. Rozpoznano poprawnie.}
+\label{fig:dtw_s_dwa}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=6cm]{dtw_i_cztery.PNG} 
+\caption{Próba dopasowania słowa ,,cztery''. Ograniczenie w postaci maksymalnego dystansu dopasowania $<600$ oraz Itakura parallelogram. Nie rozpoznano używając dodatkowo innego wzorca niż dla słowa ,,cztery''.}
+\label{fig:dtw_i_cztery}
+\end{figure}
 
 \section{Dyskusja}
 W metodzie DTW duże znaczenie ma postać dostarczonych współczynników MFCC. Logarytmowanie podczas obliczania tych współczynników ma na celu uwydatnienie małych różnic, co w efekcie pozwala na lepsze rezultaty w odróżnianiu poszczególnych dźwięków. Dodatkowo aby odzwierciedlić percepcje ludzką w procesie ,,dopasowywania'' używana jest skala melowa, będąca logarytmiczna skalą odpowiadająca charakterystyce percepcji ludzkiej. Dzięki temu obiektywny wynik metody rozpoznawania słów, teoretycznie powinien lepiej odpowiadać naszemu subiektywnemu odczuciu podobieństwa testowanych słów. Teoretycznie, ponieważ w praktyce zadanie rozpoznawania słów nie jest zadaniem trywialnym. Opracowana przez nas metoda osiąga zadowalające wyniki, jednak jak wspomniano na początku, obliczane współczynniki MFCC mają duży wpływ na rezultat metody. Możliwym wydaje się, zatem lepszy wynik przy lepszym dostosowaniu sposobu obliczania współczynników MFCC.
 
+W przypadku dopasowań przy użyciu algorytmu DTW można zauważyć, że radzi on sobie całkiem nieźle z dopasowaniem dwóch różnych sekwencji audio reprezentujących pojedyncze słowa. Jako, że w naszym zadaniu mieliśmy zaimplementować dodatkowo ograniczenia globalne Itakura parallelogram pokusiliśmy się dodatkowo o zastosowanie i porównanie również Sakoe and Chiba band. W trakcie licznych porównań dało się zaobserwować, że ograniczenia w postaci Sakoe and Chiba band spisują się znacznie lepiej niż Itakura parallelogram. Wynika to głównie z faktu, że optymalne ścieżki często nie mieszczą się w wąskich częściach rąba stanowiącego ograniczenia Itakura parallelogram. Może to wynikać z zaszumienia sygnału nagrywanego z mikrofonu lub też niedokładnego usuwania ciszy przed i po wypowiedzianym słowie. 
+
 \section{Wnioski}
+
+Algorytm DTW wykorzystujący współczynniki MFCC doskonale nadaje się do rozpoznawania dwóch różnych sekwencji różnych w czasie a w szczególności porównywania i dopasowywania izolowanych słów. Ze względu na swoją prostotę w implementacji oraz szybkość działania jest jednym z popularniejszych obok HMM algorytmów wykorzystywanych do tych celów. Jego podstawowa złożoność obliczeniowa wynosząca $O(N^2)$ może być sprowadzona nawet do $O(N)$. 
+
+W ramach naszego ćwiczenia udało się nam z powodzeniem wykorzystać do napisania aplikacji służącej do rozpoznawania izolowanych słów. Z wykorzystanych przez nas ograniczeń globalnych lepiej spisywały się te oparte o Sakoe and Chiba band, gdyż są mniej restrykcyjne od Itakura parallelogram jeśli chodzi o kształt ścieżki najlepszego dopasowania na jej początku i końcu. Stosując jednak ograniczenia Itakura parallelogram można poprawić pracę algorytmu przez dostarczenie większej ilości próbek każdego ze słów. Nasza baza była wystarczająca do przeprowadzania tego ćwiczenia ale jej powiększenie o nagrania liczniejszej grupy osób reprezentujących różne sposoby wymowy znacząco może wpłynąć na jej skuteczność.
 
 \begin{thebibliography}{1}
 \bibitem{1} Instrukcja do zadanie 4b \url{http://ftims.edu.p.lodz.pl/mod/resource/view.php?id=15798}
