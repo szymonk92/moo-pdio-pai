@@ -58,7 +58,7 @@ public class Recognizer {
         for (DTWMatch match : matchList) {
             match.clear();
             dtw.compute(match);
-            if (match.isGlobalConstraints()) {
+            if (match.isGlobalConstraints() && match.isThresholdLevel()) {
                 pass.add(match);
             } else {
                 nopass.add(match);
@@ -89,7 +89,7 @@ public class Recognizer {
         List<DTWMatch> pass = new ArrayList<DTWMatch>();
         for (DTWMatch match : matchList) {
             dtw.testGlobalConstraints(match);
-            if (match.isGlobalConstraints()) {
+            if (match.isGlobalConstraints() && match.isThresholdLevel()) {
                 pass.add(match);
             } else {
                 nopass.add(match);

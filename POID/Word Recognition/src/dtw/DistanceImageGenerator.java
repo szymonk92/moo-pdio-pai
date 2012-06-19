@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
  * @author Lukasz
  */
 public class DistanceImageGenerator {
+
     private DTW dtw;
     private boolean drawGlobalContstraints;
 
@@ -30,7 +31,7 @@ public class DistanceImageGenerator {
     public void setDtw(DTW dtw) {
         this.dtw = dtw;
     }
-    
+
     public void generate(DTWMatch match) {
         double[][] distanceTabel = match.getDistanceTabel();
         if (distanceTabel == null) {
@@ -51,18 +52,21 @@ public class DistanceImageGenerator {
         }
         int jtmp = distanceTabel.length - 1;
         double down = max - min;
+        Color color;
         for (int i = 0; i < distanceTabel[0].length; i++) {
             for (int j = 0; j < distanceTabel.length; j++) {
                 int newj = jtmp - j;
-                if (drawGlobalContstraints && dtw.getGlobalConstraints()!=null&& dtw.getGlobalConstraints().check(newj+1, i+1, distanceTabel[0].length, distanceTabel.length)) {
-                    result.setRGB(i, j, Color.GREEN.getRGB());
+                if (drawGlobalContstraints && dtw.getGlobalConstraints() != null && dtw.getGlobalConstraints().check(newj + 1, i + 1, distanceTabel[0].length, distanceTabel.length)) {
+                    color = Color.GREEN;
                 } else {
                     int value = 255 - (int) (((distanceTabel[newj][i] - min) / down) * 255);
-                    result.setRGB(i, j, new Color(value, value, value).getRGB());
+                    color = new Color(value, value, value);
                 }
+                result.setRGB(i, j, color.getRGB());
             }
         }
         for (DTWPoint point : match.getWarpingPath()) {
+
             result.setRGB(point.getJ(), jtmp - point.getI(), Color.RED.getRGB());
         }
         match.setImage(result);

@@ -11,6 +11,11 @@ import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import dtw.DTWMatch;
 import dtw.DistanceImageGenerator;
+import java.io.File;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import sys.Messages;
 
 /**
  *
@@ -52,14 +57,31 @@ public class MatchPreview extends javax.swing.JPanel {
         this.miniaturImagePanel.setImage(resize(image, 100, 60));
     }
 
-    public void setGlobalConstrains(boolean globalConstrains) {
-        this.globalConstraintsLabel.setText(globalConstrains ? "tak" : "nie");
+    public void setGlobalConstrains(boolean globalConstrains) {    
+        if(globalConstrains){
+            globalConstraintsLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/true.gif")));
+        }
+        else{
+            globalConstraintsLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/false.png")));
+        }
+        
     }
-   public void refershImage() {
-       if (match.getImage() != null) {
+
+    public void refershImage() {
+        if (match.getImage() != null) {
             distanceImageGenerator.generate(match);
         }
     }
+
+    public void setThresholdLevel(boolean threshold) {
+        if(threshold){
+            thresholdLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/true.gif")));
+        }
+        else{
+            thresholdLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/false.png")));
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -69,16 +91,16 @@ public class MatchPreview extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        wordLabel = new javax.swing.JLabel();
-        distnaceLabel = new javax.swing.JLabel();
         miniaturImagePanel = new gui.ImagePanel();
+        playButton = new javax.swing.JButton();
+        wordLabel = new javax.swing.JLabel();
+        thresholdLabel = new javax.swing.JLabel();
+        distnaceLabel = new javax.swing.JLabel();
         globalConstraintsLabel = new javax.swing.JLabel();
 
-        wordLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        wordLabel.setText("wordLabel");
-
-        distnaceLabel.setText("distnaceLabel");
-
+        miniaturImagePanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        miniaturImagePanel.setMaximumSize(new java.awt.Dimension(100, 60));
+        miniaturImagePanel.setMinimumSize(new java.awt.Dimension(100, 60));
         miniaturImagePanel.setPreferredSize(new java.awt.Dimension(100, 60));
         miniaturImagePanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -90,41 +112,67 @@ public class MatchPreview extends javax.swing.JPanel {
         miniaturImagePanel.setLayout(miniaturImagePanelLayout);
         miniaturImagePanelLayout.setHorizontalGroup(
             miniaturImagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 117, Short.MAX_VALUE)
+            .addGap(0, 96, Short.MAX_VALUE)
         );
         miniaturImagePanelLayout.setVerticalGroup(
             miniaturImagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 60, Short.MAX_VALUE)
+            .addGap(0, 56, Short.MAX_VALUE)
         );
+
+        playButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/play.png"))); // NOI18N
+        playButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                playButtonActionPerformed(evt);
+            }
+        });
+
+        wordLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        wordLabel.setText("wordLabel");
+
+        thresholdLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/true.gif"))); // NOI18N
+        thresholdLabel.setToolTipText("Threshold");
+
+        distnaceLabel.setText("distnaceLabel");
+
+        globalConstraintsLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/true.gif"))); // NOI18N
+        globalConstraintsLabel.setToolTipText("Global Constraints");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(miniaturImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(miniaturImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(wordLabel)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(distnaceLabel)
-                        .addGap(51, 51, 51)
-                        .addComponent(globalConstraintsLabel)))
-                .addGap(0, 180, Short.MAX_VALUE))
+                    .addComponent(distnaceLabel)
+                    .addComponent(wordLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                .addComponent(thresholdLabel)
+                .addGap(18, 18, 18)
+                .addComponent(globalConstraintsLabel)
+                .addGap(43, 43, 43)
+                .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(miniaturImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(wordLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(distnaceLabel)
-                    .addComponent(globalConstraintsLabel))
-                .addContainerGap())
+                .addComponent(distnaceLabel))
             .addGroup(layout.createSequentialGroup()
-                .addComponent(miniaturImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(thresholdLabel)
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(globalConstraintsLabel)
+                            .addComponent(playButton))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -136,6 +184,25 @@ public class MatchPreview extends javax.swing.JPanel {
         DistanceImagePreviewWindow window = new DistanceImagePreviewWindow(match.getImage());
         window.setVisible(true);
     }//GEN-LAST:event_miniaturImagePanelMouseClicked
+    public void playSound(final File soundFile) {
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    Clip clip = AudioSystem.getClip();
+                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(soundFile.getAbsoluteFile());
+                    clip.open(inputStream);
+                    clip.start();
+                } catch (Exception e) {
+                    Messages.error(e.getMessage());
+                }
+            }
+        }).start();
+    }
+    private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playButtonActionPerformed
+        playSound(match.getData().getFile());
+    }//GEN-LAST:event_playButtonActionPerformed
     public static BufferedImage resize(BufferedImage image, int width,
             int height) {
         if (image == null) {
@@ -160,6 +227,8 @@ public class MatchPreview extends javax.swing.JPanel {
     private javax.swing.JLabel distnaceLabel;
     private javax.swing.JLabel globalConstraintsLabel;
     private gui.ImagePanel miniaturImagePanel;
+    private javax.swing.JButton playButton;
+    private javax.swing.JLabel thresholdLabel;
     private javax.swing.JLabel wordLabel;
     // End of variables declaration//GEN-END:variables
 }

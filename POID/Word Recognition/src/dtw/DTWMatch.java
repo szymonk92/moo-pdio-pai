@@ -6,7 +6,6 @@ package dtw;
 
 import gui.MatchPreview;
 import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -24,6 +23,8 @@ public class DTWMatch {
     private List<DTWPoint> warpingPath;
     private double[][] distanceTabel;
     private boolean globalConstraints;
+    private boolean thresholdLevel;
+    
     BufferedImage image;
 
     public DTWMatch(DTWData data) {
@@ -94,41 +95,13 @@ public class DTWMatch {
         getView().setWord(data.getWord());
     }
 
-    
-
-    public static BufferedImage resize(BufferedImage originalImage, int height) {
-        double scale = ((double) (height)) / originalImage.getHeight();
-        int width = (int) (originalImage.getWidth() * scale);
-        BufferedImage resizedImage = new BufferedImage(width, height, originalImage.getType());
-        Graphics2D g = resizedImage.createGraphics();
-        g.setComposite(AlphaComposite.Src);
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.drawImage(originalImage, 0, 0, width, height, null);
-        g.dispose();
-        return resizedImage;
+    public boolean isThresholdLevel() {
+        return thresholdLevel;
     }
 
-    private boolean test(int i, int j, int I, int J, int r) {
-        return (Math.abs((i * ((double) I / (double) J)) - j) <= r);
-    }
-
-    private boolean checkGlobalConstraints(int i, int j, int I, int J) {
-
-        if (j < 2 * (i - I) + J) {
-            return false;
-        }
-        if (j < 0.5 * (i - 1) + 1) {
-            return false;
-        }
-        if (j > 2 * (i - 1) + 1) {
-            return false;
-        }
-        if (j > 0.5 * (i - I) + J) {
-            return false;
-        }
-        return true;
+    public void setThresholdLevel(boolean thresholdLevel) {
+        this.thresholdLevel = thresholdLevel;
+        getView().setThresholdLevel(thresholdLevel);
     }
 
     public void clear() {
@@ -137,5 +110,6 @@ public class DTWMatch {
        setWarpingPath(null);
        setDistanceTabel(null);
        setGlobalConstraints(true);
+       setThresholdLevel(true);
     }
 }

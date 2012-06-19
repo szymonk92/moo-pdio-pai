@@ -110,7 +110,10 @@ public class DTW {
             }
         }
         if(thresholdLevel!=0 && templete.getWarpingDistance()> thresholdLevel){
-            pathTest = false;
+             templete.setThresholdLevel(false);
+        }
+        else{
+            templete.setThresholdLevel(true);
         }
         templete.setGlobalConstraints(pathTest);
     }
