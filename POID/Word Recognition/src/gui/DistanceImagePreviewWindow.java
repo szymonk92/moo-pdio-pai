@@ -4,11 +4,10 @@
  */
 package gui;
 
-import java.awt.image.BufferedImage;
-import dtw.DTWMatch;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -21,12 +20,20 @@ public class DistanceImagePreviewWindow extends javax.swing.JFrame {
     /**
      * Creates new form DistanceImagePreviewWindow
      */
-    public DistanceImagePreviewWindow(BufferedImage image) {
+    public DistanceImagePreviewWindow() {
         initComponents();
-        this.image = image;
-        this.imagePanel.setImage(resize(image,600,300));
     }
 
+    public void setImage(BufferedImage image){
+        this.image = image;
+        double scale = (double)(this.getHeight()-50)/ (double)image.getHeight();
+        double scale2 = (double)(this.getWidth()-50)/ (double)image.getWidth();
+        scale = Math.min(scale, scale2);
+        int w = (int)Math.floor((double)image.getWidth()*scale);
+        int h = (int)Math.floor((double)image.getHeight()*scale);
+        this.imagePanel.setImage(resize(image,w,h));
+        this.validate();
+    }
     public static BufferedImage resize(BufferedImage image, int width,
             int height) {
         if (image == null) {

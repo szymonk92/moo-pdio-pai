@@ -21,7 +21,9 @@ public class WavCorrection {
     }
 
     private double[] doEndPointDetection(double[] originalSignal) {
-
+        if (originalSignal == null) {
+            return new double[0];
+        }
         // for identifying each sample whether it is voiced or unvoiced
         float[] voiced = new float[originalSignal.length];
         float sum = 0;

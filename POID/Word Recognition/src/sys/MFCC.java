@@ -27,7 +27,9 @@ public class MFCC {
         mFs = (int) wavFile.getSampleRate();
         if (signal.length % 256 > 0) {
             int p = 0;
-            while (signal.length > (256 * p++));
+            while (signal.length > (256 * p)){
+                p++;
+            }
             p--;
             signal = Arrays.copyOfRange(signal, 0, 256 * p);
         }

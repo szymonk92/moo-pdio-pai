@@ -12,16 +12,16 @@ public class ItakuraConstraints implements IGlobalConstraints {
 
     @Override
     public boolean check(int i, int j, int I, int J) {
-        if (i < 2 * (j - I) + J) {
+        if (j > 2 * i) {
             return false;
         }
-        if (i < 0.5 * (j - 1) + 1) {
+        if (j > i / 2 + I - J / 2) {
             return false;
         }
-        if (i > 2 * (j - 1) + 1) {
+        if (j < 2 * i + I - 2 * J) {
             return false;
         }
-        if (i > 0.5 * (j - I) + J) {
+        if (j < i / 2) {
             return false;
         }
         return true;
@@ -31,5 +31,4 @@ public class ItakuraConstraints implements IGlobalConstraints {
     public String toString() {
         return "Itakura parallelogram";
     }
-    
 }

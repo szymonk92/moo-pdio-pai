@@ -53,6 +53,7 @@ public class DistanceImageGenerator {
         int jtmp = distanceTabel.length - 1;
         double down = max - min;
         Color color;
+
         for (int i = 0; i < distanceTabel[0].length; i++) {
             for (int j = 0; j < distanceTabel.length; j++) {
                 int newj = jtmp - j;

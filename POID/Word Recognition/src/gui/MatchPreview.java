@@ -26,6 +26,7 @@ public class MatchPreview extends javax.swing.JPanel {
     private static DecimalFormat df = new DecimalFormat("#.##");
     private DTWMatch match;
     private static DistanceImageGenerator distanceImageGenerator;
+    public static DistanceImagePreviewWindow window;
 
     /**
      * Creates new form MatchPreview
@@ -57,14 +58,13 @@ public class MatchPreview extends javax.swing.JPanel {
         this.miniaturImagePanel.setImage(resize(image, 100, 60));
     }
 
-    public void setGlobalConstrains(boolean globalConstrains) {    
-        if(globalConstrains){
+    public void setGlobalConstrains(boolean globalConstrains) {
+        if (globalConstrains) {
             globalConstraintsLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/true.gif")));
-        }
-        else{
+        } else {
             globalConstraintsLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/false.png")));
         }
-        
+
     }
 
     public void refershImage() {
@@ -74,10 +74,9 @@ public class MatchPreview extends javax.swing.JPanel {
     }
 
     public void setThresholdLevel(boolean threshold) {
-        if(threshold){
+        if (threshold) {
             thresholdLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/true.gif")));
-        }
-        else{
+        } else {
             thresholdLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/false.png")));
         }
     }
@@ -181,7 +180,10 @@ public class MatchPreview extends javax.swing.JPanel {
             distanceImageGenerator.generate(match);
             return;
         }
-        DistanceImagePreviewWindow window = new DistanceImagePreviewWindow(match.getImage());
+        if (MatchPreview.window == null) {
+            MatchPreview.window = new DistanceImagePreviewWindow();
+        }
+        MatchPreview.window.setImage(match.getImage());
         window.setVisible(true);
     }//GEN-LAST:event_miniaturImagePanelMouseClicked
     public void playSound(final File soundFile) {

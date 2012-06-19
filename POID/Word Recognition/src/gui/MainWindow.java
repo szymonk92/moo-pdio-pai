@@ -14,7 +14,10 @@ import java.io.*;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import javax.sound.sampled.*;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import sys.*;
@@ -36,9 +39,6 @@ public class MainWindow extends javax.swing.JFrame {
     boolean keyAvaible;
     File tmpFile;
     Recognizer recognizer;
-    TargetDataLine targetDataLine;
-    AudioFormat audioFormat;
-    DataLine.Info info;
     WavCorrection corrector;
 
     /**
@@ -62,14 +62,7 @@ public class MainWindow extends javax.swing.JFrame {
             Messages.fatalError("Nie można utworzyć pliku tymczasowego. " + ex.getMessage());
         }
         corrector = new WavCorrection();
-        audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 2, 4, 44100.0F, false);
-        info = new DataLine.Info(TargetDataLine.class, audioFormat);
-        try {
-            targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
-            targetDataLine.open(audioFormat);
-        } catch (LineUnavailableException e) {
-            Messages.error("Błąd: " + e.getMessage());
-        }
+      
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
 
             @Override
@@ -84,8 +77,8 @@ public class MainWindow extends javax.swing.JFrame {
                         recorder = recordFile();
                         if (recorder != null) {
                             spaceBarPressed = true;
-                            recorder.start();
-                            delay(150);
+                            delay(500);
+                            recorder.start();              
                             recordInd.setEnabled(true);
                         }
                     }
@@ -171,15 +164,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private SimpleAudioRecorder recordFile() {
-        if (targetDataLine == null) {
-            return null;
-        }
-        try {
-            targetDataLine.open(audioFormat);
-        } catch (LineUnavailableException ex) {
-            Messages.info(ex.getMessage());
-        }
-        return new SimpleAudioRecorder(targetDataLine, AudioFileFormat.Type.WAVE, tmpFile);
+        return new SimpleAudioRecorder(AudioFileFormat.Type.WAVE, tmpFile);
     }
 
     public List<ClassFile> processDir(File input) {
