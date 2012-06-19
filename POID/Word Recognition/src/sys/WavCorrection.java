@@ -16,16 +16,20 @@ public class WavCorrection {
     private int samplingRate;
     private int firstSamples;
     private int samplePerFrame;
+    private File returnFile;
 
     public WavCorrection() {
     }
 
+    public WavCorrection(File returnFile) {
+        this.returnFile = returnFile;
+    }
+
     private double[] doEndPointDetection(double[] originalSignal) {
-        if (originalSignal == null) {
+        if (originalSignal == null || originalSignal.length < firstSamples) {
             return new double[0];
         }
-        // for identifying each sample whether it is voiced or unvoiced
-        float[] voiced = new float[originalSignal.length];
+        boolean[] voiced = new boolean[originalSignal.length];
         float sum = 0;
         double sd, m;
         // 1. calculation of mean
@@ -41,27 +45,23 @@ public class WavCorrection {
         }
         sd = Math.sqrt(sum / firstSamples);
         // 3. identifying one-dimensional Mahalanobis distance function
-        // i.e. |x-u|/s greater than ####3 or not,
+        // i.e. |x-u|/s greater than 3 or not,
         for (int i = 0; i < originalSignal.length; i++) {
-            if ((Math.abs(originalSignal[i] - m) / sd) > 3) { //0.3 =THRESHOLD.. adjust value yourself
-                voiced[i] = 1;
-            } else {
-                voiced[i] = 0;
-            }
+            voiced[i] = ((Math.abs(originalSignal[i] - m) / sd) > 3);
         }
         // 4. calculation of voiced and unvoiced signals
         // mark each frame to be voiced or unvoiced frame
         int frameCount = 0;
         int usefulFramesCount = 1;
         int count_voiced, count_unvoiced;
-        int voicedFrame[] = new int[originalSignal.length / samplePerFrame];
+        boolean voicedFrame[] = new boolean[originalSignal.length / samplePerFrame];
         // the following calculation truncates the remainder
         int loopCount = originalSignal.length - (originalSignal.length % samplePerFrame);
         for (int i = 0; i < loopCount; i += samplePerFrame) {
             count_voiced = 0;
             count_unvoiced = 0;
             for (int j = i; j < i + samplePerFrame; j++) {
-                if (voiced[j] == 1) {
+                if (voiced[j]) {
                     count_voiced++;
                 } else {
                     count_unvoiced++;
@@ -69,16 +69,16 @@ public class WavCorrection {
             }
             if (count_voiced > count_unvoiced) {
                 usefulFramesCount++;
-                voicedFrame[frameCount++] = 1;
+                voicedFrame[frameCount++] = true;
             } else {
-                voicedFrame[frameCount++] = 0;
+                voicedFrame[frameCount++] = false;
             }
         }
         // 5. silence removal
         silenceRemovedSignal = new double[usefulFramesCount * samplePerFrame];
         int k = 0;
         for (int i = 0; i < frameCount; i++) {
-            if (voicedFrame[i] == 1) {
+            if (voicedFrame[i]) {
                 for (int j = i * samplePerFrame; j < i * samplePerFrame + samplePerFrame; j++) {
                     silenceRemovedSignal[k++] = originalSignal[j];
                 }
@@ -91,9 +91,7 @@ public class WavCorrection {
     public void rewriteWaveFile(File input) {
         double[] newSound = doEndPointDetection(readWavFile(input));
         try {
-            int sampleRate = 44100;
-            long numFrames = newSound.length;
-            WavFile wavFile = WavFile.newWavFile(new File(input.getAbsolutePath()), 1, numFrames, 16, sampleRate);
+            WavFile wavFile = WavFile.newWavFile(returnFile!=null?returnFile:input, 1, newSound.length, 16, this.samplingRate);
             wavFile.writeFrames(newSound, newSound.length);
             wavFile.close();
         } catch (Exception e) {

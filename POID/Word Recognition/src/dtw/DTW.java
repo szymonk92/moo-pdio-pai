@@ -69,14 +69,8 @@ public class DTW {
             } else if (j == 0) {
                 i -= 1;
             } else {
-                minIndex = 0;
-                if(D[i][j - 1]<D[i - 1][j]){
-                    minIndex = 1;
-                }
-                if(D[i - 1][j - 1]<D[i][j - 1]){
-                    minIndex = 2;
-                }
-                switch (minIndex) {
+                double[] array = {D[i - 1][j], D[i][j - 1], D[i - 1][j - 1]};
+                switch (this.getIndexOfMinimum(array)) {
                     case 0:
                         i -= 1;
                         break;
@@ -99,24 +93,37 @@ public class DTW {
         templete.setDistanceTabel(D);
     }
 
-    public void testGlobalConstraints(DTWMatch templete){
+    private int getIndexOfMinimum(double[] array) {
+        int index = 0;
+        double val = array[0];
+
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] < val) {
+                val = array[i];
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    public void testGlobalConstraints(DTWMatch templete) {
         boolean pathTest = true;
-        if (globalConstraints != null && templete.getWarpingPath()!=null) {
+        if (globalConstraints != null && templete.getWarpingPath() != null) {
             for (DTWPoint point : templete.getWarpingPath()) {
-                if (!globalConstraints.check(point.getI()+1, point.getJ()+1, templete.getData().getMfcc().length, unknowLenght)) {
+                if (!globalConstraints.check(point.getI() + 1, point.getJ() + 1, templete.getData().getMfcc().length, unknowLenght)) {
                     pathTest = false;
                     break;
                 }
             }
         }
-        if(thresholdLevel!=0 && templete.getWarpingDistance()> thresholdLevel){
-             templete.setThresholdLevel(false);
-        }
-        else{
+        if (thresholdLevel != 0 && templete.getWarpingDistance() > thresholdLevel) {
+            templete.setThresholdLevel(false);
+        } else {
             templete.setThresholdLevel(true);
         }
         templete.setGlobalConstraints(pathTest);
     }
+
     private double distanceBetween(double[] p1, double[] p2) {
         double distance = 0;
         for (int i = 0; i < p1.length; i++) {
@@ -124,7 +131,7 @@ public class DTW {
         }
         return distance;
     }
-    
+
     public void setUnknown(double[][] unknown) {
         this.unknown = unknown;
         unknowLenght = unknown.length;
@@ -145,6 +152,4 @@ public class DTW {
     public void setThresholdLevel(double thresholdLevel) {
         this.thresholdLevel = thresholdLevel;
     }
-    
-    
 }

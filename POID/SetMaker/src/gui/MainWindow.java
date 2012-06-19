@@ -33,9 +33,6 @@ public class MainWindow extends javax.swing.JFrame {
     SecureRandom random = new SecureRandom();
     int currentWord;
     boolean keyAvaible;
-    TargetDataLine targetDataLine;
-    AudioFormat audioFormat;
-    DataLine.Info info;
     WavCorrection corrector;
 
     /**
@@ -44,14 +41,6 @@ public class MainWindow extends javax.swing.JFrame {
     public MainWindow() {
         initComponents();
         corrector = new WavCorrection();
-        audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 2, 4, 44100.0F, false);
-        info = new DataLine.Info(TargetDataLine.class, audioFormat);
-        try {
-            targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
-            targetDataLine.open(audioFormat);
-        } catch (LineUnavailableException e) {
-            Messages.error("Błąd: " + e.getMessage());
-        }
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
 
             @Override
@@ -66,18 +55,19 @@ public class MainWindow extends javax.swing.JFrame {
                         recorder = recordFile();
                         if (recorder != null) {
                             spaceBarPressed = true;
+                            delay(500);
                             recorder.start();
-                            delay(150);
                             recordInd.setEnabled(true);
                         }
                     }
                     if (spaceBarPressed && id == KeyEvent.KEY_RELEASED) {
                         spaceBarPressed = false;
+                        delay(100);
                         if (recorder.recording) {
                             recorder.stopRecording();
                         }
                         recordInd.setEnabled(false);
-                        delay(150);
+                        delay(500);
                         corrector.rewriteWaveFile(recordedFiles.get(currentWord));
                         setButtonsRecorded();
                     }
@@ -184,9 +174,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private SimpleAudioRecorder recordFile() {
-        if (targetDataLine == null) {
-            return null;
-        }
+      
         File savedir = new File(dir.getAbsolutePath() + File.separator + wordSet.get(currentWord));
         savedir.mkdir();
         File outputFile = null;
@@ -198,12 +186,7 @@ public class MainWindow extends javax.swing.JFrame {
             } while (outputFile.exists());
             recordedFiles.add(outputFile);
         }
-        try {
-            targetDataLine.open(audioFormat);
-        } catch (LineUnavailableException ex) {
-            Messages.info(ex.getMessage());
-        }
-        return new SimpleAudioRecorder(targetDataLine, AudioFileFormat.Type.WAVE, outputFile);
+        return new SimpleAudioRecorder(AudioFileFormat.Type.WAVE, outputFile);
     }
 
     public static void delay(int ms) {
@@ -244,7 +227,6 @@ public class MainWindow extends javax.swing.JFrame {
         setMaximumSize(new java.awt.Dimension(419, 355));
         setMinimumSize(new java.awt.Dimension(419, 355));
         setName("mainForm");
-        setPreferredSize(new java.awt.Dimension(419, 355));
         setResizable(false);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Ścieżka zapisu"));

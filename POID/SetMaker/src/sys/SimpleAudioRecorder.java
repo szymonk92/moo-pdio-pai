@@ -6,10 +6,9 @@ package sys;
 
 import java.io.File;
 import java.io.IOException;
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.TargetDataLine;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.sound.sampled.*;
 
 /**
  *
@@ -17,39 +16,50 @@ import javax.sound.sampled.TargetDataLine;
  */
 public class SimpleAudioRecorder extends Thread {
 
-    private TargetDataLine m_line;
-    private AudioFileFormat.Type m_targetType;
-    private AudioInputStream m_audioInputStream;
-    private File m_outputFile;
+    private TargetDataLine targetDataLine;
+    private AudioFileFormat.Type targetType;
+    private AudioInputStream audioInputStream;
+    private File outputFile;
     public boolean recording;
 
-    public SimpleAudioRecorder(TargetDataLine line,
+    public SimpleAudioRecorder(
             AudioFileFormat.Type targetType,
             File file) {
-        m_line = line;
-        m_audioInputStream = new AudioInputStream(line);
-        m_targetType = targetType;
-        m_outputFile = file;
+        AudioFormat format = new AudioFormat(44100.0f, 16, 1, true, true);
+        try {
+            targetDataLine = AudioSystem.getTargetDataLine(format);
+
+        } catch (LineUnavailableException ex) {
+            Messages.error("Błąd: " + ex.getMessage());
+        }
+        audioInputStream = new AudioInputStream(targetDataLine);
+        this.targetType = targetType;
+        outputFile = file;
     }
 
     @Override
     public void start() {
-        m_line.start();
+        try {
+            targetDataLine.open();
+        } catch (LineUnavailableException ex) {
+            Messages.error("Błąd: " + ex.getMessage());
+        }
+        targetDataLine.start();
         recording = true;
         super.start();
     }
 
     public void stopRecording() {
+        targetDataLine.stop();
         recording = false;
-        m_line.stop();
     }
 
     @Override
     public void run() {
         try {
-            AudioSystem.write(m_audioInputStream, m_targetType, m_outputFile);
-        } catch (IOException ex) {
-            Messages.info(ex.getMessage());
+            AudioSystem.write(audioInputStream, targetType, outputFile);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
