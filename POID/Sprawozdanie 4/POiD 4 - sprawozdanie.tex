@@ -1,0 +1,95 @@
+\documentclass{classrep}
+\usepackage[utf8]{inputenc}
+
+\usepackage[pdftex]{color,graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.bmp,.gif}
+
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{color}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{indentfirst}
+\usepackage{color}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage[polish]{babel}
+\usepackage{paralist}
+\usepackage{indentfirst}
+
+\hypersetup{colorlinks=false,pdfborder={0 0 0}}
+
+\definecolor{javared}{rgb}{0.6,0,0} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
+\definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
+
+\lstset{language=Java,
+basicstyle=\ttfamily,
+keywordstyle=\color{javapurple}\bfseries,
+stringstyle=\color{javared},
+commentstyle=\color{javagreen},
+morecomment=[s][\color{javadocblue}]{/**}{*/},
+numbers=left,
+numberstyle=\tiny\color{black},
+stepnumber=2,
+numbersep=10pt,
+tabsize=4,
+showspaces=false,
+showstringspaces=false}
+
+\studycycle{Informatyka, studia dzienne, mgr II st.}
+\coursesemester{I}
+
+\coursename{Przetwarzanie obrazu i dźwięku}
+\courseyear{2011/2012}
+
+\courseteacher{dr inż. Arkadiusz Tomczyk}
+\coursegroup{środa, 8:30}
+
+\author{
+  \studentinfo{Paweł Musiał}{178726} \and
+  \studentinfo{Łukasz Michalski}{178724}
+}
+\title{Zadanie 4:\\  \textbf {Rozpoznawanie izolowanych słów w sygnale mowy.}}
+\svnurl{https://serce.ics.p.lodz.pl/svn/labs/poid/at_sr0830/lmpm@}
+
+\begin{document}
+\maketitle
+
+\addtocounter{footnote}{1}
+
+\tableofcontents
+\pagebreak
+\section{Cel}
+Realizacja zadania polega na stworzeniu aplikacji umożliwiającej obliczanie reprezentacji sygnału audio w~postaci ciągów wektorów współczynników \textbf{MFCC} i~porównywanie ich za pomocą algorytmu \textbf{DTW}. Należy stworzyć bazę zawierającą przynajmniej 10 różnych słów (przykładowo: ,,zero'', ,,jeden'', …, ,,dziewięć'') i~wykorzystać ją do rozpoznawania słowa wypowiedzianego przez użytkownika. W~celu poprawy wyników każde słowo zawarte w bazie może być reprezentowane przez kilka wzorców (np. nagranych przez różne osoby, albo w~różnych warunkach akustycznych).
+
+Oprócz ostatecznego wyniku rozpoznania należy zaprezentować wyniki porównań dla wszystkich słów z bazy oraz tablice $g$ (preferowana metoda – w~postaci obrazu, reprezentującego wartości $g[i, j]$ za pomocą np. odcieni szarości). Należy rozważyć metodę modyfikacji algorytmu DTW pozwalającą na dopasowanie fragmentu słowa zamiast całości. Należy zaimplementować ograniczenia globalne zgodnie z~przydzielonym wariantem, przy czym powinna też istnieć możliwość wyłączenia tych ograniczeń, tak aby ścieżka mogła mieć dowolny kształt.
+\begin{itemize}
+\item Ograniczenie globalne typu Sakoe and Chiba band
+\item \textbf{Ograniczenie globalne typu Itakura parallelogram}
+\end{itemize}
+\section{Wprowadzenie}
+Rozpoznawanie mowy jest klasycznym problemem przetwarzania dźwięku, dla którego w ciągu minionych dziesięcioleci zaproponowano wiele rozwiązań. Wyróżniamy tu zasadniczo problem prostszy, polegający na rozpoznawaniu izolowanych słów oraz zadanie rozpoznawania mowy ciągłej. W obu przypadkach należy przyjąć założenia odnośnie sposobu reprezentacji i parametryzacji sygnału mowy oraz odnośnie metod dopasowania danych do wzorca w sposób niezależny od czasu trwania i zmian szybkości analizowanej wypowiedzi.
+\subsection{MCFF (\textit{Mel-frequency cepstral coefficients})}
+
+\subsection{Algorytm DTW (\textit{Dynamic Time Warping})}
+
+\section{Opis implementacji}
+\subsection{MCFF (\textit{Mel-frequency cepstral coefficients})}
+
+\subsection{Algorytm DTW (\textit{Dynamic Time Warping})}
+
+\section{Wyniki}
+
+\section{Dyskusja}
+
+\section{Wnioski}
+
+\begin{thebibliography}{1}
+\bibitem{1} Fast Fourier Transform (FFT) \url{http://www.cmlab.csie.ntu.edu.tw/cml/dsp/training/coding/transform/fft.html}
+\end{thebibliography}
+\end{document}
