@@ -78,7 +78,7 @@
   \studentinfo{Łukasz Michalski}{178724}
 }
 
-\title{Zadanie 5 - Optymalizacja wielowymiarowa z ograniczeniami} % np \title{Zadanie 1: Optymalizacja jednowymiarowa}
+\title{Zadanie 5 - Optymalizacja wielowymiarowa z ograniczeniami}
 \svnurl{https://serce.ics.p.lodz.pl/svn/labs/moo/lc_cz1600/lmpm}
 
 \begin{document}
@@ -88,10 +88,10 @@
 
 Napisać program rozwiązujący problem optymalizacji z ograniczeniami za pomocą jednej z poniższych metod:
 \begin{itemize}
-\item    \textbf{zewnętrzna lub wewnętrzna funkcja kary,}
-\item    SLP,
-\item    \textbf{optymalizacja wielokryterialna - metoda sumy ważonej,}
-\item    Box.
+\item \textbf{zewnętrzna lub wewnętrzna funkcja kary,}
+\item SLP,
+\item \textbf{optymalizacja wielokryterialna - metoda sumy ważonej,}
+\item Box.
 \end{itemize}
 
 
@@ -99,48 +99,57 @@ Napisać program rozwiązujący problem optymalizacji z ograniczeniami za pomoc�
 
 \subsection{Optymalizacja wielokryterialna - metoda sumy ważonej}
 
-Problemy wielokryterialne, to problemy w których optymalizowanym wyrażeniem, jest parę funkcji celu. Jednym z proponowanych rozwiązań w literaturze \cite{2} do tego typu problemów jest metoda sumy ważonej. Metoda ta polega na zastąpieniu wielu funkcji jedną funkcją będącą liniową kombinacją składowych.\\
+Problemy wielokryterialne, to problemy w których optymalizowanym wyrażeniem, jest parę funkcji celu. Jednym z~proponowanych rozwiązań w~literaturze \cite{2} do tego typu problemów jest metoda sumy ważonej. Metoda ta polega na zastąpieniu wielu funkcji jedną funkcją będącą liniową kombinacją składowych.
 
-Dla przykładu, mając problem postaci:
-
-min F($f_1, f_2, f_3, \dots, f_n)$)\\
-przy ograniczeniach :\\
-$g(x) \leq 0$\\
-$h(x) = 0$\\
-
-zastępujemy grupę funkcji celu za pomocą :\\
+\noindent Dla przykładu, mając problem postaci:
+\begin{equation}
+min F(f_1, f_2, f_3, \dots, f_n))
+\end{equation}
+\noindent przy ograniczeniach :
+\begin{equation*}
+g(x) \leq 0
+h(x) = 0
+\end{equation*}
+zastępujemy grupę funkcji celu za pomocą :
 \begin{equation}
 U = \sum \limits ^{n} _{i=1} w_i \cdot f_i
 \end{equation}
-gdzie : $\sum \limits ^{n} _{i=1} w_i = 1$
-oraz $w>0$
+\noindent gdzie : 
+\begin{equation*}
+\sum \limits ^{n} _{i=1} w_i = 1
+\end{equation*}
+oraz $w>0$.
 
-Rozwiązanie takiego problemu będzie leżało na tak zwanym froncie pareto. Jest to powierzchnia na której występują rozwiązania niedominujących, czyli rozwiązań w sensie pareto, co oznacz, że każde rozwiązanie w zbiorze jest optymalne i nie lepsze ani gorsze od pozostałych. \\
+Rozwiązanie takiego problemu będzie leżało na tak zwanym froncie pareto. Jest to powierzchnia na której występują rozwiązania niedominujących, czyli rozwiązań w sensie pareto, co oznacz, że każde rozwiązanie w~zbiorze jest optymalne i~nie lepsze ani gorsze od pozostałych.
  
-Metoda ta jedynie opisuje sposób w jaki można rozwiązać problem z wieloma funkcjami celu, nie precyzuje jednak sposobu dalszych rozwiązań   wyznaczonego problemu zastępczego $U$. Wartości wag w tej metodzie, można dobierać według potrzeb, oczywiście pamiętając o nakreślonych restrykcjach. Z drugiej strony zostały zaproponowanie rozwiązania adaptacyjnego doboru wag.\\
+Metoda ta jedynie opisuje sposób w jaki można rozwiązać problem z wieloma funkcjami celu, nie precyzuje jednak sposobu dalszych rozwiązań   wyznaczonego problemu zastępczego $U$. Wartości wag w~tej metodzie, można dobierać według potrzeb, oczywiście pamiętając o~nakreślonych restrykcjach. Z~drugiej strony zostały zaproponowanie rozwiązania adaptacyjnego doboru wag.
 
-Jako, że metoda ta jedynie mówi o podejściu jakie można zastosować do problemów wielokryterialnych, polegającym na złożeniu wielu funkcji bazowych w jedną funkcje będącą superpozycją składowych przemnożonych przez jakieś wartości wag, tak na prawdę każdy bardziej złożony problem możemy traktować jako takie właśnie rozwiązanie. Dlatego też w programie naszym skupiliśmy się na jednej z metod rozwiązywania problemu ,,zastępczego'' czyli problemu wielowymiarowej optymalizacji z ograniczeniami.
-
+Jako, że metoda ta jedynie mówi o podejściu jakie można zastosować do problemów wielokryterialnych, polegającym na złożeniu wielu funkcji bazowych w jedną funkcje będącą superpozycją składowych przemnożonych przez jakieś wartości wag, tak na prawdę każdy bardziej złożony problem możemy traktować jako takie właśnie rozwiązanie. Dlatego też w~naszym programie skupiliśmy się na jednej z metod rozwiązywania problemu ,,zastępczego'' czyli problemu wielowymiarowej optymalizacji z ograniczeniami.
 
 \subsection{Zewnętrzna funkcja kary}
+Jest to metoda rozwiązywania problemów wielokryterialnych z ograniczeniami. Metoda ta w~swojej prostocie polega na rozwiązywaniu problemu zastępczego, w~którym rozwiązujemy problem podstawowy z~dodaną funkcją kary będącą wartością - karą, za niespełnienie ograniczeń. Niestety nie przedstawimy tutaj dowodu poprawności tej metody. Jednak w~wielu przypadkach metoda ta pozwala na dobre wyniki. Przedstawiony poniżej opis jest zaczerpnięty z~\cite{3}.
 
-Jest to metoda rozwiązywania problemów wielokryterialnych z ograniczeniami. Metoda ta w swojej prostocie polega na rozwiązywaniu problemu zastępczego w którym rozwiązujemy problem podstawowy z dodaną funkcją kary będącą wartością - karą, za niespełnienie ograniczeń. Niestety nie przedstawimy tutaj dowodu poprawności tej metody. Jednak w wielu przypadkach metoda ta pozwala na dobre wyniki.\\
-Przedstawiony poniżej opis jest zaczerpnięty z \cite{3}.\\
+\noindent Minimalizacja $f(x)$, przy ograniczeniach:
+\begin{align}
+[g(x)]_m\leq0 \nonumber\\
+ [h(x)]_l=0 \nonumber
+\end{align}
+\noindent Wprowadzamy problem zastępczy, postaci: 
+\begin{equation}
+F(x,r_h, r_g) = f(x) + P(x,r_h, r_g)
+\end{equation}
+\noindent  gdzie : 
+\begin{equation}
+P(x,r_h, r_g)=r_h \left[ \sum \limits ^{l} _{j=1} (h_j(x))^{2} \right]  + r_g \left[ \sum \limits ^{m} _{j=1}
+ \left( max \left( 0, g_j (x) \right) \right) ^{2} \right]
+\end{equation}
 
-Minimalizacja $f(x)$, przy ograniczeniach:\\
-$[g(x)]_m\leq0$, $[h(x)]_l=0$\\
-
-Wprowadzamy problem zastępczy, postaci: $F(x,r_h, r_g) = f(x) + P(x,r_h, r_g)$\\
-gdzie : $P(x,r_h, r_g)=r_h \left[ \sum \limits ^{l} _{j=1} (h_j(x))^{2} \right]  + r_g \left[ \sum \limits ^{m} _{j=1}
- \left( max \left( 0, g_j (x) \right) \right) ^{2} \right]$
-
-
-Gdzie parametry $r_h$ i $r_g$ mówią, jak ,,mocno'' karać za naruszenie ograniczeń. Podstawiając wszystko do jednego równania otrzymujemy :\\
+Gdzie parametry $r_h$ i $r_g$ mówią, jak ,,mocno'' karać za naruszenie ograniczeń. Podstawiając wszystko do jednego równania otrzymujemy :
 \begin{equation}
  F(x,r_h, r_g) = f(x) + r_h \left[ \sum \limits ^{l} _{j=1} (h_j(x))^{2} \right]  + r_g \left[ \sum \limits ^{m} _{j=1}
  \left( max \left( 0, g_j (x) \right) \right) ^{2} \right]
 \end{equation}
-Jak widać niejako pozbyliśmy się ograniczeń włączając je do minimalizowanego wyrażenia. W sposób ten otrzymaliśmy problem wielowymiarowej optymalizacji bez ograniczeń który możemy rozwiązywać znanymi nam metodami czyli na przykład algorytmem pełzającego sympleksu, bądź jedną w metod quasi-newtonowskich.
+Jak widać niejako pozbyliśmy się ograniczeń włączając je do minimalizowanego wyrażenia. W~sposób ten otrzymaliśmy problem wielowymiarowej optymalizacji bez ograniczeń który możemy rozwiązywać znanymi nam metodami czyli na przykład algorytmem pełzającego sympleksu, bądź jedną w metod quasi-newtonowskich.
 
 Algorytm w opisie krokowym:
 \begin{enumerate}
@@ -153,7 +162,7 @@ Algorytm w opisie krokowym:
 
 \section{Opis programu}
 
-\begin{lstlisting}{ograniczenia rownosciowe}
+\begin{lstlisting}{ograniczenia równościowe}
 function fstr=equalConSum(f)
 fstr='( ';
 for i=1:length(f)-1
@@ -163,7 +172,7 @@ fstr=strcat(fstr,'(',f(length(f)),')^2 )');
 \end{lstlisting}
 
 
-\begin{lstlisting}{ograniczenia nierownosciowe}
+\begin{lstlisting}{Ograniczenia nierównościowe}
 function fstr=inEqualConSum(f)
 fstr='( ';
 for i=1:length(f)-1
@@ -173,7 +182,7 @@ fstr=strcat(fstr,'(max(0,',f(length(f)),'))^2 )');
 \end{lstlisting}
 
 
-\begin{lstlisting}{funkcja problemu zastępczego}
+\begin{lstlisting}{Funkcja problemu zastępczego}
 function fout = penaltyFun( f, h, g, rh, rg )
 hfun=0;
 gfun=0;
@@ -193,10 +202,8 @@ end
 
 \end{lstlisting}
 
-
-\begin{lstlisting}{algorytm zewnętrznej funkcji kary}
+\begin{lstlisting}{Algorytm zewnętrznej funkcji kary}
 function [xi, fval] = epf(f, h, g, rh, rg, x0, Crh, Crg, kMax )
-
 hpenalty='';
 gpenalty='';
 if ~isempty(h)
@@ -205,14 +212,12 @@ end
 if ~isempty(g)
     gpenalty=inEqualConSum(g);
 end
-
 xi=x0
 for i=1:kMax
 
     Fp=penaltyFun(f,hpenalty,gpenalty,rh,rg);
     
     [xi, fval]=fminunc(Fp,xi)
-    
     unsatisfied=0;
     for j=1:length(h)
         hc=subs(h(j),{'x','y'},{xi(1),xi(2)});
@@ -226,31 +231,31 @@ for i=1:kMax
             unsatisfied=unsatisfied+1;
         end
     end
-    
     if(unsatisfied==0 || i>=kMax)
         break;
     end
-
     rh=rh*Crh;
     rg=rg*Crg;
 end
 end
-
 \end{lstlisting}
-
-
 
 \section{Wyniki}
 
-Rozwiązanie problemu testowano na funkcji przykładowej zawartej w książce \cite{3}.\\
+Rozwiązanie problemu testowano na funkcji przykładowej zawartej w~książce \cite{3}.
+\begin{equation}
+f(x_1, x_2) = x^4 _1 - 2 x^2 _1 x_2 + x^2 _1 + x_1 x^2 _2 - 2x_1 +4
+\end{equation}
 
-$f(x_1, x_2) = x^4 _1 - 2 x^2 _1 x_2 + x^2 _1 + x_1 x^2 _2 - 2x_1 +4 $\\
-przy ograniczeniach:\\
-$h(x_1, x_2): x^2 _1 + x^2 _2 -2 = 0 $\\
-$g(x_1, x_2: 0.25x^2 _1 + 0.75 x^2 _2 -1 \leq 0 $
-$ $\\
+\noindent przy ograniczeniach:
+\begin{equation*}
+h(x_1, x_2): x^2 _1 + x^2 _2 -2 = 0
+\end{equation*}
+\begin{equation*}
+g(x_1, x_2: 0.25x^2 _1 + 0.75 x^2 _2 -1 \leq 0
+\end{equation*}
 
-Przy parametrach:\\
+\noindent przy dobranych parametrach:
 \begin{enumerate}
 \item $x_0 = [1, 2]$
 \item $k_{max}=3$
@@ -271,12 +276,13 @@ iter & x & f(x)\\
 \hline 
 \end{tabular} 
 \end{center}
-\\
-Wynik w \cite{2} dla porównania wyniosił x=[0.9775, 1.0165], f(x)=2.9810.
+
+
+Wynik w \cite{2} dla porównania wynosił x=[0.9775, 1.0165], f(x)=2.9810.
 Jak widać uzyskany wynik jest bardzo bliski wartości otrzymanej przez obliczonej przez naszą implementacje, tejże metody już po 3 iteracjach.
 
 \section{Wnioski}
-Przedstawiona powyżej implementacja optymalizacji wielowymiarowej z ograniczeniami przy pomocy zewnętrznej funkcji kary jest jedną z metod optymalizacji znajdujących rozwiązanie rozwiązując przybliżone problemy do oryginalnego. Podejście takie skutkuje dobrymi wynikami i jest łatwe w implementacji ponieważ opierają się one z reguły na algorytmach rozwiązywania standardowych problemów optymalizacji, mamy tutaj na uwadze takie algorytmy jak SLP, SQP, metody oparte o funkcję kary. Jedynym minusem ich działania jest nie działanie na prawdziwej funkcji celu a jedynie na jej przybliżeniu, co w konsekwencji niejako implikuje słabą jakość przy zadaniach bardziej złożonych. Zaimplementowana przez nad metoda testowana była na prostym przykładzie dlatego też szybko uzyskała zbieżność.
+Przedstawiona powyżej implementacja optymalizacji wielowymiarowej z~ograniczeniami przy pomocy zewnętrznej funkcji kary jest jedną z~metod optymalizacji znajdujących rozwiązanie rozwiązując przybliżone problemy do oryginalnego. Podejście takie skutkuje dobrymi wynikami i~jest łatwe w~implementacji ponieważ opierają się one z~reguły na algorytmach rozwiązywania standardowych problemów optymalizacji, mamy tutaj na uwadze takie algorytmy jak SLP, SQP, metody oparte o funkcję kary. Jedynym minusem ich działania jest nie działanie na prawdziwej funkcji celu a~jedynie na jej przybliżeniu, co w~konsekwencji niejako implikuje słabą jakość przy zadaniach bardziej złożonych. Zaimplementowana przez nad metoda testowana była na prostym przykładzie dlatego też szybko uzyskała zbieżność.
 
 \begin{thebibliography}{9}
 \bibitem{1} ,,An Introduction to Optimization'' , Edwin Kah Pin Chong and Stanislaw H. Zak, Hoboken, EUA : Wiley-Interscience 2008
