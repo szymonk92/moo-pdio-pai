@@ -53,65 +53,25 @@ public class Recognizer {
             return null;
         }
         dtw.setUnknown(unknown);
-        List<DTWMatch> nopass = new ArrayList<DTWMatch>();
-        List<DTWMatch> pass = new ArrayList<DTWMatch>();
         for (DTWMatch match : matchList) {
             match.clear();
             dtw.compute(match);
-            if (match.isGlobalConstraints() && match.isThresholdLevel()) {
-                pass.add(match);
-            } else {
-                nopass.add(match);
-            }
         }
-        if (!pass.isEmpty()) {
-            Collections.sort(pass, DTWMatchComparator);
-        }
-        if (!nopass.isEmpty()) {
-            Collections.sort(nopass, DTWMatchComparator);
-        }
-        matchList.clear();
-        matchList.addAll(pass);
-        matchList.addAll(nopass);
-        DTWMatch result = null;
-        if (!pass.isEmpty()) {
-            result = pass.get(0);
-            distanceImageGenerator.generate(result);
-        } else if (!nopass.isEmpty()) {
-            distanceImageGenerator.generate(nopass.get(0));
-        }
+        Collections.sort(matchList, DTWMatchComparator);
+        distanceImageGenerator.generate(matchList.get(0));
         processed = true;
-        return result;
+        return matchList.get(0);
     }
 
     public DTWMatch refresh() {
-        List<DTWMatch> nopass = new ArrayList<DTWMatch>();
-        List<DTWMatch> pass = new ArrayList<DTWMatch>();
-        for (DTWMatch match : matchList) {
-            dtw.testGlobalConstraints(match);
-            if (match.isGlobalConstraints() && match.isThresholdLevel()) {
-                pass.add(match);
-            } else {
-                nopass.add(match);
-            }
+         for (DTWMatch match : matchList) {
+            match.clear();
+            dtw.compute(match);
         }
-        if (!pass.isEmpty()) {
-            Collections.sort(pass, DTWMatchComparator);
-        }
-        if (!nopass.isEmpty()) {
-            Collections.sort(nopass, DTWMatchComparator);
-        }
-        matchList.clear();
-        matchList.addAll(pass);
-        matchList.addAll(nopass);
-        DTWMatch result = null;
-        if (!pass.isEmpty()) {
-            result = pass.get(0);
-            distanceImageGenerator.generate(result);
-        } else if (!nopass.isEmpty()) {
-            distanceImageGenerator.generate(nopass.get(0));
-        }
-        return result;
+        Collections.sort(matchList, DTWMatchComparator);
+        distanceImageGenerator.generate(matchList.get(0));
+        processed = true;
+        return matchList.get(0);
     }
 
     public DTWMatchComparator getDTWMatchComparator() {

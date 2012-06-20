@@ -76,13 +76,18 @@ public class WavCorrection {
         }
         // 5. silence removal
         silenceRemovedSignal = new double[usefulFramesCount * samplePerFrame];
+        
         int k = 0;
         for (int i = 0; i < frameCount; i++) {
+           
             if (voicedFrame[i]) {
+                // System.out.print(1);
                 for (int j = i * samplePerFrame; j < i * samplePerFrame + samplePerFrame; j++) {
                     silenceRemovedSignal[k++] = originalSignal[j];
                 }
+                //continue;
             }
+            //System.out.print(0);
         }
         // end
         return silenceRemovedSignal;

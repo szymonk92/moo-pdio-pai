@@ -36,6 +36,8 @@ public class MatchPreview extends javax.swing.JPanel {
         this.match = match;
         this.wordLabel.setText(match.getData().getWord());
         this.distnaceLabel.setText("nieznana");
+        File audio = match.getData().getFile();
+        this.playButton.setEnabled(audio!=null && audio.exists());
     }
 
     public static DistanceImageGenerator getDistanceImageGenerator() {
@@ -51,20 +53,16 @@ public class MatchPreview extends javax.swing.JPanel {
     }
 
     public void setDistance(double distace) {
-        this.distnaceLabel.setText(df.format(distace));
+        if(distace!=Double.MAX_VALUE){
+            this.distnaceLabel.setText(df.format(distace));
+        }
+        else{
+            this.distnaceLabel.setText("0");
+        }
     }
 
     public void setMiniaturImage(BufferedImage image) {
         this.miniaturImagePanel.setImage(resize(image, 100, 60));
-    }
-
-    public void setGlobalConstrains(boolean globalConstrains) {
-        if (globalConstrains) {
-            globalConstraintsLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/true.gif")));
-        } else {
-            globalConstraintsLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/false.png")));
-        }
-
     }
 
     public void refershImage() {
@@ -95,7 +93,6 @@ public class MatchPreview extends javax.swing.JPanel {
         wordLabel = new javax.swing.JLabel();
         thresholdLabel = new javax.swing.JLabel();
         distnaceLabel = new javax.swing.JLabel();
-        globalConstraintsLabel = new javax.swing.JLabel();
 
         miniaturImagePanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         miniaturImagePanel.setMaximumSize(new java.awt.Dimension(100, 60));
@@ -133,9 +130,6 @@ public class MatchPreview extends javax.swing.JPanel {
 
         distnaceLabel.setText("distnaceLabel");
 
-        globalConstraintsLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/true.gif"))); // NOI18N
-        globalConstraintsLabel.setToolTipText("Global Constraints");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -146,11 +140,9 @@ public class MatchPreview extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(distnaceLabel)
                     .addComponent(wordLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 96, Short.MAX_VALUE)
                 .addComponent(thresholdLabel)
-                .addGap(18, 18, 18)
-                .addComponent(globalConstraintsLabel)
-                .addGap(43, 43, 43)
+                .addGap(42, 42, 42)
                 .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -168,9 +160,7 @@ public class MatchPreview extends javax.swing.JPanel {
                         .addComponent(thresholdLabel)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(globalConstraintsLabel)
-                            .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(playButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -203,7 +193,10 @@ public class MatchPreview extends javax.swing.JPanel {
         }).start();
     }
     private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playButtonActionPerformed
-        playSound(match.getData().getFile());
+        File audio = match.getData().getFile();
+        if(audio!=null && audio.exists()){
+            playSound(audio);
+        }
     }//GEN-LAST:event_playButtonActionPerformed
     public static BufferedImage resize(BufferedImage image, int width,
             int height) {
@@ -227,7 +220,6 @@ public class MatchPreview extends javax.swing.JPanel {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel distnaceLabel;
-    private javax.swing.JLabel globalConstraintsLabel;
     private gui.ImagePanel miniaturImagePanel;
     private javax.swing.JButton playButton;
     private javax.swing.JLabel thresholdLabel;

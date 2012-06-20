@@ -22,25 +22,16 @@ public class DTWMatch {
     private double warpingDistance;
     private List<DTWPoint> warpingPath;
     private double[][] distanceTabel;
-    private boolean globalConstraints;
+    private boolean[][] globalConstraints;
     private boolean thresholdLevel;
     
     BufferedImage image;
 
     public DTWMatch(DTWData data) {
         this.data = data;
-        this.globalConstraints = true;
     }
 
-    public boolean isGlobalConstraints() {
-        return globalConstraints;
-    }
-
-    public void setGlobalConstraints(boolean globalConstraints) {
-        this.globalConstraints = globalConstraints;
-        getView().setGlobalConstrains(globalConstraints);
-    }
-
+   
     public BufferedImage getImage() {
         return image;
     }
@@ -104,12 +95,20 @@ public class DTWMatch {
         getView().setThresholdLevel(thresholdLevel);
     }
 
+    public boolean[][] getGlobalConstraints() {
+        return globalConstraints;
+    }
+
+    public void setGlobalConstraints(boolean[][] globalConstraints) {
+        this.globalConstraints = globalConstraints;
+    }
+
     public void clear() {
        setImage(null);
        setWarpingDistance(Double.MAX_VALUE);
        setWarpingPath(null);
+       setGlobalConstraints(null);
        setDistanceTabel(null);
-       setGlobalConstraints(true);
        setThresholdLevel(true);
     }
 }

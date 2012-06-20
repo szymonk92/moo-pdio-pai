@@ -31,11 +31,21 @@ public class DTW {
 
         double[][] d = new double[unknowLenght][templeteLenght];
         double[][] D = new double[unknowLenght][templeteLenght];
+        boolean[][] gc = new boolean[unknowLenght][templeteLenght];
 
         for (int i = 0; i < unknowLenght; i++) {
             for (int j = 0; j < templeteLenght; j++) {
                 d[i][j] = distanceBetween(unknown[i], templeteMcff[j]);
+                if (globalConstraints != null) {
+                    if (globalConstraints.check(i, j, templeteLenght, unknowLenght)) {
+                        gc[i][j] = true;
+                    }
+                } else {
+                    gc[i][j] = true;
+                }
+
             }
+
         }
 
         D[0][0] = d[0][0];
@@ -55,22 +65,25 @@ public class DTW {
                 D[i][j] = accumulatedDistance;
             }
         }
+
         accumulatedDistance = D[unknowLenght - 1][templeteLenght - 1];
 
         int i = unknowLenght - 1;
         int j = templeteLenght - 1;
-        int minIndex;
-
+        int index;
         warpingPath.add(new DTWPoint(i, j));
-
         while ((i + j) != 0) {
             if (i == 0) {
                 j -= 1;
             } else if (j == 0) {
                 i -= 1;
             } else {
-                double[] array = {D[i - 1][j], D[i][j - 1], D[i - 1][j - 1]};
-                switch (this.getIndexOfMinimum(array)) {
+                double[] array = new double[3];
+                array[0] = gc[i - 1][j] ? D[i - 1][j] : Double.MAX_VALUE;
+                array[1] = gc[i][j - 1] ? D[i][j - 1] : Double.MAX_VALUE;
+                array[2] = gc[i - 1][j - 1] ? D[i - 1][j - 1] : Double.MAX_VALUE;
+                index = this.getIndexOfMinimum(array);
+                switch (index) {
                     case 0:
                         i -= 1;
                         break;
@@ -82,14 +95,27 @@ public class DTW {
                         j -= 1;
                         break;
                 }
+                if (array[index] == Double.MAX_VALUE) {
+                    accumulatedDistance = Double.MAX_VALUE;
+                    break;
+                }
             }
             K++;
             warpingPath.add(new DTWPoint(i, j));
         }
-        templete.setWarpingDistance(accumulatedDistance / K);
-        Collections.reverse(warpingPath);
-        templete.setWarpingPath(warpingPath);
-        testGlobalConstraints(templete);
+        if (accumulatedDistance != Double.MAX_VALUE) {
+            templete.setWarpingDistance(accumulatedDistance / K);
+            Collections.reverse(warpingPath);
+            templete.setWarpingPath(warpingPath);
+            if (thresholdLevel != 0 && templete.getWarpingDistance() > thresholdLevel) {
+                templete.setThresholdLevel(false);
+            } else {
+                templete.setThresholdLevel(true);
+            }
+        } else {
+            templete.setWarpingDistance(accumulatedDistance);
+        }
+        templete.setGlobalConstraints(gc);
         templete.setDistanceTabel(D);
     }
 
@@ -104,24 +130,6 @@ public class DTW {
             }
         }
         return index;
-    }
-
-    public void testGlobalConstraints(DTWMatch templete) {
-        boolean pathTest = true;
-        if (globalConstraints != null && templete.getWarpingPath() != null) {
-            for (DTWPoint point : templete.getWarpingPath()) {
-                if (!globalConstraints.check(point.getI() + 1, point.getJ() + 1, templete.getData().getMfcc().length, unknowLenght)) {
-                    pathTest = false;
-                    break;
-                }
-            }
-        }
-        if (thresholdLevel != 0 && templete.getWarpingDistance() > thresholdLevel) {
-            templete.setThresholdLevel(false);
-        } else {
-            templete.setThresholdLevel(true);
-        }
-        templete.setGlobalConstraints(pathTest);
     }
 
     private double distanceBetween(double[] p1, double[] p2) {
