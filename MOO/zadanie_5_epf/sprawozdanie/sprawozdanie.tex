@@ -1,0 +1,286 @@
+% vim:encoding=utf8 ft=tex sts=2 sw=2 et:
+
+
+\documentclass{classrep}
+\usepackage[utf8]{inputenc}
+
+\usepackage[pdftex]{color,graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+\usepackage{float}
+
+\usepackage{color}
+
+\usepackage{listings}
+
+\usepackage{color}
+
+\usepackage[hyphens]{url}
+
+\usepackage{hyperref}
+
+\usepackage[polish]{babel}
+
+\usepackage{enumitem}
+
+\usepackage{amsmath}
+\usepackage{fancyvrb}
+
+
+\usepackage{indentfirst}
+\usepackage[center,small,bf]{caption}
+\hypersetup{colorlinks=false,pdfborder={0 0 0}}
+
+\renewcommand{\labelitemi}{$\bullet$}
+\renewcommand{\labelitemii}{$\cdot$}
+\renewcommand{\labelitemiii}{$\diamond$}
+\renewcommand{\labelitemiv}{$\ast$}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\lstset{ %
+  language=Matlab,         % the language of the code
+  basicstyle=\footnotesize,           % the size of the fonts that are used for the code
+  numbers=left,     % where to put the line-numbers
+  numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+  stepnumber=2,     % the step between two line-numbers. If it's 1, each line 
+             % will be numbered
+  numbersep=5pt,           % how far the line-numbers are from the code
+  backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+  showspaces=false,        % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,          % show tabs within strings adding particular underscores
+  frame=single,     % adds a~frame around the code
+  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=2,        % sets default tabsize to 2 spaces
+  captionpos=b,     % sets the caption-position to bottom
+  breaklines=true,         % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  title=\lstname,     % show the filename of files included with \lstinputlisting;
+             % also try caption instead of title
+  keywordstyle=\color{blue},          % keyword style
+  commentstyle=\color{dkgreen},       % comment style
+  stringstyle=\color{mauve},         % string literal style
+  escapeinside={\%*}{*)},     % if you want to add a~comment within your co
+}
+
+\studycycle{Informatyka, studia dzienne, mgr II st.}
+\coursesemester{I}
+
+\coursename{Metody obliczeniowe optymalizacji}
+\courseyear{2011/2012}
+
+\courseteacher{mgr inż. Łukasz Chomątek}
+\coursegroup{czwartek, 16:00}
+
+\author{
+  \studentinfo{Paweł Musiał}{178726} \and
+  \studentinfo{Łukasz Michalski}{178724}
+}
+
+\title{Zadanie 5 - Optymalizacja wielowymiarowa z ograniczeniami} % np \title{Zadanie 1: Optymalizacja jednowymiarowa}
+\svnurl{https://serce.ics.p.lodz.pl/svn/labs/moo/lc_cz1600/lmpm}
+
+\begin{document}
+\maketitle
+
+\section{Cel}
+
+Napisać program rozwiązujący problem optymalizacji z ograniczeniami za pomocą jednej z poniższych metod:
+\begin{itemize}
+\item    \textbf{zewnętrzna lub wewnętrzna funkcja kary,}
+\item    SLP,
+\item    \textbf{optymalizacja wielokryterialna - metoda sumy ważonej,}
+\item    Box.
+\end{itemize}
+
+
+\section{Rozwiązanie zadania}
+
+\subsection{Optymalizacja wielokryterialna - metoda sumy ważonej}
+
+Problemy wielokryterialne, to problemy w których optymalizowanym wyrażeniem, jest parę funkcji celu. Jednym z proponowanych rozwiązań w literaturze \cite{2} do tego typu problemów jest metoda sumy ważonej. Metoda ta polega na zastąpieniu wielu funkcji jedną funkcją będącą liniową kombinacją składowych.\\
+
+Dla przykładu, mając problem postaci:
+
+min F($f_1, f_2, f_3, \dots, f_n)$)\\
+przy ograniczeniach :\\
+$g(x) \leq 0$\\
+$h(x) = 0$\\
+
+zastępujemy grupę funkcji celu za pomocą :\\
+\begin{equation}
+U = \sum \limits ^{n} _{i=1} w_i \cdot f_i
+\end{equation}
+gdzie : $\sum \limits ^{n} _{i=1} w_i = 1$
+oraz $w>0$
+
+Rozwiązanie takiego problemu będzie leżało na tak zwanym froncie pareto. Jest to powierzchnia na której występują rozwiązania niedominujących, czyli rozwiązań w sensie pareto, co oznacz, że każde rozwiązanie w zbiorze jest optymalne i nie lepsze ani gorsze od pozostałych. \\
+ 
+Metoda ta jedynie opisuje sposób w jaki można rozwiązać problem z wieloma funkcjami celu, nie precyzuje jednak sposobu dalszych rozwiązań   wyznaczonego problemu zastępczego $U$. Wartości wag w tej metodzie, można dobierać według potrzeb, oczywiście pamiętając o nakreślonych restrykcjach. Z drugiej strony zostały zaproponowanie rozwiązania adaptacyjnego doboru wag.\\
+
+Jako, że metoda ta jedynie mówi o podejściu jakie można zastosować do problemów wielokryterialnych, polegającym na złożeniu wielu funkcji bazowych w jedną funkcje będącą superpozycją składowych przemnożonych przez jakieś wartości wag, tak na prawdę każdy bardziej złożony problem możemy traktować jako takie właśnie rozwiązanie. Dlatego też w programie naszym skupiliśmy się na jednej z metod rozwiązywania problemu ,,zastępczego'' czyli problemu wielowymiarowej optymalizacji z ograniczeniami.
+
+
+\subsection{Zewnętrzna funkcja kary}
+
+Jest to metoda rozwiązywania problemów wielokryterialnych z ograniczeniami. Metoda ta w swojej prostocie polega na rozwiązywaniu problemu zastępczego w którym rozwiązujemy problem podstawowy z dodaną funkcją kary będącą wartością - karą, za niespełnienie ograniczeń. Niestety nie przedstawimy tutaj dowodu poprawności tej metody. Jednak w wielu przypadkach metoda ta pozwala na dobre wyniki.\\
+Przedstawiony poniżej opis jest zaczerpnięty z \cite{3}.\\
+
+Minimalizacja $f(x)$, przy ograniczeniach:\\
+$[g(x)]_m\leq0$, $[h(x)]_l=0$\\
+
+Wprowadzamy problem zastępczy, postaci: $F(x,r_h, r_g) = f(x) + P(x,r_h, r_g)$\\
+gdzie : $P(x,r_h, r_g)=r_h \left[ \sum \limits ^{l} _{j=1} (h_j(x))^{2} \right]  + r_g \left[ \sum \limits ^{m} _{j=1}
+ \left( max \left( 0, g_j (x) \right) \right) ^{2} \right]$
+
+
+Gdzie parametry $r_h$ i $r_g$ mówią, jak ,,mocno'' karać za naruszenie ograniczeń. Podstawiając wszystko do jednego równania otrzymujemy :\\
+\begin{equation}
+ F(x,r_h, r_g) = f(x) + r_h \left[ \sum \limits ^{l} _{j=1} (h_j(x))^{2} \right]  + r_g \left[ \sum \limits ^{m} _{j=1}
+ \left( max \left( 0, g_j (x) \right) \right) ^{2} \right]
+\end{equation}
+Jak widać niejako pozbyliśmy się ograniczeń włączając je do minimalizowanego wyrażenia. W sposób ten otrzymaliśmy problem wielowymiarowej optymalizacji bez ograniczeń który możemy rozwiązywać znanymi nam metodami czyli na przykład algorytmem pełzającego sympleksu, bądź jedną w metod quasi-newtonowskich.
+
+Algorytm w opisie krokowym:
+\begin{enumerate}
+\item Wybierz punkt początkowy $x=x_0$ znajdujący się w obszarze dopuszczalnym, współczynniki kary $r_h$, $r_g$ i odpowiadające im współczynniki skalujące $C_{r_h}$ i $C_{r_g}$, oraz kryterium stopu, tutaj ilość iteracji $k_{max}$, zainicjuj licznik iteracji $k=1$.
+\item rozwiąż problem zastępczy   $x_q = min \left( F(x,r_g, r_h) \right)$
+\item sprawdź czy ograniczenia zostały naruszone $g_i(x_q)\leq0$, $h_j(x_q)=0, i \in \left(1 \dots m \right) , j \in \left(1 \dots l \right)$, jeśli ograniczenia nie zostały naruszone, sprawdź kryterium stopu.
+\item skaluj współczynniki kary : $r_h=r_h \cdot C_{r_h}$, $r_g=r_g \cdot C_{r_g}$
+\item zwiększ licznik iteracji $k=k+1$, przypisz $x=x_q$ przejdź do 2.
+\end{enumerate}
+
+\section{Opis programu}
+
+\begin{lstlisting}{ograniczenia rownosciowe}
+function fstr=equalConSum(f)
+fstr='( ';
+for i=1:length(f)-1
+    fstr=strcat(fstr,'',f(i),')^2 + ');
+end
+fstr=strcat(fstr,'(',f(length(f)),')^2 )');
+\end{lstlisting}
+
+
+\begin{lstlisting}{ograniczenia nierownosciowe}
+function fstr=inEqualConSum(f)
+fstr='( ';
+for i=1:length(f)-1
+    fstr=strcat(fstr,'(max(0,',f(i),'))^2 + ');
+end
+fstr=strcat(fstr,'(max(0,',f(length(f)),'))^2 )');
+\end{lstlisting}
+
+
+\begin{lstlisting}{funkcja problemu zastępczego}
+function fout = penaltyFun( f, h, g, rh, rg )
+hfun=0;
+gfun=0;
+if ~isempty(h)
+    hfun=@(x,y)subs(h,{'x','y'},{x,y});
+end
+if ~isempty(g)
+    gfun=@(x,y)subs(g,{'x','y'},{x,y});
+end
+
+ffun=@(x,y)subs(f,{'x','y'},{x,y});
+
+fout = @(x) ffun(x(1),x(2)) + rh*hfun(x(1),x(2)) +
+ rg*gfun(x(1),x(2));
+
+end
+
+\end{lstlisting}
+
+
+\begin{lstlisting}{algorytm zewnętrznej funkcji kary}
+function [xi, fval] = epf(f, h, g, rh, rg, x0, Crh, Crg, kMax )
+
+hpenalty='';
+gpenalty='';
+if ~isempty(h)
+    hpenalty=equalConSum(h);
+end
+if ~isempty(g)
+    gpenalty=inEqualConSum(g);
+end
+
+xi=x0
+for i=1:kMax
+
+    Fp=penaltyFun(f,hpenalty,gpenalty,rh,rg);
+    
+    [xi, fval]=fminunc(Fp,xi)
+    
+    unsatisfied=0;
+    for j=1:length(h)
+        hc=subs(h(j),{'x','y'},{xi(1),xi(2)});
+        if (hc~=0)
+            unsatisfied=unsatisfied+1;
+        end
+    end
+    for j=1:length(g)
+        gc=subs(char(g(j)),{'x','y'},{xi(1),xi(2)});
+        if (gc>0)
+            unsatisfied=unsatisfied+1;
+        end
+    end
+    
+    if(unsatisfied==0 || i>=kMax)
+        break;
+    end
+
+    rh=rh*Crh;
+    rg=rg*Crg;
+end
+end
+
+\end{lstlisting}
+
+
+
+\section{Wyniki}
+
+Rozwiązanie problemu testowano na funkcji przykładowej zawartej w książce \cite{3}.\\
+
+$f(x_1, x_2) = x^4 _1 - 2 x^2 _1 x_2 + x^2 _1 + x_1 x^2 _2 - 2x_1 +4 $\\
+przy ograniczeniach:\\
+$h(x_1, x_2): x^2 _1 + x^2 _2 -2 = 0 $\\
+$g(x_1, x_2: 0.25x^2 _1 + 0.75 x^2 _2 -1 \leq 0 $
+$ $\\
+
+Przy parametrach:\\
+\begin{enumerate}
+\item $x_0 = [1, 2]$
+\item $k_{max}=3$
+\item $r_h=5,\ C_{r_h}=0.95$
+\item $r_g=5,\ C_{r_g}=0.95$
+\end{enumerate}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline 
+iter & x & f(x)\\
+\hline
+1 & 0.9464, 1.0364 & 2.9740\\ 
+\hline 
+2 &  0.9454, 1.0369 & 2.9736\\ 
+\hline 
+3 & 0.9445, 1.0373 & 2.9731\\ 
+\hline 
+\end{tabular} 
+\end{center}
+\\
+Wynik w \cite{2} dla porównania wyniosił x=[0.9775, 1.0165], f(x)=2.9810.
+Jak widać uzyskany wynik jest bardzo bliski wartości otrzymanej przez obliczonej przez naszą implementacje, tejże metody już po 3 iteracjach.
+
+\section{Wnioski}
+Przedstawiona powyżej implementacja optymalizacji wielowymiarowej z ograniczeniami przy pomocy zewnętrznej funkcji kary jest jedną z metod optymalizacji znajdujących rozwiązanie rozwiązując przybliżone problemy do oryginalnego. Podejście takie skutkuje dobrymi wynikami i jest łatwe w implementacji ponieważ opierają się one z reguły na algorytmach rozwiązywania standardowych problemów optymalizacji, mamy tutaj na uwadze takie algorytmy jak SLP, SQP, metody oparte o funkcję kary. Jedynym minusem ich działania jest nie działanie na prawdziwej funkcji celu a jedynie na jej przybliżeniu, co w konsekwencji niejako implikuje słabą jakość przy zadaniach bardziej złożonych. Zaimplementowana przez nad metoda testowana była na prostym przykładzie dlatego też szybko uzyskała zbieżność.
+
+\begin{thebibliography}{9}
+\bibitem{1} ,,An Introduction to Optimization'' , Edwin Kah Pin Chong and Stanislaw H. Zak, Hoboken, EUA : Wiley-Interscience 2008
+\bibitem{2} ,,Introduction to Optimum Design'', Arora, Jasbir S., Elsevier Academic Press 2004
+\bibitem{3} ,,Applied Optimization with MATLAB Programming'', Venkatamaran P., Wiley 2001
+\end{thebibliography}
+\end{document}
