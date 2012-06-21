@@ -106,10 +106,10 @@ Problemy wielokryterialne, to problemy w których optymalizowanym wyrażeniem, j
 min F(f_1, f_2, f_3, \dots, f_n))
 \end{equation}
 \noindent przy ograniczeniach :
-\begin{equation*}
-g(x) \leq 0
-h(x) = 0
-\end{equation*}
+\begin{align}
+g(x) \leq 0 \nonumber\\
+h(x) = 0 \nonumber
+\end{align}
 zastępujemy grupę funkcji celu za pomocą :
 \begin{equation}
 U = \sum \limits ^{n} _{i=1} w_i \cdot f_i
@@ -120,14 +120,14 @@ U = \sum \limits ^{n} _{i=1} w_i \cdot f_i
 \end{equation*}
 oraz $w>0$.
 
-Rozwiązanie takiego problemu będzie leżało na tak zwanym froncie pareto. Jest to powierzchnia na której występują rozwiązania niedominujących, czyli rozwiązań w sensie pareto, co oznacz, że każde rozwiązanie w~zbiorze jest optymalne i~nie lepsze ani gorsze od pozostałych.
+Rozwiązanie takiego problemu będzie leżało na tak zwanym froncie pareto. Jest to powierzchnia na której występują rozwiązania niedominujące, czyli rozwiązań w sensie pareto, co oznacz, że każde rozwiązanie w~zbiorze jest optymalne i~nie lepsze ani gorsze od pozostałych.
  
 Metoda ta jedynie opisuje sposób w jaki można rozwiązać problem z wieloma funkcjami celu, nie precyzuje jednak sposobu dalszych rozwiązań   wyznaczonego problemu zastępczego $U$. Wartości wag w~tej metodzie, można dobierać według potrzeb, oczywiście pamiętając o~nakreślonych restrykcjach. Z~drugiej strony zostały zaproponowanie rozwiązania adaptacyjnego doboru wag.
 
 Jako, że metoda ta jedynie mówi o podejściu jakie można zastosować do problemów wielokryterialnych, polegającym na złożeniu wielu funkcji bazowych w jedną funkcje będącą superpozycją składowych przemnożonych przez jakieś wartości wag, tak na prawdę każdy bardziej złożony problem możemy traktować jako takie właśnie rozwiązanie. Dlatego też w~naszym programie skupiliśmy się na jednej z metod rozwiązywania problemu ,,zastępczego'' czyli problemu wielowymiarowej optymalizacji z ograniczeniami.
 
 \subsection{Zewnętrzna funkcja kary}
-Jest to metoda rozwiązywania problemów wielokryterialnych z ograniczeniami. Metoda ta w~swojej prostocie polega na rozwiązywaniu problemu zastępczego, w~którym rozwiązujemy problem podstawowy z~dodaną funkcją kary będącą wartością - karą, za niespełnienie ograniczeń. Niestety nie przedstawimy tutaj dowodu poprawności tej metody. Jednak w~wielu przypadkach metoda ta pozwala na dobre wyniki. Przedstawiony poniżej opis jest zaczerpnięty z~\cite{3}.
+Jest to metoda rozwiązywania problemów wielokryterialnych z ograniczeniami. Metoda ta jest prosta i polega na rozwiązywaniu problemu zastępczego, w~którym rozwiązujemy problem podstawowy z~dodaną funkcją kary będącą wartością - karą, za niespełnienie ograniczeń. Niestety nie przedstawimy tutaj dowodu poprawności tej metody. Jednak w~wielu przypadkach metoda ta pozwala na dobre wyniki. Przedstawiony poniżej opis jest zaczerpnięty z~\cite{3}.
 
 \noindent Minimalizacja $f(x)$, przy ograniczeniach:
 \begin{align}
@@ -149,20 +149,20 @@ Gdzie parametry $r_h$ i $r_g$ mówią, jak ,,mocno'' karać za naruszenie ograni
  F(x,r_h, r_g) = f(x) + r_h \left[ \sum \limits ^{l} _{j=1} (h_j(x))^{2} \right]  + r_g \left[ \sum \limits ^{m} _{j=1}
  \left( max \left( 0, g_j (x) \right) \right) ^{2} \right]
 \end{equation}
-Jak widać niejako pozbyliśmy się ograniczeń włączając je do minimalizowanego wyrażenia. W~sposób ten otrzymaliśmy problem wielowymiarowej optymalizacji bez ograniczeń który możemy rozwiązywać znanymi nam metodami czyli na przykład algorytmem pełzającego sympleksu, bądź jedną w metod quasi-newtonowskich.
+Jak widać niejako pozbyliśmy się ograniczeń włączając je do minimalizowanego wyrażenia. W~sposób ten otrzymaliśmy problem wielowymiarowej optymalizacji bez ograniczeń który możemy rozwiązywać znanymi nam metodami czyli na przykład algorytmem pełzającego sympleksu, bądź jedną z metod quasi-newtonowskich.
 
 Algorytm w opisie krokowym:
 \begin{enumerate}
 \item Wybierz punkt początkowy $x=x_0$ znajdujący się w obszarze dopuszczalnym, współczynniki kary $r_h$, $r_g$ i odpowiadające im współczynniki skalujące $C_{r_h}$ i $C_{r_g}$, oraz kryterium stopu, tutaj ilość iteracji $k_{max}$, zainicjuj licznik iteracji $k=1$.
-\item rozwiąż problem zastępczy   $x_q = min \left( F(x,r_g, r_h) \right)$
-\item sprawdź czy ograniczenia zostały naruszone $g_i(x_q)\leq0$, $h_j(x_q)=0, i \in \left(1 \dots m \right) , j \in \left(1 \dots l \right)$, jeśli ograniczenia nie zostały naruszone, sprawdź kryterium stopu.
-\item skaluj współczynniki kary : $r_h=r_h \cdot C_{r_h}$, $r_g=r_g \cdot C_{r_g}$
-\item zwiększ licznik iteracji $k=k+1$, przypisz $x=x_q$ przejdź do 2.
+\item Rozwiąż problem zastępczy   $x_q = min \left( F(x,r_g, r_h) \right)$
+\item Sprawdź czy ograniczenia zostały naruszone $g_i(x_q)\leq0$, $h_j(x_q)=0, i \in \left(1 \dots m \right) , j \in \left(1 \dots l \right)$, jeśli ograniczenia nie zostały naruszone, sprawdź kryterium stopu.
+\item Skaluj współczynniki kary : $r_h=r_h \cdot C_{r_h}$, $r_g=r_g \cdot C_{r_g}$
+\item Zwiększ licznik iteracji $k=k+1$, przypisz $x=x_q$ przejdź do 2.
 \end{enumerate}
 
 \section{Opis programu}
 
-\begin{lstlisting}{ograniczenia równościowe}
+\begin{lstlisting}{Ograniczenia równościowe}
 function fstr=equalConSum(f)
 fstr='( ';
 for i=1:length(f)-1
